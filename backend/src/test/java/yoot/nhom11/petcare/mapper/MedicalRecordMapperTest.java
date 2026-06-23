@@ -5,7 +5,6 @@ import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
 import yoot.nhom11.petcare.entity.*;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.*;
