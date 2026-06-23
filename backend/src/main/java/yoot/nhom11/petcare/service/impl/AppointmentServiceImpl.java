@@ -23,6 +23,7 @@ import yoot.nhom11.petcare.entity.AppointmentStatus;
 import yoot.nhom11.petcare.entity.AppUser;
 import yoot.nhom11.petcare.entity.Pet;
 import yoot.nhom11.petcare.entity.UserRole;
+import yoot.nhom11.petcare.mapper.AppointmentMapper;
 import yoot.nhom11.petcare.repository.AppUserRepository;
 import yoot.nhom11.petcare.repository.AppointmentRepository;
 import yoot.nhom11.petcare.repository.PetRepository;
@@ -37,15 +38,9 @@ public class AppointmentServiceImpl {
 	private final AppUserRepository appUserRepository;
 
 	public AppointmentOptionResponse getBookingOptions(Long ownerId) {
-		List<AppointmentOptionResponse.PetOption> pets = petRepository.findAllByOwnerIdOrderByNameAsc(ownerId).stream()
-				.map(pet -> new AppointmentOptionResponse.PetOption(pet.getId(), pet.getName()))
-				.toList();
-
-		List<AppointmentOptionResponse.VeterinarianOption> veterinarians = appUserRepository.findAllByRoleAndActiveTrue(UserRole.VET).stream()
-				.map(vet -> new AppointmentOptionResponse.VeterinarianOption(vet.getId(), vet.getFullName()))
-				.toList();
-
-		return new AppointmentOptionResponse(pets, veterinarians);
+		List<Pet> pets = petRepository.findAllByOwnerIdOrderByNameAsc(ownerId);
+		List<AppUser> veterinarians = appUserRepository.findAllByRoleAndActiveTrue(UserRole.VET);
+		return AppointmentMapper.toOptionResponse(pets, veterinarians);
 	}
 
 	@Transactional
@@ -68,7 +63,7 @@ public class AppointmentServiceImpl {
 				.build();
 
 		Appointment saved = appointmentRepository.save(appointment);
-		return toResponse(saved);
+		return AppointmentMapper.toAppointmentResponse(saved);
 	}
 
 	public List<AppointmentResponse> getAppointmentsByOwner(Long ownerId, AppointmentListFilterRequest request) {
@@ -87,7 +82,7 @@ public class AppointmentServiceImpl {
 		specification = andIfPresent(specification, keywordContains(request.getKeyword()));
 
 		return appointmentRepository.findAll(specification, pageable).stream()
-				.map(this::toResponse)
+				.map(AppointmentMapper::toAppointmentResponse)
 				.toList();
 	}
 
@@ -157,30 +152,5 @@ public class AppointmentServiceImpl {
 
 	private Specification<Appointment> andIfPresent(Specification<Appointment> base, Specification<Appointment> extra) {
 		return extra == null ? base : base.and(extra);
-	}
-
-	private AppointmentResponse toResponse(Appointment appointment) {
-		return new AppointmentResponse(
-				appointment.getId(),
-				new AppointmentResponse.OwnerSummary(
-						appointment.getOwner().getId(),
-						appointment.getOwner().getFullName(),
-						appointment.getOwner().getEmail()
-				),
-				new AppointmentResponse.PetSummary(
-						appointment.getPet().getId(),
-						appointment.getPet().getName(),
-						appointment.getPet().getSpecies(),
-						appointment.getPet().getBreed()
-				),
-				new AppointmentResponse.VeterinarianSummary(
-						appointment.getVeterinarian().getId(),
-						appointment.getVeterinarian().getFullName(),
-						appointment.getVeterinarian().getEmail()
-				),
-				appointment.getAppointmentAt(),
-				appointment.getReasonForVisit(),
-				appointment.getStatus()
-		);
 	}
 }
