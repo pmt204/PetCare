@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import yoot.nhom11.petcare.dto.request.AppointmentBookingRequest;
+import yoot.nhom11.petcare.dto.request.AppointmentListFilterRequest;
 import yoot.nhom11.petcare.dto.response.AppointmentOptionResponse;
 import yoot.nhom11.petcare.dto.response.AppointmentResponse;
 import yoot.nhom11.petcare.service.impl.AppointmentServiceImpl;
@@ -34,7 +35,7 @@ public class AppointmentController {
 	}
 
 	@GetMapping
-	public List<AppointmentResponse> listByOwner(@RequestParam Long ownerId) {
-		return appointmentService.getAppointmentsByOwner(ownerId);
+	public List<AppointmentResponse> listByOwner(@RequestParam Long ownerId, @Valid AppointmentListFilterRequest request) {
+		return appointmentService.getAppointmentsByOwner(ownerId, request);
 	}
 }

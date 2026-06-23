@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 
 import yoot.nhom11.petcare.entity.AppUser;
 import yoot.nhom11.petcare.entity.LabResult;
@@ -78,10 +78,10 @@ class MedicalRecordControllerTest {
 				.veterinarian(vet)
 				.visitAt(Instant.parse("2026-06-23T08:30:00Z"))
 				.status(MedicalRecordStatus.COMPLETED)
-				.reasonForVisit("Ho nhẹ")
-				.diagnosis("Viêm hô hấp nhẹ")
-				.treatmentNote("Cho uống thuốc 5 ngày")
-				.followUpInstruction("Tái khám nếu sốt")
+				.reasonForVisit("Mild cough")
+				.diagnosis("Mild respiratory infection")
+				.treatmentNote("Give medicine for 5 days")
+				.followUpInstruction("Return if fever appears")
 				.build();
 		entityManager.persist(record);
 
@@ -89,21 +89,33 @@ class MedicalRecordControllerTest {
 				.medicalRecord(record)
 				.medicationName("Amoxicillin")
 				.dosage("250mg")
-				.frequency("2 lần/ngày")
+				.frequency("2 times/day")
 				.durationDays(5)
-				.instructions("Uống sau ăn")
+				.instructions("Take after meals")
 				.build();
 		entityManager.persist(prescription);
 
 		LabResult labResult = LabResult.builder()
 				.medicalRecord(record)
-				.title("Xét nghiệm máu")
+				.title("Blood test")
 				.fileName("blood-test.pdf")
 				.fileUrl("/files/blood-test.pdf")
 				.mimeType("application/pdf")
-				.note("Kết quả bình thường")
+				.note("Normal result")
 				.build();
 		entityManager.persist(labResult);
+
+		MedicalRecord draftRecord = MedicalRecord.builder()
+				.pet(pet)
+				.veterinarian(vet)
+				.visitAt(Instant.parse("2026-06-24T08:30:00Z"))
+				.status(MedicalRecordStatus.DRAFT)
+				.reasonForVisit("Routine vaccination")
+				.diagnosis("Pending")
+				.treatmentNote("Draft note")
+				.followUpInstruction("Return later")
+				.build();
+		entityManager.persist(draftRecord);
 
 		entityManager.flush();
 		entityManager.clear();
@@ -116,10 +128,12 @@ class MedicalRecordControllerTest {
 	void getPetTimeline_returnsPage() throws Exception {
 		mockMvc.perform(get("/api/pets/{petId}/medical-records", petId))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.content[0].id").value(medicalRecordId))
-				.andExpect(jsonPath("$.content[0].diagnosis").value("Viêm hô hấp nhẹ"))
-				.andExpect(jsonPath("$.content[0].prescriptionCount").value(1))
-				.andExpect(jsonPath("$.content[0].labResultCount").value(1))
+				.andExpect(jsonPath("$.content.length()").value(2))
+				.andExpect(jsonPath("$.content[0].status").value("DRAFT"))
+				.andExpect(jsonPath("$.content[1].id").value(medicalRecordId))
+				.andExpect(jsonPath("$.content[1].diagnosis").value("Mild respiratory infection"))
+				.andExpect(jsonPath("$.content[1].prescriptionCount").value(1))
+				.andExpect(jsonPath("$.content[1].labResultCount").value(1))
 				.andExpect(jsonPath("$.page").value(0))
 				.andExpect(jsonPath("$.size").value(10));
 	}
@@ -133,5 +147,15 @@ class MedicalRecordControllerTest {
 				.andExpect(jsonPath("$.veterinarian.fullName").value("Vet One"))
 				.andExpect(jsonPath("$.prescriptions[0].medicationName").value("Amoxicillin"))
 				.andExpect(jsonPath("$.labResults[0].fileName").value("blood-test.pdf"));
+	}
+
+	@Test
+	void getPetTimeline_filtersByStatusAndKeyword() throws Exception {
+		mockMvc.perform(get("/api/pets/{petId}/medical-records", petId)
+						.param("status", "COMPLETED")
+						.param("keyword", "infection"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.length()").value(1))
+				.andExpect(jsonPath("$.content[0].status").value("COMPLETED"));
 	}
 }

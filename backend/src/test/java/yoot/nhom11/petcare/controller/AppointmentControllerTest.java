@@ -108,8 +108,30 @@ class AppointmentControllerTest {
 				.andExpect(jsonPath("$.reasonForVisit").value("General checkup"))
 				.andExpect(jsonPath("$.status").value("REQUESTED"));
 
+		String secondBody = """
+				{
+				  "ownerId": %d,
+				  "petId": %d,
+				  "veterinarianId": %d,
+				  "appointmentAt": "2026-07-01T10:00:00",
+				  "reasonForVisit": "Dental cleaning"
+				}
+				""".formatted(ownerId, petId, vetId);
+
+		mockMvc.perform(post("/api/appointments")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(secondBody))
+				.andExpect(status().isOk());
+
 		mockMvc.perform(get("/api/appointments").param("ownerId", ownerId.toString()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].pet.name").value("Milo"));
+
+		mockMvc.perform(get("/api/appointments")
+						.param("ownerId", ownerId.toString())
+						.param("keyword", "Dental"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.length()").value(1))
+				.andExpect(jsonPath("$[0].reasonForVisit").value("Dental cleaning"));
 	}
 }
