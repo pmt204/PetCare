@@ -9,4 +9,6 @@ import yoot.nhom11.petcare.entity.Appointment;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
     List<Appointment> findByDoctorIdAndAppointmentTimeBetween(Long doctorId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    long countByAppointmentTimeBetween(LocalDateTime start, LocalDateTime end);
 }
