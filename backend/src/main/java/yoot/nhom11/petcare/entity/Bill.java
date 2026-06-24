@@ -7,7 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "Bill")
+@Table(name = "bills")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +16,7 @@ public class Bill {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer billId;
+    private Long id;
 
     @Column(name = "total_price")
     private Double totalPrice;
@@ -42,4 +42,11 @@ public class Bill {
     @JoinColumn(name = "medical_record_id")
     private MedicalRecord medicalRecord;
 
+    public Integer getBillId() {
+        return id != null ? id.intValue() : null;
+    }
+
+    public void setBillId(Integer billId) {
+        this.id = billId != null ? billId.longValue() : null;
+    }
 }

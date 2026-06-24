@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "medicine")
+@Table(name = "medicines")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,7 +17,7 @@ public class Medicine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer medicineId;
+    private Long id;
 
     @Column(name = "medicine_name")
     private String medicineName;
@@ -45,4 +45,11 @@ public class Medicine {
     @OneToMany(mappedBy = "medicine", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Prescription> prescriptions;
 
+    public Integer getMedicineId() {
+        return id != null ? id.intValue() : null;
+    }
+
+    public void setMedicineId(Integer medicineId) {
+        this.id = medicineId != null ? medicineId.longValue() : null;
+    }
 }
