@@ -3,59 +3,81 @@ package yoot.nhom11.petcare.dto.response;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-
+import lombok.*;
 import yoot.nhom11.petcare.entity.PetSpecies;
 import yoot.nhom11.petcare.entity.MedicalRecordStatus;
 
-public record MedicalRecordDetailResponse(
-		Long id,
-		PetSummary pet,
-		UserSummary veterinarian,
-		Instant visitAt,
-		MedicalRecordStatus status,
-		String reasonForVisit,
-		String diagnosis,
-		String treatmentNote,
-		String followUpInstruction,
-		LocalDate nextVisitDate,
-		List<PrescriptionItem> prescriptions,
-		List<LabResultItem> labResults
-) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class MedicalRecordDetailResponse {
+    // hoai's fields
+    private ExaminationResponse examination;
+    private List<PrescriptionResponse> prescriptions;
+    private List<TestResultResponse> testResults;
+    private BillResponse bill;
 
-	public record PetSummary(
-			Long id,
-			String name,
-			PetSpecies species,
-			String breed,
-			String avatarUrl
-	) {
-	}
+    // HEAD's fields
+    private Long id;
+    private PetSummary pet;
+    private UserSummary veterinarian;
+    private Instant visitAt;
+    private MedicalRecordStatus status;
+    private String reasonForVisit;
+    private String diagnosis;
+    private String treatmentNote;
+    private String followUpInstruction;
+    private LocalDate nextVisitDate;
+    private List<PrescriptionItem> prescriptionItems;
+    private List<LabResultItem> labResults;
 
-	public record UserSummary(
-			Long id,
-			String fullName,
-			String email,
-			String role
-	) {
-	}
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class PetSummary {
+        private Long id;
+        private String name;
+        private PetSpecies species;
+        private String breed;
+        private String avatarUrl;
+    }
 
-	public record PrescriptionItem(
-			Long id,
-			String medicationName,
-			String dosage,
-			String frequency,
-			Integer durationDays,
-			String instructions
-	) {
-	}
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class UserSummary {
+        private Long id;
+        private String fullName;
+        private String email;
+        private String role;
+    }
 
-	public record LabResultItem(
-			Long id,
-			String title,
-			String fileName,
-			String fileUrl,
-			String mimeType,
-			String note
-	) {
-	}
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class PrescriptionItem {
+        private Long id;
+        private String medicationName;
+        private String dosage;
+        private String frequency;
+        private Integer durationDays;
+        private String instructions;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    public static class LabResultItem {
+        private Long id;
+        private String title;
+        private String fileName;
+        private String fileUrl;
+        private String mimeType;
+        private String note;
+    }
 }

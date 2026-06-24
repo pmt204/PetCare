@@ -1,19 +1,15 @@
 package yoot.nhom11.petcare.mapper;
 
+import org.springframework.stereotype.Component;
+import yoot.nhom11.petcare.dto.response.*;
+import yoot.nhom11.petcare.entity.*;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
-import yoot.nhom11.petcare.dto.response.MedicalRecordTimelineItemResponse;
-import yoot.nhom11.petcare.entity.AppUser;
-import yoot.nhom11.petcare.entity.LabResult;
-import yoot.nhom11.petcare.entity.MedicalRecord;
-import yoot.nhom11.petcare.entity.Pet;
-import yoot.nhom11.petcare.entity.Prescription;
-
-public final class MedicalRecordMapper {
-
-	private MedicalRecordMapper() {
-	}
+@Component
+public class MedicalRecordMapper {
 
 	public static MedicalRecordTimelineItemResponse toTimelineItem(MedicalRecord record) {
 		return new MedicalRecordTimelineItemResponse(
@@ -29,23 +25,24 @@ public final class MedicalRecordMapper {
 	}
 
 	public static MedicalRecordDetailResponse toDetailResponse(MedicalRecord record) {
-		return new MedicalRecordDetailResponse(
-				record.getId(),
-				toPetSummary(record.getPet()),
-				toUserSummary(record.getVeterinarian()),
-				record.getVisitAt(),
-				record.getStatus(),
-				record.getReasonForVisit(),
-				record.getDiagnosis(),
-				record.getTreatmentNote(),
-				record.getFollowUpInstruction(),
-				record.getNextVisitDate(),
-				toPrescriptionResponses(record.getPrescriptions()),
-				toLabResultResponses(record.getLabResults())
-		);
+		return MedicalRecordDetailResponse.builder()
+				.id(record.getId())
+				.pet(toPetSummary(record.getPet()))
+				.veterinarian(toUserSummary(record.getVeterinarian()))
+				.visitAt(record.getVisitAt())
+				.status(record.getStatus())
+				.reasonForVisit(record.getReasonForVisit())
+				.diagnosis(record.getDiagnosis())
+				.treatmentNote(record.getTreatmentNote())
+				.followUpInstruction(record.getFollowUpInstruction())
+				.nextVisitDate(record.getNextVisitDate())
+				.prescriptionItems(toPrescriptionResponsesStatic(record.getPrescriptions()))
+				.labResults(toLabResultResponses(record.getLabResults()))
+				.build();
 	}
 
 	public static MedicalRecordDetailResponse.PetSummary toPetSummary(Pet pet) {
+		if (pet == null) return null;
 		return new MedicalRecordDetailResponse.PetSummary(
 				pet.getId(),
 				pet.getName(),
@@ -56,6 +53,7 @@ public final class MedicalRecordMapper {
 	}
 
 	public static MedicalRecordDetailResponse.UserSummary toUserSummary(AppUser user) {
+		if (user == null) return null;
 		return new MedicalRecordDetailResponse.UserSummary(
 				user.getId(),
 				user.getFullName(),
@@ -64,7 +62,8 @@ public final class MedicalRecordMapper {
 		);
 	}
 
-	public static List<MedicalRecordDetailResponse.PrescriptionItem> toPrescriptionResponses(List<Prescription> prescriptions) {
+	public static List<MedicalRecordDetailResponse.PrescriptionItem> toPrescriptionResponsesStatic(List<Prescription> prescriptions) {
+		if (prescriptions == null) return Collections.emptyList();
 		return prescriptions.stream()
 				.map(prescription -> new MedicalRecordDetailResponse.PrescriptionItem(
 						prescription.getId(),
@@ -78,6 +77,7 @@ public final class MedicalRecordMapper {
 	}
 
 	public static List<MedicalRecordDetailResponse.LabResultItem> toLabResultResponses(List<LabResult> labResults) {
+		if (labResults == null) return Collections.emptyList();
 		return labResults.stream()
 				.map(labResult -> new MedicalRecordDetailResponse.LabResultItem(
 						labResult.getId(),
@@ -89,4 +89,81 @@ public final class MedicalRecordMapper {
 				))
 				.toList();
 	}
+
+    // Component-level mapping methods for hoai's branch:
+    public MedicalRecordDetailResponse toMedicalRecordDetailResponse(MedicalRecord medicalRecord) {
+        if (medicalRecord == null) {
+            return null;
+        }
+
+        ExaminationResponse examination = ExaminationResponse.builder()
+                .medicalRecordId(medicalRecord.getMedicalRecordId())
+                .date(medicalRecord.getDate())
+                .diagnosis(medicalRecord.getDiagnosis())
+                .treatment(medicalRecord.getTreatment())
+                .build();
+
+        List<PrescriptionResponse> prescriptions = medicalRecord.getPrescriptions() == null ? Collections.emptyList() :
+                medicalRecord.getPrescriptions().stream()
+                        .map(this::toPrescriptionResponse)
+                        .collect(Collectors.toList());
+
+        List<TestResultResponse> testResults = medicalRecord.getTestResults() == null ? Collections.emptyList() :
+                medicalRecord.getTestResults().stream()
+                        .map(this::toTestResultResponse)
+                        .collect(Collectors.toList());
+
+        BillResponse bill = toBillResponse(medicalRecord.getBill());
+
+        return MedicalRecordDetailResponse.builder()
+                .examination(examination)
+                .prescriptions(prescriptions)
+                .testResults(testResults)
+                .bill(bill)
+                .build();
+    }
+
+    public PrescriptionResponse toPrescriptionResponse(Prescription prescription) {
+        if (prescription == null) {
+            return null;
+        }
+
+        PrescriptionResponse.PrescriptionResponseBuilder builder = PrescriptionResponse.builder()
+                .prescriptionId(prescription.getPrescriptionId())
+                .quantity(prescription.getQuantity());
+
+        if (prescription.getMedicine() != null) {
+            builder.medicineId(prescription.getMedicine().getMedicineId())
+                   .medicineName(prescription.getMedicine().getMedicineName())
+                   .unit(prescription.getMedicine().getUnit())
+                   .description(prescription.getMedicine().getDescription());
+        }
+
+        return builder.build();
+    }
+
+    public TestResultResponse toTestResultResponse(TestResult testResult) {
+        if (testResult == null) {
+            return null;
+        }
+
+        return TestResultResponse.builder()
+                .testResultId(testResult.getTestResultId())
+                .testName(testResult.getTestName())
+                .result(testResult.getResult())
+                .pdfUrl(testResult.getPdfUrl())
+                .build();
+    }
+
+    public BillResponse toBillResponse(Bill bill) {
+        if (bill == null) {
+            return null;
+        }
+
+        return BillResponse.builder()
+                .billId(bill.getBillId())
+                .totalPrice(bill.getTotalPrice())
+                .status(bill.getStatus())
+                .build();
+    }
 }

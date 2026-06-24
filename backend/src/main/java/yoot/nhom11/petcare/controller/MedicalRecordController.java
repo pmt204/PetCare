@@ -2,17 +2,15 @@ package yoot.nhom11.petcare.controller;
 
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import yoot.nhom11.petcare.dto.request.MedicalRecordTimelineFilterRequest;
 import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordTimelineItemResponse;
 import yoot.nhom11.petcare.dto.response.PageResponse;
-import yoot.nhom11.petcare.service.impl.MedicalRecordServiceImpl;
+import yoot.nhom11.petcare.service.MedicalRecordService;
 
 @RestController
 @RequestMapping("/api")
@@ -20,7 +18,7 @@ import yoot.nhom11.petcare.service.impl.MedicalRecordServiceImpl;
 @Validated
 public class MedicalRecordController {
 
-	private final MedicalRecordServiceImpl medicalRecordService;
+	private final MedicalRecordService medicalRecordService;
 
 	@GetMapping("/pets/{petId}/medical-records")
 	public PageResponse<MedicalRecordTimelineItemResponse> getPetTimeline(
@@ -31,9 +29,15 @@ public class MedicalRecordController {
 	}
 
 	@GetMapping("/medical-records/{recordId}")
-	public MedicalRecordDetailResponse getMedicalRecordDetail(
-			@PathVariable Long recordId
+	public ResponseEntity<MedicalRecordDetailResponse> getMedicalRecordDetail(
+			@PathVariable String recordId
 	) {
-		return medicalRecordService.getMedicalRecordDetail(recordId);
+		try {
+			Integer intId = Integer.parseInt(recordId);
+			return ResponseEntity.ok(medicalRecordService.getMedicalRecordDetail(intId));
+		} catch (NumberFormatException e) {
+			Long longId = Long.parseLong(recordId);
+			return ResponseEntity.ok(medicalRecordService.getMedicalRecordDetail(longId));
+		}
 	}
 }

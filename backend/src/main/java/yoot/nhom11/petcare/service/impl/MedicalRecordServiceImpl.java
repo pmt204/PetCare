@@ -25,15 +25,18 @@ import yoot.nhom11.petcare.entity.Pet;
 import yoot.nhom11.petcare.mapper.MedicalRecordMapper;
 import yoot.nhom11.petcare.repository.MedicalRecordRepository;
 import yoot.nhom11.petcare.repository.PetRepository;
+import yoot.nhom11.petcare.service.MedicalRecordService;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class MedicalRecordServiceImpl {
+public class MedicalRecordServiceImpl implements MedicalRecordService {
 
 	private final MedicalRecordRepository medicalRecordRepository;
 	private final PetRepository petRepository;
+	private final MedicalRecordMapper medicalRecordMapper;
 
+	@Override
 	public PageResponse<MedicalRecordTimelineItemResponse> getPetTimeline(Long petId, MedicalRecordTimelineFilterRequest request) {
 		Pet pet = petRepository.findById(petId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
@@ -55,11 +58,19 @@ public class MedicalRecordServiceImpl {
 		return PageResponse.of(mappedPage, sortProperty, sortDirection.name());
 	}
 
+	@Override
 	public MedicalRecordDetailResponse getMedicalRecordDetail(Long recordId) {
 		MedicalRecord record = medicalRecordRepository.findById(recordId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medical record not found"));
 
 		return MedicalRecordMapper.toDetailResponse(record);
+	}
+
+	@Override
+	public MedicalRecordDetailResponse getMedicalRecordDetail(Integer id) {
+		MedicalRecord record = medicalRecordRepository.findDetailById(id)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medical record not found"));
+		return medicalRecordMapper.toMedicalRecordDetailResponse(record);
 	}
 
 	private String resolveSortProperty(String sortBy) {

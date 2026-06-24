@@ -145,7 +145,7 @@ class MedicalRecordControllerTest {
 				.andExpect(jsonPath("$.id").value(medicalRecordId))
 				.andExpect(jsonPath("$.pet.name").value("Milo"))
 				.andExpect(jsonPath("$.veterinarian.fullName").value("Vet One"))
-				.andExpect(jsonPath("$.prescriptions[0].medicationName").value("Amoxicillin"))
+				.andExpect(jsonPath("$.prescriptionItems[0].medicationName").value("Amoxicillin"))
 				.andExpect(jsonPath("$.labResults[0].fileName").value("blood-test.pdf"));
 	}
 

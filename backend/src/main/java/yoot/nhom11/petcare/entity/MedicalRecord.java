@@ -2,6 +2,7 @@ package yoot.nhom11.petcare.entity;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,6 +14,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,8 +36,8 @@ public class MedicalRecord extends BaseEntity {
 	@JoinColumn(name = "pet_id", nullable = false)
 	private Pet pet;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "veterinarian_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "veterinarian_id")
 	private AppUser veterinarian;
 
 	@Column(name = "visit_at", nullable = false)
@@ -60,10 +63,72 @@ public class MedicalRecord extends BaseEntity {
 	private LocalDate nextVisitDate;
 
 	@Builder.Default
-	@OneToMany(mappedBy = "medicalRecord")
+	@OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Prescription> prescriptions = new ArrayList<>();
 
 	@Builder.Default
-	@OneToMany(mappedBy = "medicalRecord")
+	@OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<LabResult> labResults = new ArrayList<>();
+
+	@Builder.Default
+	@OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<TestResult> testResults = new ArrayList<>();
+
+	@OneToOne(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Bill bill;
+
+	// Aliases for hoai's code:
+	public Integer getMedicalRecordId() {
+		return getId() != null ? getId().intValue() : null;
+	}
+
+	public void setMedicalRecordId(Integer medicalRecordId) {
+		if (medicalRecordId != null) {
+			setId(medicalRecordId.longValue());
+		} else {
+			setId(null);
+		}
+	}
+
+	public java.util.Date getDate() {
+		return visitAt != null ? java.util.Date.from(visitAt) : null;
+	}
+
+	public void setDate(java.util.Date date) {
+		this.visitAt = date != null ? date.toInstant() : null;
+	}
+
+	public String getTreatment() {
+		return treatmentNote;
+	}
+
+	public void setTreatment(String treatment) {
+		this.treatmentNote = treatment;
+	}
+
+	public LocalDateTime getCreateAt() {
+		return getCreatedAt() != null ? LocalDateTime.ofInstant(getCreatedAt(), java.time.ZoneId.systemDefault()) : null;
+	}
+
+	public void setCreateAt(LocalDateTime createAt) {
+		if (createAt != null) {
+			setCreatedAt(createAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
+		}
+	}
+
+	public LocalDateTime getUpdateAt() {
+		return getUpdatedAt() != null ? LocalDateTime.ofInstant(getUpdatedAt(), java.time.ZoneId.systemDefault()) : null;
+	}
+
+	public void setUpdateAt(LocalDateTime updateAt) {
+		if (updateAt != null) {
+			setUpdatedAt(updateAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
+		}
+	}
+
+	@Column(name = "create_by")
+	private String createBy;
+
+	@Column(name = "update_by")
+	private String updateBy;
 }
