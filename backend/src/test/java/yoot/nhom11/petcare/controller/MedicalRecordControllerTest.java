@@ -5,16 +5,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.dto.request.MedicalRecordFilterRequest;
 import yoot.nhom11.petcare.dto.response.*;
 import yoot.nhom11.petcare.service.MedicalRecordService;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -31,6 +36,7 @@ class MedicalRecordControllerTest {
     private MedicalRecordService medicalRecordService;
 
     private MedicalRecordDetailResponse responseDto;
+    private MedicalRecordListResponse listResponseDto;
 
     @BeforeEach
     void setUp() {
@@ -69,6 +75,46 @@ class MedicalRecordControllerTest {
                 .testResults(Collections.singletonList(testResult))
                 .bill(bill)
                 .build();
+
+        listResponseDto = MedicalRecordListResponse.builder()
+                .medicalRecordId(1)
+                .date(new Date())
+                .diagnosis("Fever")
+                .treatment("Rest")
+                .petId(5)
+                .petName("Buddy")
+                .billId(1)
+                .totalPrice(150.0)
+                .billStatus("PAID")
+                .build();
+    }
+
+    @Test
+    void getAllMedicalRecords_success() throws Exception {
+        when(medicalRecordService.getAllMedicalRecords(any(MedicalRecordFilterRequest.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Arrays.asList(listResponseDto)));
+
+        mockMvc.perform(get("/api/medical-records")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "date,desc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].medicalRecordId").value(1))
+                .andExpect(jsonPath("$.content[0].diagnosis").value("Fever"))
+                .andExpect(jsonPath("$.content[0].petName").value("Buddy"))
+                .andExpect(jsonPath("$.content[0].billStatus").value("PAID"));
+
+        verify(medicalRecordService, times(1)).getAllMedicalRecords(any(MedicalRecordFilterRequest.class), any(Pageable.class));
+    }
+
+    @Test
+    void getAllMedicalRecords_invalidSortField_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/medical-records")
+                        .param("sort", "prescriptions,asc"))
+                .andExpect(status().isBadRequest());
+
+        verify(medicalRecordService, never()).getAllMedicalRecords(any(), any());
     }
 
     @Test

@@ -13,11 +13,18 @@ import yoot.nhom11.petcare.dto.request.PetFilterRequest;
 import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
 import yoot.nhom11.petcare.service.PetService;
+import yoot.nhom11.petcare.util.SortValidator;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/pets")
 @RequiredArgsConstructor
 public class PetController {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "petId", "petName", "petType", "petAge", "petGender", "createAt", "updateAt"
+    );
 
     private final PetService petService;
 
@@ -25,6 +32,7 @@ public class PetController {
     public ResponseEntity<Page<PetResponse>> getAllPets(
             PetFilterRequest filter,
             @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SortValidator.validateSort(pageable, ALLOWED_SORT_FIELDS);
         return ResponseEntity.ok(petService.getAllPets(filter, pageable));
     }
 

@@ -2,6 +2,7 @@ package yoot.nhom11.petcare.mapper;
 
 import org.junit.jupiter.api.Test;
 import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
+import yoot.nhom11.petcare.dto.response.MedicalRecordListResponse;
 import yoot.nhom11.petcare.entity.*;
 
 import java.util.Arrays;
@@ -108,5 +109,70 @@ class MedicalRecordMapperTest {
         assertNotNull(response.getTestResults());
         assertTrue(response.getTestResults().isEmpty());
         assertNull(response.getBill());
+    }
+
+    @Test
+    void toMedicalRecordListResponse_null_returnsNull() {
+        assertNull(mapper.toMedicalRecordListResponse(null));
+    }
+
+    @Test
+    void toMedicalRecordListResponse_fullRecord_mapsSuccessfully() {
+        Date examDate = new Date();
+        Pet pet = Pet.builder()
+                .petId(5)
+                .petName("Buddy")
+                .build();
+
+        Bill bill = Bill.builder()
+                .billId(1)
+                .totalPrice(150.0)
+                .status("PAID")
+                .build();
+
+        MedicalRecord record = MedicalRecord.builder()
+                .medicalRecordId(1)
+                .date(examDate)
+                .diagnosis("Fever")
+                .treatment("Rest and pills")
+                .pet(pet)
+                .bill(bill)
+                .build();
+
+        MedicalRecordListResponse response = mapper.toMedicalRecordListResponse(record);
+
+        assertNotNull(response);
+        assertEquals(1, response.getMedicalRecordId());
+        assertEquals(examDate, response.getDate());
+        assertEquals("Fever", response.getDiagnosis());
+        assertEquals("Rest and pills", response.getTreatment());
+        assertEquals(5, response.getPetId());
+        assertEquals("Buddy", response.getPetName());
+        assertEquals(1, response.getBillId());
+        assertEquals(150.0, response.getTotalPrice());
+        assertEquals("PAID", response.getBillStatus());
+    }
+
+    @Test
+    void toMedicalRecordListResponse_nullPetAndBill_mapsSuccessfully() {
+        Date examDate = new Date();
+        MedicalRecord record = MedicalRecord.builder()
+                .medicalRecordId(1)
+                .date(examDate)
+                .diagnosis("Fever")
+                .treatment("Rest")
+                .pet(null)
+                .bill(null)
+                .build();
+
+        MedicalRecordListResponse response = mapper.toMedicalRecordListResponse(record);
+
+        assertNotNull(response);
+        assertEquals(1, response.getMedicalRecordId());
+        assertNull(response.getPetId());
+        assertNull(response.getPetName());
+        assertNull(response.getBillId());
+        assertNull(response.getTotalPrice());
+        assertNull(response.getBillStatus());
     }
 }

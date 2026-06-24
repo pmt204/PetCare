@@ -86,4 +86,31 @@ public class MedicalRecordMapper {
                 .status(bill.getStatus())
                 .build();
     }
+
+    public MedicalRecordListResponse toMedicalRecordListResponse(MedicalRecord medicalRecord) {
+        if (medicalRecord == null) {
+            return null;
+        }
+
+        MedicalRecordListResponse.MedicalRecordListResponseBuilder builder = MedicalRecordListResponse.builder()
+                .medicalRecordId(medicalRecord.getMedicalRecordId())
+                .date(medicalRecord.getDate())
+                .diagnosis(medicalRecord.getDiagnosis())
+                .treatment(medicalRecord.getTreatment())
+                .createAt(medicalRecord.getCreateAt())
+                .updateAt(medicalRecord.getUpdateAt());
+
+        if (medicalRecord.getPet() != null) {
+            builder.petId(medicalRecord.getPet().getPetId())
+                   .petName(medicalRecord.getPet().getPetName());
+        }
+
+        if (medicalRecord.getBill() != null) {
+            builder.billId(medicalRecord.getBill().getBillId())
+                   .totalPrice(medicalRecord.getBill().getTotalPrice())
+                   .billStatus(medicalRecord.getBill().getStatus());
+        }
+
+        return builder.build();
+    }
 }

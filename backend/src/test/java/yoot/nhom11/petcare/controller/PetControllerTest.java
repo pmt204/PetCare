@@ -82,6 +82,15 @@ class PetControllerTest {
     }
 
     @Test
+    void getAllPets_invalidSortField_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/pets")
+                        .param("sort", "invalidField,asc"))
+                .andExpect(status().isBadRequest());
+
+        verify(petService, never()).getAllPets(any(), any());
+    }
+
+    @Test
     void getPetById_success() throws Exception {
         when(petService.getPetById(1)).thenReturn(petResponse1);
 
