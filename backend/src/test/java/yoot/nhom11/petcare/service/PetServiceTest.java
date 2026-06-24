@@ -19,6 +19,7 @@ import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
 import yoot.nhom11.petcare.entity.Pet;
 import yoot.nhom11.petcare.mapper.PetMapper;
+import yoot.nhom11.petcare.mapper.PetMapperImpl;
 import yoot.nhom11.petcare.repository.PetRepository;
 import yoot.nhom11.petcare.service.impl.PetServiceImpl;
 
@@ -37,7 +38,7 @@ class PetServiceTest {
     private PetRepository petRepository;
 
     @Spy
-    private PetMapper petMapper;
+    private PetMapper petMapper = new PetMapperImpl();
 
     @InjectMocks
     private PetServiceImpl petService;

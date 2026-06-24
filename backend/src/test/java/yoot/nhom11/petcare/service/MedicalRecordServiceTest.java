@@ -19,6 +19,7 @@ import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordListResponse;
 import yoot.nhom11.petcare.entity.MedicalRecord;
 import yoot.nhom11.petcare.mapper.MedicalRecordMapper;
+import yoot.nhom11.petcare.mapper.MedicalRecordMapperImpl;
 import yoot.nhom11.petcare.repository.MedicalRecordRepository;
 import yoot.nhom11.petcare.service.impl.MedicalRecordServiceImpl;
 
@@ -36,7 +37,7 @@ class MedicalRecordServiceTest {
     private MedicalRecordRepository medicalRecordRepository;
 
     @Spy
-    private MedicalRecordMapper medicalRecordMapper;
+    private MedicalRecordMapper medicalRecordMapper = new MedicalRecordMapperImpl();
 
     @InjectMocks
     private MedicalRecordServiceImpl medicalRecordService;

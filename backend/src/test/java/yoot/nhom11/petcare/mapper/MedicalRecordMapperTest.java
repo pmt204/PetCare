@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MedicalRecordMapperTest {
 
-    private final MedicalRecordMapper mapper = new MedicalRecordMapper();
+    private final MedicalRecordMapper mapper = new MedicalRecordMapperImpl();
 
     @Test
     void toMedicalRecordDetailResponse_null_returnsNull() {

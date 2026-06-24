@@ -1,116 +1,39 @@
 package yoot.nhom11.petcare.mapper;
 
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 import yoot.nhom11.petcare.dto.response.*;
 import yoot.nhom11.petcare.entity.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
+@Mapper(
+    componentModel = "spring",
+    unmappedTargetPolicy = ReportingPolicy.IGNORE,
+    nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
+)
+public interface MedicalRecordMapper {
 
-@Component
-public class MedicalRecordMapper {
+    @Mapping(source = ".", target = "examination")
+    MedicalRecordDetailResponse toMedicalRecordDetailResponse(MedicalRecord medicalRecord);
 
-    public MedicalRecordDetailResponse toMedicalRecordDetailResponse(MedicalRecord medicalRecord) {
-        if (medicalRecord == null) {
-            return null;
-        }
+    ExaminationResponse toExaminationResponse(MedicalRecord medicalRecord);
 
-        ExaminationResponse examination = ExaminationResponse.builder()
-                .medicalRecordId(medicalRecord.getMedicalRecordId())
-                .date(medicalRecord.getDate())
-                .diagnosis(medicalRecord.getDiagnosis())
-                .treatment(medicalRecord.getTreatment())
-                .build();
+    @Mapping(source = "medicine.medicineId", target = "medicineId")
+    @Mapping(source = "medicine.medicineName", target = "medicineName")
+    @Mapping(source = "medicine.unit", target = "unit")
+    @Mapping(source = "medicine.description", target = "description")
+    PrescriptionResponse toPrescriptionResponse(Prescription prescription);
 
-        List<PrescriptionResponse> prescriptions = medicalRecord.getPrescriptions() == null ? Collections.emptyList() :
-                medicalRecord.getPrescriptions().stream()
-                        .map(this::toPrescriptionResponse)
-                        .collect(Collectors.toList());
+    TestResultResponse toTestResultResponse(TestResult testResult);
 
-        List<TestResultResponse> testResults = medicalRecord.getTestResults() == null ? Collections.emptyList() :
-                medicalRecord.getTestResults().stream()
-                        .map(this::toTestResultResponse)
-                        .collect(Collectors.toList());
+    BillResponse toBillResponse(Bill bill);
 
-        BillResponse bill = toBillResponse(medicalRecord.getBill());
-
-        return MedicalRecordDetailResponse.builder()
-                .examination(examination)
-                .prescriptions(prescriptions)
-                .testResults(testResults)
-                .bill(bill)
-                .build();
-    }
-
-    public PrescriptionResponse toPrescriptionResponse(Prescription prescription) {
-        if (prescription == null) {
-            return null;
-        }
-
-        PrescriptionResponse.PrescriptionResponseBuilder builder = PrescriptionResponse.builder()
-                .prescriptionId(prescription.getPrescriptionId())
-                .quantity(prescription.getQuantity());
-
-        if (prescription.getMedicine() != null) {
-            builder.medicineId(prescription.getMedicine().getMedicineId())
-                   .medicineName(prescription.getMedicine().getMedicineName())
-                   .unit(prescription.getMedicine().getUnit())
-                   .description(prescription.getMedicine().getDescription());
-        }
-
-        return builder.build();
-    }
-
-    public TestResultResponse toTestResultResponse(TestResult testResult) {
-        if (testResult == null) {
-            return null;
-        }
-
-        return TestResultResponse.builder()
-                .testResultId(testResult.getTestResultId())
-                .testName(testResult.getTestName())
-                .result(testResult.getResult())
-                .pdfUrl(testResult.getPdfUrl())
-                .build();
-    }
-
-    public BillResponse toBillResponse(Bill bill) {
-        if (bill == null) {
-            return null;
-        }
-
-        return BillResponse.builder()
-                .billId(bill.getBillId())
-                .totalPrice(bill.getTotalPrice())
-                .status(bill.getStatus())
-                .build();
-    }
-
-    public MedicalRecordListResponse toMedicalRecordListResponse(MedicalRecord medicalRecord) {
-        if (medicalRecord == null) {
-            return null;
-        }
-
-        MedicalRecordListResponse.MedicalRecordListResponseBuilder builder = MedicalRecordListResponse.builder()
-                .medicalRecordId(medicalRecord.getMedicalRecordId())
-                .date(medicalRecord.getDate())
-                .diagnosis(medicalRecord.getDiagnosis())
-                .treatment(medicalRecord.getTreatment())
-                .createAt(medicalRecord.getCreateAt())
-                .updateAt(medicalRecord.getUpdateAt());
-
-        if (medicalRecord.getPet() != null) {
-            builder.petId(medicalRecord.getPet().getPetId())
-                   .petName(medicalRecord.getPet().getPetName());
-        }
-
-        if (medicalRecord.getBill() != null) {
-            builder.billId(medicalRecord.getBill().getBillId())
-                   .totalPrice(medicalRecord.getBill().getTotalPrice())
-                   .billStatus(medicalRecord.getBill().getStatus());
-        }
-
-        return builder.build();
-    }
+    @Mapping(source = "pet.petId", target = "petId")
+    @Mapping(source = "pet.petName", target = "petName")
+    @Mapping(source = "bill.billId", target = "billId")
+    @Mapping(source = "bill.totalPrice", target = "totalPrice")
+    @Mapping(source = "bill.status", target = "billStatus")
+    MedicalRecordListResponse toMedicalRecordListResponse(MedicalRecord medicalRecord);
 }
+
