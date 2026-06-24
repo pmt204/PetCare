@@ -3,10 +3,10 @@ package yoot.nhom11.petcare.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.exception.BusinessException;
+import yoot.nhom11.petcare.exception.ErrorCode;
 import yoot.nhom11.petcare.dto.request.MedicalRecordFilterRequest;
 import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordListResponse;
@@ -35,7 +35,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Transactional(readOnly = true)
     public MedicalRecordDetailResponse getMedicalRecordDetail(Integer id) {
         MedicalRecord medicalRecord = medicalRecordRepository.findDetailById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medical record not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.MEDICAL_RECORD_NOT_FOUND));
         return medicalRecordMapper.toMedicalRecordDetailResponse(medicalRecord);
     }
 }

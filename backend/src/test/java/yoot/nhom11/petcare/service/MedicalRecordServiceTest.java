@@ -12,8 +12,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.exception.BusinessException;
+import yoot.nhom11.petcare.exception.ErrorCode;
 import yoot.nhom11.petcare.dto.request.MedicalRecordFilterRequest;
 import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordListResponse;
@@ -84,11 +84,11 @@ class MedicalRecordServiceTest {
     void getMedicalRecordDetail_notFound() {
         when(medicalRecordRepository.findDetailById(99)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class,
+        BusinessException exception = assertThrows(BusinessException.class,
                 () -> medicalRecordService.getMedicalRecordDetail(99));
 
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("Medical record not found", exception.getReason());
+        assertEquals(ErrorCode.MEDICAL_RECORD_NOT_FOUND, exception.getErrorCode());
+        assertEquals("Medical record not found", exception.getMessage());
         verify(medicalRecordRepository, times(1)).findDetailById(99);
     }
 }

@@ -10,7 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.exception.BusinessException;
+import yoot.nhom11.petcare.exception.ErrorCode;
 import yoot.nhom11.petcare.dto.request.MedicalRecordFilterRequest;
 import yoot.nhom11.petcare.dto.response.*;
 import yoot.nhom11.petcare.service.MedicalRecordService;
@@ -112,7 +113,14 @@ class MedicalRecordControllerTest {
     void getAllMedicalRecords_invalidSortField_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/medical-records")
                         .param("sort", "prescriptions,asc"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("SORT_FIELD_INVALID"))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.path").value("/api/medical-records"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.details.invalidField").value("prescriptions"))
+                .andExpect(jsonPath("$.details.allowedFields").exists());
 
         verify(medicalRecordService, never()).getAllMedicalRecords(any(), any());
     }
@@ -138,10 +146,15 @@ class MedicalRecordControllerTest {
     @Test
     void getMedicalRecordDetail_notFound() throws Exception {
         when(medicalRecordService.getMedicalRecordDetail(99))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Medical record not found"));
+                .thenThrow(new BusinessException(ErrorCode.MEDICAL_RECORD_NOT_FOUND));
 
         mockMvc.perform(get("/api/medical-records/99"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("MEDICAL_RECORD_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Medical record not found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.path").value("/api/medical-records/99"))
+                .andExpect(jsonPath("$.timestamp").exists());
 
         verify(medicalRecordService, times(1)).getMedicalRecordDetail(99);
     }

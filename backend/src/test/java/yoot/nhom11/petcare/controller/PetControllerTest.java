@@ -12,7 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.exception.BusinessException;
+import yoot.nhom11.petcare.exception.ErrorCode;
 import yoot.nhom11.petcare.dto.request.PetFilterRequest;
 import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
@@ -85,7 +86,14 @@ class PetControllerTest {
     void getAllPets_invalidSortField_returnsBadRequest() throws Exception {
         mockMvc.perform(get("/api/pets")
                         .param("sort", "invalidField,asc"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("SORT_FIELD_INVALID"))
+                .andExpect(jsonPath("$.message").exists())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.path").value("/api/pets"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.details.invalidField").value("invalidField"))
+                .andExpect(jsonPath("$.details.allowedFields").exists());
 
         verify(petService, never()).getAllPets(any(), any());
     }
@@ -104,10 +112,15 @@ class PetControllerTest {
 
     @Test
     void getPetById_notFound() throws Exception {
-        when(petService.getPetById(99)).thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
+        when(petService.getPetById(99)).thenThrow(new BusinessException(ErrorCode.PET_NOT_FOUND));
 
         mockMvc.perform(get("/api/pets/99"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PET_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Pet not found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.path").value("/api/pets/99"))
+                .andExpect(jsonPath("$.timestamp").exists());
 
         verify(petService, times(1)).getPetById(99);
     }
@@ -156,7 +169,14 @@ class PetControllerTest {
         mockMvc.perform(post("/api/pets")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.path").value("/api/pets"))
+                .andExpect(jsonPath("$.timestamp").exists())
+                .andExpect(jsonPath("$.details.petName").value("Pet name is required"))
+                .andExpect(jsonPath("$.details.petAge").value("Pet age must be greater than or equal to 0"));
 
         verify(petService, never()).createPet(any(PetRequest.class));
     }
@@ -212,10 +232,15 @@ class PetControllerTest {
     @Test
     void getPetBySlug_notFound() throws Exception {
         when(petService.getPetBySlug("unknown-slug"))
-                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found with slug: unknown-slug"));
+                .thenThrow(new BusinessException(ErrorCode.PET_NOT_FOUND, "Pet not found with slug: unknown-slug"));
 
         mockMvc.perform(get("/api/pets/slug/unknown-slug"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.code").value("PET_NOT_FOUND"))
+                .andExpect(jsonPath("$.message").value("Pet not found with slug: unknown-slug"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.path").value("/api/pets/slug/unknown-slug"))
+                .andExpect(jsonPath("$.timestamp").exists());
 
         verify(petService, times(1)).getPetBySlug("unknown-slug");
     }

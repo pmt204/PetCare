@@ -12,8 +12,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.exception.BusinessException;
+import yoot.nhom11.petcare.exception.ErrorCode;
 import yoot.nhom11.petcare.dto.request.PetFilterRequest;
 import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
@@ -102,9 +102,9 @@ class PetServiceTest {
     void getPetById_notFound() {
         when(petRepository.findById(99)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> petService.getPetById(99));
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("Pet not found", exception.getReason());
+        BusinessException exception = assertThrows(BusinessException.class, () -> petService.getPetById(99));
+        assertEquals(ErrorCode.PET_NOT_FOUND, exception.getErrorCode());
+        assertEquals("Pet not found", exception.getMessage());
         verify(petRepository, times(1)).findById(99);
     }
 
@@ -178,9 +178,9 @@ class PetServiceTest {
 
         when(petRepository.findById(99)).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> petService.updatePet(99, request));
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("Pet not found", exception.getReason());
+        BusinessException exception = assertThrows(BusinessException.class, () -> petService.updatePet(99, request));
+        assertEquals(ErrorCode.PET_NOT_FOUND, exception.getErrorCode());
+        assertEquals("Pet not found", exception.getMessage());
         verify(petRepository, times(1)).findById(99);
         verify(petRepository, never()).save(any(Pet.class));
     }
@@ -203,9 +203,9 @@ class PetServiceTest {
     void getPetBySlug_notFound() {
         when(petRepository.findBySlug("unknown-slug")).thenReturn(Optional.empty());
 
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> petService.getPetBySlug("unknown-slug"));
-        assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
-        assertEquals("Pet not found with slug: unknown-slug", exception.getReason());
+        BusinessException exception = assertThrows(BusinessException.class, () -> petService.getPetBySlug("unknown-slug"));
+        assertEquals(ErrorCode.PET_NOT_FOUND, exception.getErrorCode());
+        assertEquals("Pet not found with slug: unknown-slug", exception.getMessage());
         verify(petRepository, times(1)).findBySlug("unknown-slug");
     }
 }

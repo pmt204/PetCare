@@ -1,10 +1,10 @@
 package yoot.nhom11.petcare.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.exception.BusinessException;
+import yoot.nhom11.petcare.exception.ErrorCode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import yoot.nhom11.petcare.dto.request.PetFilterRequest;
@@ -39,7 +39,7 @@ public class PetServiceImpl implements PetService {
     @Transactional(readOnly = true)
     public PetResponse getPetById(Integer id) {
         Pet pet = petRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PET_NOT_FOUND));
         return petMapper.toPetResponse(pet);
     }
 
@@ -48,7 +48,7 @@ public class PetServiceImpl implements PetService {
     public PetResponse getPetBySlug(String slug) {
         Pet pet = petRepository.findBySlug(slug)
                 .orElseThrow(
-                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found with slug: " + slug));
+                        () -> new BusinessException(ErrorCode.PET_NOT_FOUND, "Pet not found with slug: " + slug));
         return petMapper.toPetResponse(pet);
     }
 
@@ -66,7 +66,7 @@ public class PetServiceImpl implements PetService {
     @Override
     public PetResponse updatePet(Integer id, PetRequest request) {
         Pet pet = petRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PET_NOT_FOUND));
 
         String oldName = pet.getPetName();
         petMapper.updatePetFromRequest(request, pet);
