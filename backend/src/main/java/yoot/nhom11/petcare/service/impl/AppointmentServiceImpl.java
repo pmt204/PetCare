@@ -2,7 +2,10 @@ package yoot.nhom11.petcare.service.impl;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,33 +19,40 @@ import org.springframework.web.server.ResponseStatusException;
 
 import yoot.nhom11.petcare.dto.request.AppointmentBookingRequest;
 import yoot.nhom11.petcare.dto.request.AppointmentListFilterRequest;
+import yoot.nhom11.petcare.dto.request.AppointmentRequest;
 import yoot.nhom11.petcare.dto.response.AppointmentOptionResponse;
 import yoot.nhom11.petcare.dto.response.AppointmentResponse;
 import yoot.nhom11.petcare.entity.Appointment;
 import yoot.nhom11.petcare.entity.AppointmentStatus;
 import yoot.nhom11.petcare.entity.AppUser;
+import yoot.nhom11.petcare.entity.Doctor;
 import yoot.nhom11.petcare.entity.Pet;
 import yoot.nhom11.petcare.entity.UserRole;
 import yoot.nhom11.petcare.mapper.AppointmentMapper;
 import yoot.nhom11.petcare.repository.AppUserRepository;
 import yoot.nhom11.petcare.repository.AppointmentRepository;
+import yoot.nhom11.petcare.repository.DoctorRepository;
 import yoot.nhom11.petcare.repository.PetRepository;
+import yoot.nhom11.petcare.service.AppointmentService;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AppointmentServiceImpl {
+public class AppointmentServiceImpl implements AppointmentService {
 
 	private final AppointmentRepository appointmentRepository;
 	private final PetRepository petRepository;
 	private final AppUserRepository appUserRepository;
+	private final DoctorRepository doctorRepository;
 
+	@Override
 	public AppointmentOptionResponse getBookingOptions(Long ownerId) {
 		List<Pet> pets = petRepository.findAllByOwnerIdOrderByNameAsc(ownerId);
 		List<AppUser> veterinarians = appUserRepository.findAllByRoleAndActiveTrue(UserRole.VET);
 		return AppointmentMapper.toOptionResponse(pets, veterinarians);
 	}
 
+	@Override
 	@Transactional
 	public AppointmentResponse createAppointment(AppointmentBookingRequest request) {
 		AppUser owner = appUserRepository.findById(request.ownerId())
@@ -66,6 +76,7 @@ public class AppointmentServiceImpl {
 		return AppointmentMapper.toAppointmentResponse(saved);
 	}
 
+	@Override
 	public List<AppointmentResponse> getAppointmentsByOwner(Long ownerId, AppointmentListFilterRequest request) {
 		String sortProperty = resolveSortProperty(request.getSortBy());
 		Sort.Direction sortDirection = request.getSortDirection() == Sort.Direction.ASC
@@ -85,6 +96,60 @@ public class AppointmentServiceImpl {
 				.map(AppointmentMapper::toAppointmentResponse)
 				.toList();
 	}
+
+    @Override
+    public List<AppointmentResponse> findAppointmentsByDoctorAndDate(Long doctorId, LocalDate date) {
+        if (!doctorRepository.existsById(doctorId)) {
+            throw new NoSuchElementException("Doctor not found: " + doctorId);
+        }
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+        return appointmentRepository.findByDoctorIdAndAppointmentTimeBetween(doctorId, startOfDay, endOfDay)
+                .stream()
+                .map(AppointmentMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AppointmentResponse create(AppointmentRequest request) {
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + request.getDoctorId()));
+        Appointment appointment = AppointmentMapper.toEntity(request, doctor);
+        Appointment saved = appointmentRepository.save(appointment);
+        return AppointmentMapper.toResponse(saved);
+    }
+
+    @Override
+    public AppointmentResponse getById(Long id) {
+        return appointmentRepository.findById(id)
+                .map(AppointmentMapper::toResponse)
+                .orElseThrow(() -> new NoSuchElementException("Appointment not found: " + id));
+    }
+
+    @Override
+    public List<AppointmentResponse> listAll() {
+        return appointmentRepository.findAll().stream()
+                .map(AppointmentMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public AppointmentResponse update(Long id, AppointmentRequest request) {
+        Appointment existing = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Appointment not found: " + id));
+        AppointmentMapper.updateEntityFromRequest(request, existing);
+        Appointment saved = appointmentRepository.save(existing);
+        return AppointmentMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional
+    public void delete(Long id) {
+        if (!appointmentRepository.existsById(id)) throw new NoSuchElementException("Appointment not found: " + id);
+        appointmentRepository.deleteById(id);
+    }
 
 	private String resolveSortProperty(String sortBy) {
 		if (sortBy == null || sortBy.isBlank()) {

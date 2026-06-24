@@ -1,9 +1,12 @@
 package yoot.nhom11.petcare.mapper;
 
 import org.springframework.stereotype.Component;
+import yoot.nhom11.petcare.dto.request.MedicalRecordRequest;
 import yoot.nhom11.petcare.dto.response.*;
 import yoot.nhom11.petcare.entity.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -165,5 +168,32 @@ public class MedicalRecordMapper {
                 .totalPrice(bill.getTotalPrice())
                 .status(bill.getStatus())
                 .build();
+    }
+
+    // Static mapping methods for tai/admin's branch:
+    public static MedicalRecord toEntity(MedicalRecordRequest r, Doctor doctor) {
+        MedicalRecord mr = new MedicalRecord();
+        mr.setDoctor(doctor);
+        mr.setPatientName(r.getPatientName());
+        mr.setDiagnosis(r.getDiagnosis());
+        mr.setSymptoms(r.getSymptoms());
+        mr.setNotes(r.getNotes());
+        mr.setCreatedDate(LocalDateTime.now());
+        mr.setVisitAt(Instant.now());
+        mr.setStatus(MedicalRecordStatus.COMPLETED);
+        return mr;
+    }
+
+    public static MedicalRecordResponse toResponse(MedicalRecord mr) {
+        MedicalRecordResponse r = new MedicalRecordResponse();
+        r.setId(mr.getId());
+        r.setDoctorId(mr.getDoctor() != null ? mr.getDoctor().getId() : null);
+        r.setDoctorName(mr.getDoctor() != null ? mr.getDoctor().getName() : null);
+        r.setPatientName(mr.getPatientName());
+        r.setCreatedDate(mr.getCreatedDate());
+        r.setDiagnosis(mr.getDiagnosis());
+        r.setSymptoms(mr.getSymptoms());
+        r.setNotes(mr.getNotes());
+        return r;
     }
 }

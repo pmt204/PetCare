@@ -2,7 +2,11 @@ package yoot.nhom11.petcare.service.impl;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -15,28 +19,34 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import yoot.nhom11.petcare.dto.request.MedicalRecordRequest;
 import yoot.nhom11.petcare.dto.request.MedicalRecordTimelineFilterRequest;
 import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
+import yoot.nhom11.petcare.dto.response.MedicalRecordResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordTimelineItemResponse;
 import yoot.nhom11.petcare.dto.response.PageResponse;
+import yoot.nhom11.petcare.entity.Doctor;
 import yoot.nhom11.petcare.entity.MedicalRecord;
 import yoot.nhom11.petcare.entity.MedicalRecordStatus;
 import yoot.nhom11.petcare.entity.Pet;
 import yoot.nhom11.petcare.mapper.MedicalRecordMapper;
+import yoot.nhom11.petcare.repository.DoctorRepository;
 import yoot.nhom11.petcare.repository.MedicalRecordRepository;
 import yoot.nhom11.petcare.repository.PetRepository;
 import yoot.nhom11.petcare.service.MedicalRecordService;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
+@Transactional
 public class MedicalRecordServiceImpl implements MedicalRecordService {
 
 	private final MedicalRecordRepository medicalRecordRepository;
 	private final PetRepository petRepository;
+	private final DoctorRepository doctorRepository;
 	private final MedicalRecordMapper medicalRecordMapper;
 
 	@Override
+	@Transactional(readOnly = true)
 	public PageResponse<MedicalRecordTimelineItemResponse> getPetTimeline(Long petId, MedicalRecordTimelineFilterRequest request) {
 		Pet pet = petRepository.findById(petId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
@@ -59,6 +69,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public MedicalRecordDetailResponse getMedicalRecordDetail(Long recordId) {
 		MedicalRecord record = medicalRecordRepository.findById(recordId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medical record not found"));
@@ -67,11 +78,48 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public MedicalRecordDetailResponse getMedicalRecordDetail(Integer id) {
 		MedicalRecord record = medicalRecordRepository.findDetailById(id)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Medical record not found"));
 		return medicalRecordMapper.toMedicalRecordDetailResponse(record);
 	}
+
+    @Override
+    public MedicalRecordResponse create(MedicalRecordRequest request) {
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + request.getDoctorId()));
+        MedicalRecord medicalRecord = MedicalRecordMapper.toEntity(request, doctor);
+        MedicalRecord saved = medicalRecordRepository.save(medicalRecord);
+        return MedicalRecordMapper.toResponse(saved);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MedicalRecordResponse getById(Long id) {
+        return medicalRecordRepository.findById(id)
+                .map(MedicalRecordMapper::toResponse)
+                .orElseThrow(() -> new NoSuchElementException("Medical Record not found: " + id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MedicalRecordResponse> listAll() {
+        return medicalRecordRepository.findAll().stream()
+                .map(MedicalRecordMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public MedicalRecordResponse update(Long id, MedicalRecordRequest request) {
+        throw new UnsupportedOperationException("Update operation is not supported.");
+    }
+
+    @Override
+    public void delete(Long id) {
+        if (!medicalRecordRepository.existsById(id)) throw new NoSuchElementException("Medical Record not found: " + id);
+        medicalRecordRepository.deleteById(id);
+    }
 
 	private String resolveSortProperty(String sortBy) {
 		if (sortBy == null || sortBy.isBlank()) {

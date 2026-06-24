@@ -25,25 +25,57 @@ import lombok.Setter;
 @Table(name = "appointments")
 public class Appointment extends BaseEntity {
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "owner_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "owner_id")
 	private AppUser owner;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "pet_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "pet_id")
 	private Pet pet;
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "veterinarian_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "veterinarian_id")
 	private AppUser veterinarian;
 
-	@Column(name = "appointment_at", nullable = false)
+	@Column(name = "appointment_at")
 	private LocalDateTime appointmentAt;
 
-	@Column(name = "reason_for_visit", nullable = false, length = 1000)
+	@Column(name = "reason_for_visit", length = 1000)
 	private String reasonForVisit;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false, length = 20)
+	@Column(name = "status", length = 20)
 	private AppointmentStatus status;
+
+	// Fields for tai/admin:
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "doctor_id")
+	private Doctor doctor;
+
+	@Column(name = "patient_name")
+	private String patientName;
+
+	@Column(name = "patient_phone")
+	private String patientPhone;
+
+	@Column(name = "appointment_time")
+	private LocalDateTime appointmentTime;
+
+	@Column(name = "reason")
+	private String reason;
+
+	// Compatibility getters/setters:
+	public String getStatusStr() {
+		return status != null ? status.name().toLowerCase() : "pending";
+	}
+
+	public void setStatusStr(String statusStr) {
+		if (statusStr != null) {
+			try {
+				this.status = AppointmentStatus.valueOf(statusStr.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				// Fallback
+			}
+		}
+	}
 }

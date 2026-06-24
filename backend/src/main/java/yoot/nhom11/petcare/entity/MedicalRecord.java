@@ -32,25 +32,25 @@ import lombok.Setter;
 @Table(name = "medical_records")
 public class MedicalRecord extends BaseEntity {
 
-	@ManyToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "pet_id", nullable = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "pet_id")
 	private Pet pet;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "veterinarian_id")
 	private AppUser veterinarian;
 
-	@Column(name = "visit_at", nullable = false)
+	@Column(name = "visit_at")
 	private Instant visitAt;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false, length = 20)
+	@Column(name = "status", length = 20)
 	private MedicalRecordStatus status;
 
 	@Column(name = "reason_for_visit", length = 500)
 	private String reasonForVisit;
 
-	@Column(name = "diagnosis", nullable = false, length = 1000)
+	@Column(name = "diagnosis", length = 1000)
 	private String diagnosis;
 
 	@Column(name = "treatment_note", length = 2000)
@@ -76,6 +76,23 @@ public class MedicalRecord extends BaseEntity {
 
 	@OneToOne(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
 	private Bill bill;
+
+	// Fields for tai/admin:
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "doctor_id")
+	private Doctor doctor;
+
+	@Column(name = "patient_name")
+	private String patientName;
+
+	@Column(name = "created_date")
+	private LocalDateTime createdDate;
+
+	@Column(name = "symptoms", columnDefinition = "text")
+	private String symptoms;
+
+	@Column(name = "notes", columnDefinition = "text")
+	private String notes;
 
 	// Aliases for hoai's code:
 	public Integer getMedicalRecordId() {

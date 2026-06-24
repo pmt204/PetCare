@@ -87,4 +87,21 @@ public class Prescription extends BaseEntity {
 			setUpdatedAt(updateAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
 		}
 	}
+
+	// Fields for tai/admin:
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "doctor_id")
+	private Doctor doctor;
+
+	@Column(name = "patient_name")
+	private String patientName;
+
+	@Column(name = "created_date")
+	private LocalDateTime createdDate;
+
+	@Column(name = "medicine_list", columnDefinition = "text")
+	private String medicineList;
+
+	@Column(name = "status", length = 50)
+	private String status;
 }
