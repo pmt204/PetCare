@@ -16,28 +16,28 @@ public class TestResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer test_result_id;
+    private Integer testResultId;
 
     @Column(name = "test_name")
-    private String test_name;
+    private String testName;
 
     @Column(name = "result")
     private String result;
 
     @Column(name = "pdf_url")
-    private String pdf_url;
+    private String pdfUrl;
 
     @Column(name = "create_at")
-    private LocalDateTime create_at;
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime update_at;
+    private LocalDateTime updateAt;
 
     @Column(name = "create_by")
-    private String create_by;
+    private String createBy;
 
     @Column(name = "update_by")
-    private String update_by;
+    private String updateBy;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

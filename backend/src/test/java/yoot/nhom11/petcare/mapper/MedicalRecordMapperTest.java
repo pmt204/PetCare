@@ -22,33 +22,33 @@ class MedicalRecordMapperTest {
     void toMedicalRecordDetailResponse_fullRecord_mapsSuccessfully() {
         Date examDate = new Date();
         Medicine medicine = Medicine.builder()
-                .medicine_id(10)
-                .medicine_name("Amoxicillin")
+                .medicineId(10)
+                .medicineName("Amoxicillin")
                 .unit("Tablet")
                 .description("Antibiotic")
                 .build();
 
         Prescription prescription1 = Prescription.builder()
-                .prescription_id(1)
+                .prescriptionId(1)
                 .quantity(5)
                 .medicine(medicine)
                 .build();
 
         TestResult testResult1 = TestResult.builder()
-                .test_result_id(1)
-                .test_name("Blood Test")
+                .testResultId(1)
+                .testName("Blood Test")
                 .result("Normal")
-                .pdf_url("http://url/pdf")
+                .pdfUrl("http://url/pdf")
                 .build();
 
         Bill bill = Bill.builder()
-                .bill_id(1)
-                .total_price(150.0)
+                .billId(1)
+                .totalPrice(150.0)
                 .status("PAID")
                 .build();
 
         MedicalRecord record = MedicalRecord.builder()
-                .medical_record_id(1)
+                .medicalRecordId(1)
                 .date(examDate)
                 .diagnosis("Fever")
                 .treatment("Rest and pills")
@@ -91,7 +91,7 @@ class MedicalRecordMapperTest {
     @Test
     void toMedicalRecordDetailResponse_nullCollections_mapsToEmptyLists() {
         MedicalRecord record = MedicalRecord.builder()
-                .medical_record_id(1)
+                .medicalRecordId(1)
                 .date(new Date())
                 .diagnosis("Fever")
                 .treatment("Rest")

@@ -15,6 +15,6 @@ public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, In
            "LEFT JOIN FETCH mr.bill " +
            "LEFT JOIN FETCH mr.prescriptions p " +
            "LEFT JOIN FETCH p.medicine " +
-           "WHERE mr.medical_record_id = :id")
+           "WHERE mr.medicalRecordId = :id")
     Optional<MedicalRecord> findDetailById(@Param("id") Integer id);
 }

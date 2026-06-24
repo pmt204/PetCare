@@ -58,7 +58,7 @@ public class PetServiceImpl implements PetService {
         LocalDateTime now = LocalDateTime.now();
         pet.setCreateAt(now);
         pet.setUpdateAt(now);
-        pet.setSlug(generateUniqueSlug(pet.getPet_name(), null));
+        pet.setSlug(generateUniqueSlug(pet.getPetName(), null));
         Pet savedPet = petRepository.save(pet);
         return petMapper.toPetResponse(savedPet);
     }
@@ -68,11 +68,11 @@ public class PetServiceImpl implements PetService {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
 
-        String oldName = pet.getPet_name();
+        String oldName = pet.getPetName();
         petMapper.updatePetFromRequest(request, pet);
 
-        if (!pet.getPet_name().equalsIgnoreCase(oldName) || pet.getSlug() == null) {
-            pet.setSlug(generateUniqueSlug(pet.getPet_name(), id));
+        if (!pet.getPetName().equalsIgnoreCase(oldName) || pet.getSlug() == null) {
+            pet.setSlug(generateUniqueSlug(pet.getPetName(), id));
         }
 
         pet.setUpdateAt(LocalDateTime.now());
@@ -90,7 +90,7 @@ public class PetServiceImpl implements PetService {
         int count = 1;
         while (true) {
             Optional<Pet> existing = petRepository.findBySlug(slug);
-            if (existing.isEmpty() || (currentId != null && existing.get().getPet_id().equals(currentId))) {
+            if (existing.isEmpty() || (currentId != null && existing.get().getPetId().equals(currentId))) {
                 return slug;
             }
             slug = baseSlug + "-" + count++;

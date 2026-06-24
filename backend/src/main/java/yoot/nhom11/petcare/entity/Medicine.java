@@ -17,10 +17,10 @@ public class Medicine {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer medicine_id;
+    private Integer medicineId;
 
     @Column(name = "medicine_name")
-    private String medicine_name;
+    private String medicineName;
 
     @Column(name = "unit")
     private String unit;
@@ -29,16 +29,16 @@ public class Medicine {
     private String description;
 
     @Column(name = "create_at")
-    private LocalDateTime create_at;
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime update_at;
+    private LocalDateTime updateAt;
 
     @Column(name = "create_by")
-    private String create_by;
+    private String createBy;
 
     @Column(name = "update_by")
-    private String update_by;
+    private String updateBy;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

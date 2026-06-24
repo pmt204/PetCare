@@ -48,25 +48,25 @@ class PetServiceTest {
     @BeforeEach
     void setUp() {
         pet1 = Pet.builder()
-                .pet_id(1)
-                .pet_name("Fluffy")
-                .pet_type("Cat")
-                .pet_age(3)
-                .pet_gender("Male")
-                .pet_avatar("http://avatar.url/1")
-                .create_at(LocalDateTime.now())
-                .update_at(LocalDateTime.now())
+                .petId(1)
+                .petName("Fluffy")
+                .petType("Cat")
+                .petAge(3)
+                .petGender("Male")
+                .petAvatar("http://avatar.url/1")
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
                 .build();
 
         pet2 = Pet.builder()
-                .pet_id(2)
-                .pet_name("Buddy")
-                .pet_type("Dog")
-                .pet_age(5)
-                .pet_gender("Female")
-                .pet_avatar("http://avatar.url/2")
-                .create_at(LocalDateTime.now())
-                .update_at(LocalDateTime.now())
+                .petId(2)
+                .petName("Buddy")
+                .petType("Dog")
+                .petAge(5)
+                .petGender("Female")
+                .petAvatar("http://avatar.url/2")
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
                 .build();
     }
 
@@ -119,15 +119,15 @@ class PetServiceTest {
                 .build();
 
         Pet savedPet = Pet.builder()
-                .pet_id(3)
-                .pet_name(request.getPetName())
-                .pet_type(request.getPetType())
-                .pet_age(request.getPetAge())
-                .pet_gender(request.getPetGender())
-                .pet_avatar(request.getPetAvatar())
+                .petId(3)
+                .petName(request.getPetName())
+                .petType(request.getPetType())
+                .petAge(request.getPetAge())
+                .petGender(request.getPetGender())
+                .petAvatar(request.getPetAvatar())
                 .slug("lola")
-                .create_at(LocalDateTime.now())
-                .update_at(LocalDateTime.now())
+                .createAt(LocalDateTime.now())
+                .updateAt(LocalDateTime.now())
                 .build();
 
         when(petRepository.findBySlug("lola")).thenReturn(Optional.empty());

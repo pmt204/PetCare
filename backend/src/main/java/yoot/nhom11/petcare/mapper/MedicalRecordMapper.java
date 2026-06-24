@@ -17,7 +17,7 @@ public class MedicalRecordMapper {
         }
 
         ExaminationResponse examination = ExaminationResponse.builder()
-                .medicalRecordId(medicalRecord.getMedical_record_id())
+                .medicalRecordId(medicalRecord.getMedicalRecordId())
                 .date(medicalRecord.getDate())
                 .diagnosis(medicalRecord.getDiagnosis())
                 .treatment(medicalRecord.getTreatment())
@@ -49,12 +49,12 @@ public class MedicalRecordMapper {
         }
 
         PrescriptionResponse.PrescriptionResponseBuilder builder = PrescriptionResponse.builder()
-                .prescriptionId(prescription.getPrescription_id())
+                .prescriptionId(prescription.getPrescriptionId())
                 .quantity(prescription.getQuantity());
 
         if (prescription.getMedicine() != null) {
-            builder.medicineId(prescription.getMedicine().getMedicine_id())
-                   .medicineName(prescription.getMedicine().getMedicine_name())
+            builder.medicineId(prescription.getMedicine().getMedicineId())
+                   .medicineName(prescription.getMedicine().getMedicineName())
                    .unit(prescription.getMedicine().getUnit())
                    .description(prescription.getMedicine().getDescription());
         }
@@ -68,10 +68,10 @@ public class MedicalRecordMapper {
         }
 
         return TestResultResponse.builder()
-                .testResultId(testResult.getTest_result_id())
-                .testName(testResult.getTest_name())
+                .testResultId(testResult.getTestResultId())
+                .testName(testResult.getTestName())
                 .result(testResult.getResult())
-                .pdfUrl(testResult.getPdf_url())
+                .pdfUrl(testResult.getPdfUrl())
                 .build();
     }
 
@@ -81,8 +81,8 @@ public class MedicalRecordMapper {
         }
 
         return BillResponse.builder()
-                .billId(bill.getBill_id())
-                .totalPrice(bill.getTotal_price())
+                .billId(bill.getBillId())
+                .totalPrice(bill.getTotalPrice())
                 .status(bill.getStatus())
                 .build();
     }

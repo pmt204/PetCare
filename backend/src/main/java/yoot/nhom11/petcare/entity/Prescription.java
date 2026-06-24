@@ -16,22 +16,22 @@ public class Prescription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer prescription_id;
+    private Integer prescriptionId;
 
     @Column(name = "quantity")
     private Integer quantity;
 
     @Column(name = "create_at")
-    private LocalDateTime create_at;
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime update_at;
+    private LocalDateTime updateAt;
 
     @Column(name = "create_by")
-    private String create_by;
+    private String createBy;
 
     @Column(name = "update_by")
-    private String update_by;
+    private String updateBy;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

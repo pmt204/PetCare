@@ -17,7 +17,7 @@ public class MedicalRecord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer medical_record_id;
+    private Integer medicalRecordId;
 
     @Column(name = "date")
     private Date date;
@@ -29,16 +29,16 @@ public class MedicalRecord {
     private String treatment;
 
     @Column(name = "create_at")
-    private LocalDateTime create_at;
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime update_at;
+    private LocalDateTime updateAt;
 
     @Column(name = "create_by")
-    private String create_by;
+    private String createBy;
 
     @Column(name = "update_by")
-    private String update_by;
+    private String updateBy;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

@@ -22,35 +22,35 @@ public class PetSpecification {
             if (StringUtils.hasText(filter.getSearch())) {
                 String searchPattern = "%" + filter.getSearch().trim().toLowerCase() + "%";
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("pet_name")),
+                        criteriaBuilder.lower(root.get("petName")),
                         searchPattern
                 ));
             }
 
             if (StringUtils.hasText(filter.getPetType())) {
                 predicates.add(criteriaBuilder.equal(
-                        criteriaBuilder.lower(root.get("pet_type")),
+                        criteriaBuilder.lower(root.get("petType")),
                         filter.getPetType().trim().toLowerCase()
                 ));
             }
 
             if (StringUtils.hasText(filter.getPetGender())) {
                 predicates.add(criteriaBuilder.equal(
-                        criteriaBuilder.lower(root.get("pet_gender")),
+                        criteriaBuilder.lower(root.get("petGender")),
                         filter.getPetGender().trim().toLowerCase()
                 ));
             }
 
             if (filter.getMinAge() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(
-                        root.get("pet_age"),
+                        root.get("petAge"),
                         filter.getMinAge()
                 ));
             }
 
             if (filter.getMaxAge() != null) {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(
-                        root.get("pet_age"),
+                        root.get("petAge"),
                         filter.getMaxAge()
                 ));
             }

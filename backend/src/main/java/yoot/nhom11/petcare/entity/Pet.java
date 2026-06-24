@@ -17,22 +17,22 @@ public class Pet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer pet_id;
+    private Integer petId;
 
     @Column(name = "pet_avatar")
-    private String pet_avatar;
+    private String petAvatar;
 
     @Column(name = "pet_name")
-    private String pet_name;
+    private String petName;
 
     @Column(name = "pet_type")
-    private String pet_type;
+    private String petType;
 
     @Column(name = "pet_age")
-    private Integer pet_age;
+    private Integer petAge;
 
     @Column(name = "pet_gender")
-    private String pet_gender;
+    private String petGender;
 
     @Column(name = "slug", unique = true)
     private String slug;
@@ -46,6 +46,6 @@ public class Pet {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "pet", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MedicalRecord> medical_records;
+    private List<MedicalRecord> medicalRecords;
 
 }

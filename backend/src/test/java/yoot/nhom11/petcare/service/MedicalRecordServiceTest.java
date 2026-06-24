@@ -37,7 +37,7 @@ class MedicalRecordServiceTest {
     @BeforeEach
     void setUp() {
         medicalRecord = MedicalRecord.builder()
-                .medical_record_id(1)
+                .medicalRecordId(1)
                 .diagnosis("Fever")
                 .treatment("Rest")
                 .build();

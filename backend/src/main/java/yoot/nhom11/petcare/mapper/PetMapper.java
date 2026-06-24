@@ -14,12 +14,12 @@ public class PetMapper {
         }
 
         return PetResponse.builder()
-                .petId(pet.getPet_id())
-                .petName(pet.getPet_name())
-                .petType(pet.getPet_type())
-                .petAge(pet.getPet_age())
-                .petGender(pet.getPet_gender())
-                .petAvatar(pet.getPet_avatar())
+                .petId(pet.getPetId())
+                .petName(pet.getPetName())
+                .petType(pet.getPetType())
+                .petAge(pet.getPetAge())
+                .petGender(pet.getPetGender())
+                .petAvatar(pet.getPetAvatar())
                 .slug(pet.getSlug())
                 .createAt(pet.getCreateAt())
                 .updateAt(pet.getUpdateAt())
@@ -32,11 +32,11 @@ public class PetMapper {
         }
 
         return Pet.builder()
-                .pet_name(request.getPetName())
-                .pet_type(request.getPetType())
-                .pet_age(request.getPetAge())
-                .pet_gender(request.getPetGender())
-                .pet_avatar(request.getPetAvatar())
+                .petName(request.getPetName())
+                .petType(request.getPetType())
+                .petAge(request.getPetAge())
+                .petGender(request.getPetGender())
+                .petAvatar(request.getPetAvatar())
                 .build();
     }
 
@@ -45,10 +45,10 @@ public class PetMapper {
             return;
         }
 
-        pet.setPet_name(request.getPetName());
-        pet.setPet_type(request.getPetType());
-        pet.setPet_age(request.getPetAge());
-        pet.setPet_gender(request.getPetGender());
-        pet.setPet_avatar(request.getPetAvatar());
+        pet.setPetName(request.getPetName());
+        pet.setPetType(request.getPetType());
+        pet.setPetAge(request.getPetAge());
+        pet.setPetGender(request.getPetGender());
+        pet.setPetAvatar(request.getPetAvatar());
     }
 }
