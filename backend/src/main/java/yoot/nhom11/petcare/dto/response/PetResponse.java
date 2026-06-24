@@ -14,6 +14,7 @@ public class PetResponse {
     private Integer petAge;
     private String petGender;
     private String petAvatar;
+    private String slug;
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 }

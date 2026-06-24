@@ -5,16 +5,20 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import yoot.nhom11.petcare.dto.request.PetFilterRequest;
 import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
 import yoot.nhom11.petcare.entity.Pet;
 import yoot.nhom11.petcare.mapper.PetMapper;
 import yoot.nhom11.petcare.repository.PetRepository;
+import yoot.nhom11.petcare.repository.specification.PetSpecification;
 import yoot.nhom11.petcare.service.PetService;
+import yoot.nhom11.petcare.util.SlugUtils;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +30,9 @@ public class PetServiceImpl implements PetService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PetResponse> getAllPets() {
-        return petRepository.findAll().stream()
-                .map(petMapper::toPetResponse)
-                .collect(Collectors.toList());
+    public Page<PetResponse> getAllPets(PetFilterRequest filter, Pageable pageable) {
+        return petRepository.findAll(PetSpecification.filterPets(filter), pageable)
+                .map(petMapper::toPetResponse);
     }
 
     @Override
@@ -41,11 +44,21 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public PetResponse getPetBySlug(String slug) {
+        Pet pet = petRepository.findBySlug(slug)
+                .orElseThrow(
+                        () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found with slug: " + slug));
+        return petMapper.toPetResponse(pet);
+    }
+
+    @Override
     public PetResponse createPet(PetRequest request) {
         Pet pet = petMapper.toPet(request);
         LocalDateTime now = LocalDateTime.now();
-        pet.setCreate_at(now);
-        pet.setUpdate_at(now);
+        pet.setCreateAt(now);
+        pet.setUpdateAt(now);
+        pet.setSlug(generateUniqueSlug(pet.getPet_name(), null));
         Pet savedPet = petRepository.save(pet);
         return petMapper.toPetResponse(savedPet);
     }
@@ -54,11 +67,33 @@ public class PetServiceImpl implements PetService {
     public PetResponse updatePet(Integer id, PetRequest request) {
         Pet pet = petRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
-        
+
+        String oldName = pet.getPet_name();
         petMapper.updatePetFromRequest(request, pet);
-        pet.setUpdate_at(LocalDateTime.now());
-        
+
+        if (!pet.getPet_name().equalsIgnoreCase(oldName) || pet.getSlug() == null) {
+            pet.setSlug(generateUniqueSlug(pet.getPet_name(), id));
+        }
+
+        pet.setUpdateAt(LocalDateTime.now());
+
         Pet updatedPet = petRepository.save(pet);
         return petMapper.toPetResponse(updatedPet);
+    }
+
+    private String generateUniqueSlug(String name, Integer currentId) {
+        String baseSlug = SlugUtils.slugify(name);
+        if (baseSlug == null || baseSlug.isEmpty()) {
+            baseSlug = "pet";
+        }
+        String slug = baseSlug;
+        int count = 1;
+        while (true) {
+            Optional<Pet> existing = petRepository.findBySlug(slug);
+            if (existing.isEmpty() || (currentId != null && existing.get().getPet_id().equals(currentId))) {
+                return slug;
+            }
+            slug = baseSlug + "-" + count++;
+        }
     }
 }

@@ -34,11 +34,14 @@ public class Pet {
     @Column(name = "pet_gender")
     private String pet_gender;
 
+    @Column(name = "slug", unique = true)
+    private String slug;
+
     @Column(name = "create_at")
-    private LocalDateTime create_at;
+    private LocalDateTime createAt;
 
     @Column(name = "update_at")
-    private LocalDateTime update_at;
+    private LocalDateTime updateAt;
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

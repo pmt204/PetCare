@@ -20,8 +20,9 @@ public class PetMapper {
                 .petAge(pet.getPet_age())
                 .petGender(pet.getPet_gender())
                 .petAvatar(pet.getPet_avatar())
-                .createAt(pet.getCreate_at())
-                .updateAt(pet.getUpdate_at())
+                .slug(pet.getSlug())
+                .createAt(pet.getCreateAt())
+                .updateAt(pet.getUpdateAt())
                 .build();
     }
 

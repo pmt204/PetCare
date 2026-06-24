@@ -6,11 +6,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
+import yoot.nhom11.petcare.dto.request.PetFilterRequest;
 import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
 import yoot.nhom11.petcare.service.PetService;
@@ -66,15 +70,16 @@ class PetControllerTest {
 
     @Test
     void getAllPets_success() throws Exception {
-        when(petService.getAllPets()).thenReturn(Arrays.asList(petResponse1, petResponse2));
+        when(petService.getAllPets(any(PetFilterRequest.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(Arrays.asList(petResponse1, petResponse2)));
 
         mockMvc.perform(get("/api/pets"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(2))
-                .andExpect(jsonPath("$[0].petName").value("Fluffy"))
-                .andExpect(jsonPath("$[1].petName").value("Buddy"));
+                .andExpect(jsonPath("$.content.size()").value(2))
+                .andExpect(jsonPath("$.content[0].petName").value("Fluffy"))
+                .andExpect(jsonPath("$.content[1].petName").value("Buddy"));
 
-        verify(petService, times(1)).getAllPets();
+        verify(petService, times(1)).getAllPets(any(PetFilterRequest.class), any(Pageable.class));
     }
 
     @Test
@@ -180,5 +185,30 @@ class PetControllerTest {
                 .andExpect(jsonPath("$.petAvatar").value("http://avatar.url/updated"));
 
         verify(petService, times(1)).updatePet(eq(1), any(PetRequest.class));
+    }
+
+    @Test
+    void getPetBySlug_success() throws Exception {
+        petResponse1.setSlug("fluffy");
+        when(petService.getPetBySlug("fluffy")).thenReturn(petResponse1);
+
+        mockMvc.perform(get("/api/pets/slug/fluffy"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.petId").value(1))
+                .andExpect(jsonPath("$.slug").value("fluffy"))
+                .andExpect(jsonPath("$.petName").value("Fluffy"));
+
+        verify(petService, times(1)).getPetBySlug("fluffy");
+    }
+
+    @Test
+    void getPetBySlug_notFound() throws Exception {
+        when(petService.getPetBySlug("unknown-slug"))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found with slug: unknown-slug"));
+
+        mockMvc.perform(get("/api/pets/slug/unknown-slug"))
+                .andExpect(status().isNotFound());
+
+        verify(petService, times(1)).getPetBySlug("unknown-slug");
     }
 }
