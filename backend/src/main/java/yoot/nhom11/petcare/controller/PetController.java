@@ -1,8 +1,11 @@
 package yoot.nhom11.petcare.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -20,6 +23,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/pets")
 @RequiredArgsConstructor
+@Validated
 public class PetController {
 
     private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
@@ -37,12 +41,12 @@ public class PetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PetResponse> getPetById(@PathVariable Integer id) {
+    public ResponseEntity<PetResponse> getPetById(@PathVariable @Min(value = 1, message = "Pet ID must be greater than or equal to 1") Integer id) {
         return ResponseEntity.ok(petService.getPetById(id));
     }
 
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<PetResponse> getPetBySlug(@PathVariable String slug) {
+    public ResponseEntity<PetResponse> getPetBySlug(@PathVariable @NotBlank(message = "Slug must not be blank") String slug) {
         return ResponseEntity.ok(petService.getPetBySlug(slug));
     }
 
@@ -52,7 +56,7 @@ public class PetController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PetResponse> updatePet(@PathVariable Integer id, @Valid @RequestBody PetRequest request) {
+    public ResponseEntity<PetResponse> updatePet(@PathVariable @Min(value = 1, message = "Pet ID must be greater than or equal to 1") Integer id, @Valid @RequestBody PetRequest request) {
         return ResponseEntity.ok(petService.updatePet(id, request));
     }
 }

@@ -244,4 +244,28 @@ class PetControllerTest {
 
         verify(petService, times(1)).getPetBySlug("unknown-slug");
     }
+
+    @Test
+    void getPetById_invalidId_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/pets/0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.details.id").value("Pet ID must be greater than or equal to 1"));
+
+        verify(petService, never()).getPetById(any());
+    }
+
+    @Test
+    void getPetBySlug_invalidSlug_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/pets/slug/ "))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.details.slug").value("Slug must not be blank"));
+
+        verify(petService, never()).getPetBySlug(any());
+    }
 }

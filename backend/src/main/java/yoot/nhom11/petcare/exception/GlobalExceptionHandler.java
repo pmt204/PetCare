@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
@@ -41,6 +42,30 @@ public class GlobalExceptionHandler {
             } else {
                 details.put(error.getObjectName(), error.getDefaultMessage());
             }
+        });
+
+        ErrorResponse response = ErrorResponse.builder()
+                .code(ErrorCode.VALIDATION_FAILED.getCode())
+                .message(ErrorCode.VALIDATION_FAILED.getDefaultMessage())
+                .status(ErrorCode.VALIDATION_FAILED.getStatus().value())
+                .path(request.getRequestURI())
+                .timestamp(LocalDateTime.now())
+                .details(details)
+                .build();
+        return new ResponseEntity<>(response, ErrorCode.VALIDATION_FAILED.getStatus());
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException ex, HttpServletRequest request) {
+        Map<String, String> details = new HashMap<>();
+        ex.getConstraintViolations().forEach(violation -> {
+            String propertyPath = violation.getPropertyPath().toString();
+            String paramName = propertyPath;
+            int lastDot = propertyPath.lastIndexOf('.');
+            if (lastDot != -1) {
+                paramName = propertyPath.substring(lastDot + 1);
+            }
+            details.put(paramName, violation.getMessage());
         });
 
         ErrorResponse response = ErrorResponse.builder()

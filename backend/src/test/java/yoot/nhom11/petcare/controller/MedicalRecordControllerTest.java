@@ -158,4 +158,16 @@ class MedicalRecordControllerTest {
 
         verify(medicalRecordService, times(1)).getMedicalRecordDetail(99);
     }
+
+    @Test
+    void getMedicalRecordDetail_invalidId_returnsBadRequest() throws Exception {
+        mockMvc.perform(get("/api/medical-records/0"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.message").value("Validation failed"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.details.id").value("Medical record ID must be greater than or equal to 1"));
+
+        verify(medicalRecordService, never()).getMedicalRecordDetail(any());
+    }
 }
