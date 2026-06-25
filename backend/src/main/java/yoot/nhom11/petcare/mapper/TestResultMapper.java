@@ -23,8 +23,8 @@ public class TestResultMapper {
     public static TestResultResponse toResponse(TestResult tr) {
         TestResultResponse r = new TestResultResponse();
         r.setId(tr.getId());
-        r.setDoctorId(tr.getDoctor().getId());
-        r.setDoctorName(tr.getDoctor().getName());
+        r.setDoctorId(tr.getDoctor() != null ? tr.getDoctor().getId() : null);
+        r.setDoctorName(tr.getDoctor() != null ? tr.getDoctor().getName() : null);
         r.setPatientName(tr.getPatientName());
         r.setUploadedDate(tr.getUploadedDate());
         r.setTestType(tr.getTestType());

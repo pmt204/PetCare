@@ -130,4 +130,76 @@ public class Pet extends BaseEntity {
 			setUpdatedAt(updateAt.atZone(java.time.ZoneId.systemDefault()).toInstant());
 		}
 	}
+	public static class PetBuilder {
+		private Long id;
+		private java.time.Instant createdAt;
+		private java.time.Instant updatedAt;
+
+		private AppUser owner;
+		private String name;
+		private PetSpecies species;
+		private String breed;
+		private String avatarUrl;
+		private LocalDate birthDate;
+		private String gender;
+		private String slug;
+		private List<MedicalRecord> medicalRecords;
+		private Integer petAge;
+
+		public PetBuilder petId(int petId) {
+			this.id = (long) petId;
+			return this;
+		}
+
+		public PetBuilder medicalRecords(List<MedicalRecord> medicalRecords) {
+			this.medicalRecords = medicalRecords;
+			return this;
+		}
+
+		public PetBuilder petName(String petName) {
+			this.name = petName;
+			return this;
+		}
+
+		public PetBuilder petType(String petType) {
+			try {
+				this.species = petType != null ? PetSpecies.valueOf(petType.toUpperCase()) : null;
+			} catch (IllegalArgumentException e) {
+				this.species = null;
+			}
+			return this;
+		}
+
+		public PetBuilder petAvatar(String petAvatar) {
+			this.avatarUrl = petAvatar;
+			return this;
+		}
+
+		public PetBuilder petGender(String petGender) {
+			this.gender = petGender;
+			return this;
+		}
+
+		public PetBuilder createAt(LocalDateTime createAt) {
+			if (createAt != null) {
+				this.createdAt = createAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
+			}
+			return this;
+		}
+
+		public PetBuilder updateAt(LocalDateTime updateAt) {
+			if (updateAt != null) {
+				this.updatedAt = updateAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
+			}
+			return this;
+		}
+
+		public Pet build() {
+			Pet pet = new Pet(owner, name, species, breed, avatarUrl, birthDate, gender, slug, medicalRecords, petAge);
+			pet.setId(id);
+			pet.setCreatedAt(createdAt);
+			pet.setUpdatedAt(updatedAt);
+			return pet;
+		}
+	}
 }

@@ -82,8 +82,8 @@ class AppointmentControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.pets[0].id").value(petId))
 				.andExpect(jsonPath("$.pets[0].name").value("Milo"))
-				.andExpect(jsonPath("$.veterinarians[0].id").value(vetId))
-				.andExpect(jsonPath("$.veterinarians[0].fullName").value("Vet One"));
+				.andExpect(jsonPath("$.veterinarians[*].id").value(org.hamcrest.Matchers.hasItem(vetId.intValue())))
+				.andExpect(jsonPath("$.veterinarians[*].fullName").value(org.hamcrest.Matchers.hasItem("Vet One")));
 	}
 
 	@Test

@@ -11,6 +11,7 @@ public class PetResponse {
     private Integer petId;
     private String petName;
     private String petType;
+    private String petBreed;
     private Integer petAge;
     private String petGender;
     private String petAvatar;

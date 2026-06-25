@@ -57,6 +57,7 @@ class MedicalRecordMapperTest {
                 .bill(bill)
                 .build();
 
+        System.out.println("DEBUG RECORD PRESCRIPTIONS: " + record.getPrescriptions());
         MedicalRecordDetailResponse response = mapper.toMedicalRecordDetailResponse(record);
 
         assertNotNull(response);

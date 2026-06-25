@@ -104,4 +104,52 @@ public class Prescription extends BaseEntity {
 
 	@Column(name = "status", length = 50)
 	private String status;
+	public static class PrescriptionBuilder {
+		private Long id;
+		private java.time.Instant createdAt;
+		private java.time.Instant updatedAt;
+
+		private MedicalRecord medicalRecord;
+		private String medicationName;
+		private String dosage;
+		private String frequency;
+		private Integer durationDays;
+		private String instructions;
+		private Integer quantity;
+		private Medicine medicine;
+		private String createBy;
+		private String updateBy;
+		private Doctor doctor;
+		private String patientName;
+		private LocalDateTime createdDate;
+		private String medicineList;
+		private String status;
+
+		public PrescriptionBuilder prescriptionId(int prescriptionId) {
+			this.id = (long) prescriptionId;
+			return this;
+		}
+
+		public PrescriptionBuilder createAt(LocalDateTime createAt) {
+			if (createAt != null) {
+				this.createdAt = createAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
+			}
+			return this;
+		}
+
+		public PrescriptionBuilder updateAt(LocalDateTime updateAt) {
+			if (updateAt != null) {
+				this.updatedAt = updateAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
+			}
+			return this;
+		}
+
+		public Prescription build() {
+			Prescription p = new Prescription(medicalRecord, medicationName, dosage, frequency, durationDays, instructions, quantity, medicine, createBy, updateBy, doctor, patientName, createdDate, medicineList, status);
+			p.setId(id);
+			p.setCreatedAt(createdAt);
+			p.setUpdatedAt(updatedAt);
+			return p;
+		}
+	}
 }

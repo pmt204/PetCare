@@ -52,4 +52,10 @@ public class Medicine {
     public void setMedicineId(Integer medicineId) {
         this.id = medicineId != null ? medicineId.longValue() : null;
     }
+    public static class MedicineBuilder {
+        public MedicineBuilder medicineId(int medicineId) {
+            this.id = (long) medicineId;
+            return this;
+        }
+    }
 }

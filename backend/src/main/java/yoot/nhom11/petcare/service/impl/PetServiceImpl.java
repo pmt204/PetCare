@@ -27,6 +27,7 @@ public class PetServiceImpl implements PetService {
 
     private final PetRepository petRepository;
     private final PetMapper petMapper;
+    private final yoot.nhom11.petcare.repository.AppUserRepository appUserRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -38,7 +39,7 @@ public class PetServiceImpl implements PetService {
     @Override
     @Transactional(readOnly = true)
     public PetResponse getPetById(Integer id) {
-        Pet pet = petRepository.findById(id)
+        Pet pet = petRepository.findById(id.longValue())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
         return petMapper.toPetResponse(pet);
     }
@@ -59,13 +60,30 @@ public class PetServiceImpl implements PetService {
         pet.setCreateAt(now);
         pet.setUpdateAt(now);
         pet.setSlug(generateUniqueSlug(pet.getPetName(), null));
+
+        Long ownerId = request.getOwnerId();
+        if (ownerId == null) {
+            org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof yoot.nhom11.petcare.security.UserDetailsImpl) {
+                ownerId = ((yoot.nhom11.petcare.security.UserDetailsImpl) auth.getPrincipal()).getId();
+            }
+        }
+
+        if (ownerId != null && appUserRepository != null) {
+            yoot.nhom11.petcare.entity.AppUser owner = appUserRepository.findById(ownerId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Owner not found"));
+            pet.setOwner(owner);
+        } else if (appUserRepository != null) {
+            appUserRepository.findAll().stream().findFirst().ifPresent(pet::setOwner);
+        }
+
         Pet savedPet = petRepository.save(pet);
         return petMapper.toPetResponse(savedPet);
     }
 
     @Override
     public PetResponse updatePet(Integer id, PetRequest request) {
-        Pet pet = petRepository.findById(id)
+        Pet pet = petRepository.findById(id.longValue())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
 
         String oldName = pet.getPetName();
@@ -79,6 +97,13 @@ public class PetServiceImpl implements PetService {
 
         Pet updatedPet = petRepository.save(pet);
         return petMapper.toPetResponse(updatedPet);
+    }
+
+    @Override
+    public void deletePet(Integer id) {
+        Pet pet = petRepository.findById(id.longValue())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pet not found"));
+        petRepository.delete(pet);
     }
 
     private String generateUniqueSlug(String name, Integer currentId) {

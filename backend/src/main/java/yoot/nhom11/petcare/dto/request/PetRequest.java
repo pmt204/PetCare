@@ -16,10 +16,14 @@ public class PetRequest {
     @NotBlank(message = "Pet type is required")
     private String petType;
 
+    private String petBreed;
+
     @Min(value = 0, message = "Pet age must be greater than or equal to 0")
     private Integer petAge;
 
     private String petGender;
 
     private String petAvatar;
+
+    private Long ownerId;
 }

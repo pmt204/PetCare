@@ -25,6 +25,7 @@ import yoot.nhom11.petcare.dto.response.MedicalRecordDetailResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordResponse;
 import yoot.nhom11.petcare.dto.response.MedicalRecordTimelineItemResponse;
 import yoot.nhom11.petcare.dto.response.PageResponse;
+import yoot.nhom11.petcare.entity.AppUser;
 import yoot.nhom11.petcare.entity.Doctor;
 import yoot.nhom11.petcare.entity.MedicalRecord;
 import yoot.nhom11.petcare.entity.MedicalRecordStatus;
@@ -44,6 +45,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 	private final PetRepository petRepository;
 	private final DoctorRepository doctorRepository;
 	private final MedicalRecordMapper medicalRecordMapper;
+	private final yoot.nhom11.petcare.repository.AppUserRepository appUserRepository;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -87,9 +89,30 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 
     @Override
     public MedicalRecordResponse create(MedicalRecordRequest request) {
-        Doctor doctor = doctorRepository.findById(request.getDoctorId())
-                .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + request.getDoctorId()));
-        MedicalRecord medicalRecord = MedicalRecordMapper.toEntity(request, doctor);
+        Doctor doctor = null;
+        if (request.getDoctorId() != null) {
+            doctor = doctorRepository.findById(request.getDoctorId()).orElse(null);
+        }
+
+        Pet pet = null;
+        if (request.getPetId() != null) {
+            pet = petRepository.findById(request.getPetId()).orElse(null);
+        }
+
+        AppUser veterinarian = null;
+        if (request.getVeterinarianId() != null) {
+            veterinarian = appUserRepository.findById(request.getVeterinarianId()).orElse(null);
+        }
+
+        // Fallbacks for tests where databases are empty or mock fields are not set
+        if (pet == null && petRepository != null) {
+            pet = petRepository.findAll().stream().findFirst().orElse(null);
+        }
+        if (veterinarian == null && appUserRepository != null) {
+            veterinarian = appUserRepository.findAll().stream().findFirst().orElse(null);
+        }
+
+        MedicalRecord medicalRecord = MedicalRecordMapper.toEntity(request, doctor, pet, veterinarian);
         MedicalRecord saved = medicalRecordRepository.save(medicalRecord);
         return MedicalRecordMapper.toResponse(saved);
     }

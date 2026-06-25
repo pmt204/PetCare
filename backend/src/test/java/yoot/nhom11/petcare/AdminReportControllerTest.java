@@ -2,6 +2,7 @@ package yoot.nhom11.petcare;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -11,11 +12,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import yoot.nhom11.petcare.config.SecurityConfig;
 import yoot.nhom11.petcare.controller.AdminReportController;
 import yoot.nhom11.petcare.repository.AppointmentRepository;
+import yoot.nhom11.petcare.security.UserDetailsServiceImpl;
+import yoot.nhom11.petcare.security.AuthEntryPointJwt;
+import yoot.nhom11.petcare.security.JwtUtils;
 
+import jakarta.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doAnswer;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,8 +36,26 @@ public class AdminReportControllerTest {
     @MockBean
     private AppointmentRepository appointmentRepository;
 
+    @MockBean
+    private UserDetailsServiceImpl userDetailsService;
+
+    @MockBean
+    private AuthEntryPointJwt unauthorizedHandler;
+
+    @MockBean
+    private JwtUtils jwtUtils;
+
     @Autowired
     private ObjectMapper objectMapper;
+
+    @BeforeEach
+    void setupSecurity() throws Exception {
+        doAnswer(invocation -> {
+            HttpServletResponse response = invocation.getArgument(1);
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return null;
+        }).when(unauthorizedHandler).commence(any(), any(), any());
+    }
 
     @Test
     void whenNotAuthenticated_thenUnauthorized() throws Exception {

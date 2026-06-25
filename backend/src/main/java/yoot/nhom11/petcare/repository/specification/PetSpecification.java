@@ -22,21 +22,26 @@ public class PetSpecification {
             if (StringUtils.hasText(filter.getSearch())) {
                 String searchPattern = "%" + filter.getSearch().trim().toLowerCase() + "%";
                 predicates.add(criteriaBuilder.like(
-                        criteriaBuilder.lower(root.get("petName")),
+                        criteriaBuilder.lower(root.get("name")),
                         searchPattern
                 ));
             }
 
             if (StringUtils.hasText(filter.getPetType())) {
-                predicates.add(criteriaBuilder.equal(
-                        criteriaBuilder.lower(root.get("petType")),
-                        filter.getPetType().trim().toLowerCase()
-                ));
+                try {
+                    yoot.nhom11.petcare.entity.PetSpecies speciesEnum = yoot.nhom11.petcare.entity.PetSpecies.valueOf(filter.getPetType().trim().toUpperCase());
+                    predicates.add(criteriaBuilder.equal(
+                            root.get("species"),
+                            speciesEnum
+                    ));
+                } catch (IllegalArgumentException e) {
+                    // Ignore or match nothing
+                }
             }
 
             if (StringUtils.hasText(filter.getPetGender())) {
                 predicates.add(criteriaBuilder.equal(
-                        criteriaBuilder.lower(root.get("petGender")),
+                        criteriaBuilder.lower(root.get("gender")),
                         filter.getPetGender().trim().toLowerCase()
                 ));
             }
@@ -52,6 +57,13 @@ public class PetSpecification {
                 predicates.add(criteriaBuilder.lessThanOrEqualTo(
                         root.get("petAge"),
                         filter.getMaxAge()
+                ));
+            }
+
+            if (filter.getOwnerId() != null) {
+                predicates.add(criteriaBuilder.equal(
+                        root.get("owner").get("id"),
+                        filter.getOwnerId()
                 ));
             }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import DashboardLayout from '../../layouts/DashboardLayout';
+import AdminLayout from '../../layouts/AdminLayout';
 import { Plus, User, Award, Shield } from 'lucide-react';
 
 interface Vet {
@@ -18,16 +18,16 @@ export const Vets: React.FC = () => {
   ]);
 
   return (
-    <DashboardLayout>
+    <AdminLayout>
       <div className="space-y-8 animate-fade-in font-sans">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Clinic Veterinarians</h1>
             <p className="text-slate-500 text-sm mt-1">Manage veterinary accounts, specializations and profiles</p>
           </div>
-          <button className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-xl shadow-sm transition">
+          <button className="flex items-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold py-2 px-4 rounded-xl shadow-sm transition">
             <Plus className="h-5 w-5" />
-            <span>Add Vet</span>
+            <span>Thêm Bác sĩ</span>
           </button>
         </div>
 
@@ -41,7 +41,7 @@ export const Vets: React.FC = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-slate-800">{vet.name}</h3>
-                  <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 py-0.5 px-2.5 rounded-full">{vet.specialty}</span>
+                  <span className="text-xs font-semibold text-teal-600 bg-teal-50 py-0.5 px-2.5 rounded-full">{vet.specialty}</span>
                 </div>
               </div>
 
@@ -52,7 +52,7 @@ export const Vets: React.FC = () => {
                 </div>
                 <div className="border-l border-slate-100">
                   <span className="text-slate-400 text-xs block uppercase">Rating</span>
-                  <span className="font-bold text-indigo-600 mt-0.5 block">⭐ {vet.rating}</span>
+                  <span className="font-bold text-teal-600 mt-0.5 block">⭐ {vet.rating}</span>
                 </div>
               </div>
 
@@ -70,6 +70,6 @@ export const Vets: React.FC = () => {
           ))}
         </div>
       </div>
-    </DashboardLayout>
+    </AdminLayout>
   );
 };

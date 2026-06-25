@@ -4,6 +4,7 @@ import org.springframework.stereotype.Component;
 import yoot.nhom11.petcare.dto.request.PetRequest;
 import yoot.nhom11.petcare.dto.response.PetResponse;
 import yoot.nhom11.petcare.entity.Pet;
+import yoot.nhom11.petcare.entity.PetSpecies;
 
 @Component
 public class PetMapper {
@@ -17,6 +18,7 @@ public class PetMapper {
                 .petId(pet.getPetId())
                 .petName(pet.getPetName())
                 .petType(pet.getPetType())
+                .petBreed(pet.getBreed())
                 .petAge(pet.getPetAge())
                 .petGender(pet.getPetGender())
                 .petAvatar(pet.getPetAvatar())
@@ -31,12 +33,22 @@ public class PetMapper {
             return null;
         }
 
+        PetSpecies species = null;
+        if (request.getPetType() != null) {
+            try {
+                species = PetSpecies.valueOf(request.getPetType().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                // Fallback
+            }
+        }
+
         return Pet.builder()
-                .petName(request.getPetName())
-                .petType(request.getPetType())
+                .name(request.getPetName())
+                .species(species)
+                .breed(request.getPetBreed())
                 .petAge(request.getPetAge())
-                .petGender(request.getPetGender())
-                .petAvatar(request.getPetAvatar())
+                .gender(request.getPetGender())
+                .avatarUrl(request.getPetAvatar())
                 .build();
     }
 
@@ -47,6 +59,7 @@ public class PetMapper {
 
         pet.setPetName(request.getPetName());
         pet.setPetType(request.getPetType());
+        pet.setBreed(request.getPetBreed());
         pet.setPetAge(request.getPetAge());
         pet.setPetGender(request.getPetGender());
         pet.setPetAvatar(request.getPetAvatar());

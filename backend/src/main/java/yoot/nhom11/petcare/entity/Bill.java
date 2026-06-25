@@ -49,4 +49,10 @@ public class Bill {
     public void setBillId(Integer billId) {
         this.id = billId != null ? billId.longValue() : null;
     }
+    public static class BillBuilder {
+        public BillBuilder billId(int billId) {
+            this.id = (long) billId;
+            return this;
+        }
+    }
 }

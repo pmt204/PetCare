@@ -12,4 +12,5 @@ public interface PetService {
     PetResponse getPetBySlug(String slug);
     PetResponse createPet(PetRequest request);
     PetResponse updatePet(Integer id, PetRequest request);
+    void deletePet(Integer id);
 }

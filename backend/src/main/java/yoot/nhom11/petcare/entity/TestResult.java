@@ -71,4 +71,10 @@ public class TestResult {
     public void setTestResultId(Integer testResultId) {
         this.id = testResultId != null ? testResultId.longValue() : null;
     }
+    public static class TestResultBuilder {
+        public TestResultBuilder testResultId(int testResultId) {
+            this.id = (long) testResultId;
+            return this;
+        }
+    }
 }

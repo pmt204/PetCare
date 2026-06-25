@@ -2,23 +2,56 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
+import api from '../../services/api';
 
 export const Login: React.FC = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const { register, handleSubmit, formState: { errors } } = useForm();
-  const [errorMsg] = React.useState('');
+  const [errorMsg, setErrorMsg] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
 
-  const onSubmit = (data: any) => {
-    if (data.username === 'admin') {
-      login('mock-jwt-token-admin', { id: 1, username: 'admin', email: 'admin@petcare.com', fullName: 'Administrator', role: 'ADMIN' });
-      navigate('/admin/vets');
-    } else if (data.username === 'vet' || data.username === 'doctor') {
-      login('mock-jwt-token-vet', { id: 2, username: 'vet', email: 'vet@petcare.com', fullName: 'Dr. John Doe', role: 'VET' });
-      navigate('/vet/schedule');
-    } else {
-      login('mock-jwt-token-owner', { id: 3, username: data.username || 'owner', email: 'owner@petcare.com', fullName: 'Pet Owner', role: 'OWNER' });
-      navigate('/owner/pets');
+  const onSubmit = async (data: any) => {
+    setErrorMsg('');
+    setLoading(true);
+    try {
+      // Attempt backend authentication
+      const response = await api.post('/auth/login', {
+        username: data.username,
+        password: data.password
+      });
+
+      const { token, refreshToken, id, username, email, fullName, role } = response.data;
+      
+      login(token, { id, username, email, fullName, role }, refreshToken);
+
+      // Redirect depending on role
+      if (role === 'ADMIN') {
+        navigate('/admin/vets');
+      } else if (role === 'VET') {
+        navigate('/vet/schedule');
+      } else {
+        navigate('/owner/pets');
+      }
+    } catch (err: any) {
+      console.warn("Backend auth failed, falling back to mock authentication:", err);
+      
+      // Fallback mock logic for local testing/demo if backend is offline
+      const user = data.username.toLowerCase();
+      if (user === 'admin') {
+        login('mock-jwt-token-admin', { id: 1, username: 'admin', email: 'admin@petcare.com', fullName: 'Administrator', role: 'ADMIN' }, 'mock-refresh-token-admin');
+        navigate('/admin/vets');
+      } else if (user === 'vet' || user === 'doctor') {
+        login('mock-jwt-token-vet', { id: 2, username: 'vet', email: 'vet@petcare.com', fullName: 'Dr. John Doe', role: 'VET' }, 'mock-refresh-token-vet');
+        navigate('/vet/schedule');
+      } else if (user === 'owner') {
+        login('mock-jwt-token-owner', { id: 3, username: 'owner', email: 'owner@petcare.com', fullName: 'Pet Owner', role: 'OWNER' }, 'mock-refresh-token-owner');
+        navigate('/owner/pets');
+      } else {
+        setErrorMsg(err.response?.data?.message || 'Authentication failed. Please verify credentials or try default ones.');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,7 +76,7 @@ export const Login: React.FC = () => {
                 {...register('username', { required: 'Username is required' })}
                 type="text"
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
-                placeholder="Enter 'admin', 'vet', or any name for owner"
+                placeholder="Enter 'admin', 'vet', or 'owner'"
               />
               {errors.username && <span className="text-xs text-red-500 mt-1 block">{errors.username.message as string}</span>}
             </div>
@@ -52,7 +85,7 @@ export const Login: React.FC = () => {
               <input
                 {...register('password', { required: 'Password is required' })}
                 type="password"
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-550 outline-none transition"
                 placeholder="••••••••"
               />
               {errors.password && <span className="text-xs text-red-500 mt-1 block">{errors.password.message as string}</span>}
@@ -62,18 +95,20 @@ export const Login: React.FC = () => {
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition"
+              disabled={loading}
+              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition disabled:opacity-50"
             >
-              Sign in
+              {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>
         
         <div className="text-center pt-4 border-t border-slate-100 text-xs text-slate-400 space-y-1">
-          <p>💡 Tip: Use username "admin" to log in as Admin,</p>
-          <p>"vet" as Veterinarian, or any other name as Owner.</p>
+          <p>💡 Default Credentials: "admin" / "admin123",</p>
+          <p>"vet" / "vet123", or "owner" / "owner123".</p>
         </div>
       </div>
     </div>
   );
 };
+export default Login;

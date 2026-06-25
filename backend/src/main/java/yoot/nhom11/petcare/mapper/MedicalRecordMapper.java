@@ -119,10 +119,22 @@ public class MedicalRecordMapper {
         BillResponse bill = toBillResponse(medicalRecord.getBill());
 
         return MedicalRecordDetailResponse.builder()
+                .id(medicalRecord.getId())
                 .examination(examination)
                 .prescriptions(prescriptions)
                 .testResults(testResults)
                 .bill(bill)
+                .pet(toPetSummary(medicalRecord.getPet()))
+                .veterinarian(toUserSummary(medicalRecord.getVeterinarian()))
+                .visitAt(medicalRecord.getVisitAt())
+                .status(medicalRecord.getStatus())
+                .reasonForVisit(medicalRecord.getReasonForVisit())
+                .diagnosis(medicalRecord.getDiagnosis())
+                .treatmentNote(medicalRecord.getTreatmentNote())
+                .followUpInstruction(medicalRecord.getFollowUpInstruction())
+                .nextVisitDate(medicalRecord.getNextVisitDate())
+                .prescriptionItems(toPrescriptionResponsesStatic(medicalRecord.getPrescriptions()))
+                .labResults(toLabResultResponses(medicalRecord.getLabResults()))
                 .build();
     }
 
@@ -171,13 +183,19 @@ public class MedicalRecordMapper {
     }
 
     // Static mapping methods for tai/admin's branch:
-    public static MedicalRecord toEntity(MedicalRecordRequest r, Doctor doctor) {
+    public static MedicalRecord toEntity(MedicalRecordRequest r, Doctor doctor, Pet pet, AppUser veterinarian) {
         MedicalRecord mr = new MedicalRecord();
         mr.setDoctor(doctor);
+        mr.setPet(pet);
+        mr.setVeterinarian(veterinarian);
         mr.setPatientName(r.getPatientName());
         mr.setDiagnosis(r.getDiagnosis());
         mr.setSymptoms(r.getSymptoms());
         mr.setNotes(r.getNotes());
+        mr.setTreatmentNote(r.getTreatmentNote() != null ? r.getTreatmentNote() : r.getNotes());
+        mr.setFollowUpInstruction(r.getFollowUpInstruction());
+        mr.setNextVisitDate(r.getNextVisitDate());
+        mr.setReasonForVisit(r.getReasonForVisit());
         mr.setCreatedDate(LocalDateTime.now());
         mr.setVisitAt(Instant.now());
         mr.setStatus(MedicalRecordStatus.COMPLETED);

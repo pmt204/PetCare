@@ -36,6 +36,9 @@ class PetServiceTest {
     @Mock
     private PetRepository petRepository;
 
+    @Mock
+    private yoot.nhom11.petcare.repository.AppUserRepository appUserRepository;
+
     @Spy
     private PetMapper petMapper;
 
@@ -88,24 +91,24 @@ class PetServiceTest {
 
     @Test
     void getPetById_success() {
-        when(petRepository.findById(1)).thenReturn(Optional.of(pet1));
+        when(petRepository.findById(1L)).thenReturn(Optional.of(pet1));
 
         PetResponse response = petService.getPetById(1);
 
         assertNotNull(response);
         assertEquals(1, response.getPetId());
         assertEquals("Fluffy", response.getPetName());
-        verify(petRepository, times(1)).findById(1);
+        verify(petRepository, times(1)).findById(1L);
     }
 
     @Test
     void getPetById_notFound() {
-        when(petRepository.findById(99)).thenReturn(Optional.empty());
+        when(petRepository.findById(99L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> petService.getPetById(99));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("Pet not found", exception.getReason());
-        verify(petRepository, times(1)).findById(99);
+        verify(petRepository, times(1)).findById(99L);
     }
 
     @Test
@@ -154,7 +157,7 @@ class PetServiceTest {
                 .petAvatar("http://avatar.url/updated")
                 .build();
 
-        when(petRepository.findById(1)).thenReturn(Optional.of(pet1));
+        when(petRepository.findById(1L)).thenReturn(Optional.of(pet1));
         when(petRepository.findBySlug("fluffy-updated")).thenReturn(Optional.empty());
         when(petRepository.save(any(Pet.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -165,7 +168,7 @@ class PetServiceTest {
         assertEquals(4, response.getPetAge());
         assertEquals("http://avatar.url/updated", response.getPetAvatar());
         assertEquals("fluffy-updated", response.getSlug());
-        verify(petRepository, times(1)).findById(1);
+        verify(petRepository, times(1)).findById(1L);
         verify(petRepository, times(1)).save(any(Pet.class));
     }
 
@@ -176,12 +179,12 @@ class PetServiceTest {
                 .petType("Cat")
                 .build();
 
-        when(petRepository.findById(99)).thenReturn(Optional.empty());
+        when(petRepository.findById(99L)).thenReturn(Optional.empty());
 
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> petService.updatePet(99, request));
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
         assertEquals("Pet not found", exception.getReason());
-        verify(petRepository, times(1)).findById(99);
+        verify(petRepository, times(1)).findById(99L);
         verify(petRepository, never()).save(any(Pet.class));
     }
 

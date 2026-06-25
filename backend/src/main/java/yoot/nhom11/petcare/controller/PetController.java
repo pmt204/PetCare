@@ -24,7 +24,7 @@ public class PetController {
     @GetMapping
     public ResponseEntity<Page<PetResponse>> getAllPets(
             PetFilterRequest filter,
-            @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(petService.getAllPets(filter, pageable));
     }
 
@@ -46,5 +46,11 @@ public class PetController {
     @PutMapping("/{id}")
     public ResponseEntity<PetResponse> updatePet(@PathVariable Integer id, @Valid @RequestBody PetRequest request) {
         return ResponseEntity.ok(petService.updatePet(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePet(@PathVariable Integer id) {
+        petService.deletePet(id);
+        return ResponseEntity.noContent().build();
     }
 }

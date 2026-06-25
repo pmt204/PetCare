@@ -12,4 +12,5 @@ public class PetFilterRequest {
     private String petGender;
     private Integer minAge;
     private Integer maxAge;
+    private Long ownerId;
 }

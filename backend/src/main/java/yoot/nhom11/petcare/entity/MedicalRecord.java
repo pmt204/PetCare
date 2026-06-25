@@ -148,4 +148,84 @@ public class MedicalRecord extends BaseEntity {
 
 	@Column(name = "update_by")
 	private String updateBy;
+	public static class MedicalRecordBuilder {
+		private Long id;
+		private java.time.Instant createdAt;
+		private java.time.Instant updatedAt;
+
+		private Pet pet;
+		private AppUser veterinarian;
+		private Instant visitAt;
+		private MedicalRecordStatus status;
+		private String reasonForVisit;
+		private String diagnosis;
+		private String treatmentNote;
+		private String followUpInstruction;
+		private LocalDate nextVisitDate;
+		private List<Prescription> prescriptions;
+		private List<LabResult> labResults;
+		private List<TestResult> testResults;
+		private Bill bill;
+		private Doctor doctor;
+		private String patientName;
+		private LocalDateTime createdDate;
+		private String symptoms;
+		private String notes;
+		private String createBy;
+		private String updateBy;
+
+		public MedicalRecordBuilder medicalRecordId(int medicalRecordId) {
+			this.id = (long) medicalRecordId;
+			return this;
+		}
+
+		public MedicalRecordBuilder prescriptions(List<Prescription> prescriptions) {
+			this.prescriptions = prescriptions;
+			return this;
+		}
+
+		public MedicalRecordBuilder testResults(List<TestResult> testResults) {
+			this.testResults = testResults;
+			return this;
+		}
+
+		public MedicalRecordBuilder labResults(List<LabResult> labResults) {
+			this.labResults = labResults;
+			return this;
+		}
+
+		public MedicalRecordBuilder date(java.util.Date date) {
+			if (date != null) {
+				this.visitAt = date.toInstant();
+			}
+			return this;
+		}
+
+		public MedicalRecordBuilder treatment(String treatment) {
+			this.treatmentNote = treatment;
+			return this;
+		}
+
+		public MedicalRecordBuilder createAt(LocalDateTime createAt) {
+			if (createAt != null) {
+				this.createdAt = createAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
+			}
+			return this;
+		}
+
+		public MedicalRecordBuilder updateAt(LocalDateTime updateAt) {
+			if (updateAt != null) {
+				this.updatedAt = updateAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
+			}
+			return this;
+		}
+
+		public MedicalRecord build() {
+			MedicalRecord record = new MedicalRecord(pet, veterinarian, visitAt, status, reasonForVisit, diagnosis, treatmentNote, followUpInstruction, nextVisitDate, prescriptions, labResults, testResults, bill, doctor, patientName, createdDate, symptoms, notes, createBy, updateBy);
+			record.setId(id);
+			record.setCreatedAt(createdAt);
+			record.setUpdatedAt(updatedAt);
+			return record;
+		}
+	}
 }

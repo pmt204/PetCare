@@ -38,4 +38,14 @@ public class AppUser extends BaseEntity {
 
 	@Column(name = "active", nullable = false)
 	private boolean active;
+
+	@Column(name = "avatar_url", length = 500)
+	private String avatarUrl;
+
+	@Column(name = "phone", length = 50)
+	private String phone;
+
+	@Column(name = "address", length = 500)
+	private String address;
 }
+
