@@ -1,0 +1,62 @@
+package yoot.nhom11.petcare.controller;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import yoot.nhom11.petcare.dto.request.PetFilterRequest;
+import yoot.nhom11.petcare.dto.request.PetRequest;
+import yoot.nhom11.petcare.dto.response.PetResponse;
+import yoot.nhom11.petcare.service.PetService;
+import yoot.nhom11.petcare.util.SortValidator;
+
+import java.util.Set;
+
+@RestController
+@RequestMapping("/api/pets")
+@RequiredArgsConstructor
+@Validated
+public class PetController {
+
+    private static final Set<String> ALLOWED_SORT_FIELDS = Set.of(
+            "petId", "petName", "petType", "petAge", "petGender", "createAt", "updateAt"
+    );
+
+    private final PetService petService;
+
+    @GetMapping
+    public ResponseEntity<Page<PetResponse>> getAllPets(
+            PetFilterRequest filter,
+            @PageableDefault(size = 10, sort = "createAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        SortValidator.validateSort(pageable, ALLOWED_SORT_FIELDS);
+        return ResponseEntity.ok(petService.getAllPets(filter, pageable));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PetResponse> getPetById(@PathVariable @Min(value = 1, message = "Pet ID must be greater than or equal to 1") Integer id) {
+        return ResponseEntity.ok(petService.getPetById(id));
+    }
+
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<PetResponse> getPetBySlug(@PathVariable @NotBlank(message = "Slug must not be blank") String slug) {
+        return ResponseEntity.ok(petService.getPetBySlug(slug));
+    }
+
+    @PostMapping
+    public ResponseEntity<PetResponse> createPet(@Valid @RequestBody PetRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(petService.createPet(request));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<PetResponse> updatePet(@PathVariable @Min(value = 1, message = "Pet ID must be greater than or equal to 1") Integer id, @Valid @RequestBody PetRequest request) {
+        return ResponseEntity.ok(petService.updatePet(id, request));
+    }
+}
