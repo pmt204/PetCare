@@ -1,17 +1,18 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Stethoscope, Activity, Syringe, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
 
   const handleCtaClick = () => {
     if (user) {
       if (user.role === 'OWNER') {
-        navigate('/owner/book');
+        navigate('/owner/book', { state: { from: location.pathname } });
       } else if (user.role === 'VET') {
         navigate('/vet/schedule');
       } else {
@@ -30,7 +31,7 @@ export const Home: React.FC = () => {
         <section className="relative overflow-hidden bg-slate-900 text-white rounded-3xl mx-4 sm:mx-6 lg:mx-8 mt-6 shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-teal-900/90 to-slate-900/60 z-10" />
           <img 
-            src="/vet_hero_banner.jpg" 
+            src="/images/vet_hero_banner.jpg" 
             alt="Veterinary Doctors" 
             className="absolute inset-0 w-full h-full object-cover transform scale-105 hover:scale-100 transition duration-1000"
           />
@@ -115,7 +116,7 @@ export const Home: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-teal-600 to-orange-400 rounded-2xl filter blur-2xl opacity-10 transform scale-95" />
               <div className="relative bg-white p-4 rounded-2xl shadow-lg border border-slate-100">
                 <img 
-                  src="/vet_hero_banner.jpg" 
+                  src="/images/vet_why_choose.jpg" 
                   alt="Why Choose Us illustration" 
                   className="rounded-xl w-full h-80 object-cover"
                 />

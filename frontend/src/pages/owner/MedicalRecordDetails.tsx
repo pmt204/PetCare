@@ -46,8 +46,8 @@ export const MedicalRecordDetails: React.FC = () => {
           { medicationName: 'Amoxicillin Vet', dosage: '250mg', frequency: '1 tablet / day', durationDays: 7, instructions: 'Morning' }
         ],
         services: [
-          { name: 'General Physical Consultation', price: 45.00 },
-          { name: 'Throat Swab / Culture', price: 20.00 }
+          { name: 'General Physical Consultation', price: 450000 },
+          { name: 'Throat Swab / Culture', price: 200000 }
         ],
         labResultFile: { name: 'throat_swab_milo_20260622.pdf', url: '#' },
         paymentStatus: 'PAID'
@@ -79,7 +79,7 @@ export const MedicalRecordDetails: React.FC = () => {
 
   const invoiceMedications: InvoicePrescriptionItem[] = record.prescriptions.map(p => ({
     name: p.medicationName,
-    price: 15.00 // Mock price per medication
+    price: 150000 // Mock price per medication
   }));
 
   return (

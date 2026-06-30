@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Menu, X, ChevronDown, Calendar, History, Shield, LogIn } from 'lucide-react';
+import { BookAppointmentModal } from '../components/BookAppointmentModal';
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -9,6 +10,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = React.useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = React.useState(false);
+  const [initialVetId, setInitialVetId] = React.useState<string | undefined>(undefined);
 
   const handleLogout = () => {
     logout();
@@ -17,7 +20,22 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
     navigate('/login');
   };
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    if (path === '/owner/book' && isBookingModalOpen) return true;
+    return location.pathname === path;
+  };
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('book') === 'true' && user?.role === 'OWNER') {
+      setIsBookingModalOpen(true);
+      const vetId = params.get('vetId');
+      if (vetId) {
+        setInitialVetId(vetId);
+      }
+      window.history.replaceState({}, '', location.pathname);
+    }
+  }, [location, user]);
 
   const navLinkClass = (path: string) => 
     `text-sm font-semibold transition-colors duration-200 py-2 px-1 border-b-2 ${
@@ -58,24 +76,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <Link to="/vets" className={navLinkClass('/vets')}>Bác sĩ</Link>
               
               {/* Contextual links based on login state and role */}
-              {user?.role === 'OWNER' && (
-                <>
-                  <Link to="/owner/book" className={navLinkClass('/owner/book')}>Đặt lịch</Link>
-                  <Link to="/owner/pets" className={navLinkClass('/owner/pets')}>Thú cưng</Link>
-                  <Link to="/owner/history" className={navLinkClass('/owner/history')}>Lịch sử khám</Link>
-                </>
-              )}
               {user?.role === 'VET' && (
                 <>
                   <Link to="/vet/schedule" className={navLinkClass('/vet/schedule')}>Lịch hẹn bác sĩ</Link>
                   <Link to="/vet/records" className={navLinkClass('/vet/records')}>Tạo bệnh án</Link>
                 </>
-              )}
-
-
-              {/* General booking redirection for guests */}
-              {!user && (
-                <Link to="/login" className={navLinkClass('/login')}>Đặt lịch</Link>
               )}
             </nav>
 
@@ -115,6 +120,13 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                           >
                             <User className="h-4 w-4 text-slate-400" />
                             <span>Hồ sơ & Thú cưng</span>
+                          </Link>
+                          <Link 
+                            to="/owner/appointments" 
+                            className="flex items-center space-x-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-teal-600 transition"
+                          >
+                            <Calendar className="h-4 w-4 text-slate-400" />
+                            <span>Lịch hẹn của tôi</span>
                           </Link>
                           <Link 
                             to="/owner/history" 
@@ -188,23 +200,11 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <Link to="/services" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/services')}>Dịch vụ</Link>
             <Link to="/vets" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vets')}>Bác sĩ</Link>
 
-            {user?.role === 'OWNER' && (
-              <>
-                <Link to="/owner/book" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/owner/book')}>Đặt lịch</Link>
-                <Link to="/owner/pets" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/owner/pets')}>Thú cưng & Hồ sơ</Link>
-                <Link to="/owner/history" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/owner/history')}>Lịch sử khám</Link>
-              </>
-            )}
             {user?.role === 'VET' && (
               <>
                 <Link to="/vet/schedule" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/schedule')}>Lịch làm việc</Link>
                 <Link to="/vet/records" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/records')}>Tạo bệnh án</Link>
               </>
-            )}
-
-
-            {!user && (
-              <Link to="/login" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/login')}>Đặt lịch khám</Link>
             )}
 
             <div className="pt-4 border-t border-slate-100 mt-4">
@@ -223,6 +223,34 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
                       <p className="text-xs text-slate-500">{user.email}</p>
                     </div>
                   </div>
+                  {user.role === 'OWNER' && (
+                    <>
+                      <Link 
+                        to="/owner/pets" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center space-x-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-teal-600 rounded-md transition"
+                      >
+                        <User className="h-4 w-4 text-slate-400" />
+                        <span>Hồ sơ & Thú cưng</span>
+                      </Link>
+                      <Link 
+                        to="/owner/appointments" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center space-x-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-teal-600 rounded-md transition"
+                      >
+                        <Calendar className="h-4 w-4 text-slate-400" />
+                        <span>Lịch hẹn của tôi</span>
+                      </Link>
+                      <Link 
+                        to="/owner/history" 
+                        onClick={() => setMobileMenuOpen(false)}
+                        className="flex items-center space-x-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-teal-600 rounded-md transition"
+                      >
+                        <History className="h-4 w-4 text-slate-400" />
+                        <span>Lịch sử khám</span>
+                      </Link>
+                    </>
+                  )}
                   <button 
                     onClick={handleLogout}
                     className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md transition"
@@ -251,6 +279,18 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
         {children}
       </main>
 
+      {/* Book Appointment Modal */}
+      {user?.role === 'OWNER' && (
+        <BookAppointmentModal 
+          isOpen={isBookingModalOpen} 
+          onClose={() => {
+            setIsBookingModalOpen(false);
+            setInitialVetId(undefined);
+          }} 
+          initialVetId={initialVetId}
+        />
+      )}
+
       {/* Footer */}
       <footer className="bg-slate-900 border-t border-slate-800 text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -268,10 +308,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <div>
               <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Dịch Vụ Lâm Sàng</h3>
               <ul className="space-y-2 text-sm">
-                <li><Link to="/about" className="hover:text-teal-400 transition">Khám sức khỏe tổng quát</Link></li>
-                <li><Link to="/about" className="hover:text-teal-400 transition">Tiêm phòng vaccine</Link></li>
-                <li><Link to="/about" className="hover:text-teal-400 transition">Xét nghiệm & Siêu âm</Link></li>
-                <li><Link to="/about" className="hover:text-teal-400 transition">Phẫu thuật thú y</Link></li>
+                <li><Link to="/services" className="hover:text-teal-400 transition">Khám sức khỏe tổng quát</Link></li>
+                <li><Link to="/services" className="hover:text-teal-400 transition">Tiêm phòng vaccine</Link></li>
+                <li><Link to="/services" className="hover:text-teal-400 transition">Xét nghiệm & Siêu âm</Link></li>
+                <li><Link to="/services" className="hover:text-teal-400 transition">Phẫu thuật thú y</Link></li>
               </ul>
             </div>
 
@@ -280,8 +320,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <ul className="space-y-2 text-sm">
                 <li><Link to="/" className="hover:text-teal-400 transition">Trang chủ</Link></li>
                 <li><Link to="/about" className="hover:text-teal-400 transition">Giới thiệu</Link></li>
-                <li><Link to="/owner/book" className="hover:text-teal-400 transition">Đặt lịch hẹn</Link></li>
-                <li><Link to="/login" className="hover:text-teal-400 transition">Đăng nhập</Link></li>
+                <li><Link to="/services" className="hover:text-teal-400 transition">Dịch vụ</Link></li>
+                <li><Link to="/vets" className="hover:text-teal-400 transition">Bác sĩ</Link></li>
               </ul>
             </div>
 

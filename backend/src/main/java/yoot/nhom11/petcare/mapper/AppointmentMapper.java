@@ -23,7 +23,12 @@ public final class AppointmentMapper {
 
 	public static List<AppointmentOptionResponse.PetOption> toPetOptions(List<Pet> pets) {
 		return pets.stream()
-				.map(pet -> new AppointmentOptionResponse.PetOption(pet.getId(), pet.getName()))
+				.map(pet -> new AppointmentOptionResponse.PetOption(
+						pet.getId(), 
+						pet.getName(),
+						pet.getSpecies() != null ? pet.getSpecies().name() : "OTHER",
+						pet.getBreed()
+				))
 				.toList();
 	}
 

@@ -40,7 +40,7 @@ public class Doctor {
     @Column(columnDefinition = "text")
     private String fullDescription;
 
-    @ElementCollection
+    @ElementCollection(fetch = jakarta.persistence.FetchType.EAGER)
     @CollectionTable(name = "doctor_services", joinColumns = @JoinColumn(name = "doctor_id"))
     @Column(name = "service")
     private List<String> services = new ArrayList<>();

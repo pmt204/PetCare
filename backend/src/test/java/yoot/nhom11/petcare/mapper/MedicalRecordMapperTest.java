@@ -41,10 +41,10 @@ class MedicalRecordMapperTest {
                 .pdfUrl("http://url/pdf")
                 .build();
 
-        Bill bill = Bill.builder()
-                .billId(1)
-                .totalPrice(150.0)
-                .status("PAID")
+        Invoice invoice = Invoice.builder()
+                .id(1L)
+                .totalAmount(150.0)
+                .paymentStatus(PaymentStatus.PAID)
                 .build();
 
         MedicalRecord record = MedicalRecord.builder()
@@ -54,7 +54,7 @@ class MedicalRecordMapperTest {
                 .treatment("Rest and pills")
                 .prescriptions(Arrays.asList(prescription1))
                 .testResults(Arrays.asList(testResult1))
-                .bill(bill)
+                .invoice(invoice)
                 .build();
 
         System.out.println("DEBUG RECORD PRESCRIPTIONS: " + record.getPrescriptions());
@@ -98,7 +98,7 @@ class MedicalRecordMapperTest {
                 .treatment("Rest")
                 .prescriptions(null)
                 .testResults(null)
-                .bill(null)
+                .invoice(null)
                 .build();
 
         MedicalRecordDetailResponse response = mapper.toMedicalRecordDetailResponse(record);

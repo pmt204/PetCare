@@ -5,11 +5,13 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import { Home } from './pages/Home';
 import { About } from './pages/About';
 import { Doctors } from './pages/Doctors';
+import { DoctorDetails } from './pages/DoctorDetails';
 import { Services } from './pages/Services';
 import { Login } from './pages/auth/Login';
 import { Pets } from './pages/owner/Pets';
 import { BookAppointment } from './pages/owner/BookAppointment';
 import { MedicalHistory } from './pages/owner/MedicalHistory';
+import { AppointmentsList } from './pages/owner/AppointmentsList';
 import { MedicalRecordDetails } from './pages/owner/MedicalRecordDetails';
 import { Schedule } from './pages/vet/Schedule';
 import { CreateRecord } from './pages/vet/CreateRecord';
@@ -17,6 +19,7 @@ import { Vets } from './pages/admin/Vets';
 import { Invoices } from './pages/admin/Invoices';
 import { Reports } from './pages/admin/Reports';
 import './App.css';
+import ScrollToTop from './components/common/ScrollToTop';
 
 const queryClient = new QueryClient();
 
@@ -28,9 +31,13 @@ function AppRoutes() {
       {/* Public Routes */}
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
-      <Route path="/vets" element={<Doctors />} />
-      <Route path="/services" element={<Services />} />
       <Route path="/login" element={<Login />} />
+
+      <Route element={<ProtectedRoute />}>
+        <Route path="/vets" element={<Doctors />} />
+        <Route path="/vets/:id" element={<DoctorDetails />} />
+        <Route path="/services" element={<Services />} />
+      </Route>
       <Route path="/unauthorized" element={<div className="flex h-screen items-center justify-center text-slate-800 font-bold">Unauthorized Access</div>} />
 
       {/* Protected Routes for Owner */}
@@ -38,6 +45,7 @@ function AppRoutes() {
         <Route path="/owner/pets" element={<Pets />} />
         <Route path="/owner/book" element={<BookAppointment />} />
         <Route path="/owner/history" element={<MedicalHistory />} />
+        <Route path="/owner/appointments" element={<AppointmentsList />} />
         <Route path="/owner/history/:id" element={<MedicalRecordDetails />} />
       </Route>
 
@@ -67,7 +75,7 @@ function AppRoutes() {
               <Navigate to="/owner/pets" replace />
             )
           ) : (
-            <Navigate to="/login" replace />
+            <Navigate to="/" replace />
           )
         } 
       />
@@ -80,6 +88,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <BrowserRouter>
+          <ScrollToTop />
           <AppRoutes />
         </BrowserRouter>
       </AuthProvider>

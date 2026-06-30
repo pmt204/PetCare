@@ -23,7 +23,7 @@ public class MedicalRecordMapper {
 				record.getReasonForVisit(),
 				record.getVeterinarian().getFullName(),
 				record.getPrescriptions().size(),
-				record.getLabResults().size()
+				record.getTestResults().size()
 		);
 	}
 
@@ -40,7 +40,7 @@ public class MedicalRecordMapper {
 				.followUpInstruction(record.getFollowUpInstruction())
 				.nextVisitDate(record.getNextVisitDate())
 				.prescriptionItems(toPrescriptionResponsesStatic(record.getPrescriptions()))
-				.labResults(toLabResultResponses(record.getLabResults()))
+				.labResults(toLabResultResponses(record.getTestResults()))
 				.build();
 	}
 
@@ -79,16 +79,16 @@ public class MedicalRecordMapper {
 				.toList();
 	}
 
-	public static List<MedicalRecordDetailResponse.LabResultItem> toLabResultResponses(List<LabResult> labResults) {
-		if (labResults == null) return Collections.emptyList();
-		return labResults.stream()
-				.map(labResult -> new MedicalRecordDetailResponse.LabResultItem(
-						labResult.getId(),
-						labResult.getTitle(),
-						labResult.getFileName(),
-						labResult.getFileUrl(),
-						labResult.getMimeType(),
-						labResult.getNote()
+	public static List<MedicalRecordDetailResponse.LabResultItem> toLabResultResponses(List<TestResult> testResults) {
+		if (testResults == null) return Collections.emptyList();
+		return testResults.stream()
+				.map(testResult -> new MedicalRecordDetailResponse.LabResultItem(
+						testResult.getId(),
+						testResult.getTestName(),
+						testResult.getFileName() != null ? testResult.getFileName() : testResult.getTestName(),
+						testResult.getPdfUrl(),
+						testResult.getMimeType() != null ? testResult.getMimeType() : "application/pdf",
+						testResult.getResult()
 				))
 				.toList();
 	}
@@ -116,7 +116,7 @@ public class MedicalRecordMapper {
                         .map(this::toTestResultResponse)
                         .collect(Collectors.toList());
 
-        BillResponse bill = toBillResponse(medicalRecord.getBill());
+        BillResponse bill = toBillResponse(medicalRecord.getInvoice());
 
         return MedicalRecordDetailResponse.builder()
                 .id(medicalRecord.getId())
@@ -134,7 +134,7 @@ public class MedicalRecordMapper {
                 .followUpInstruction(medicalRecord.getFollowUpInstruction())
                 .nextVisitDate(medicalRecord.getNextVisitDate())
                 .prescriptionItems(toPrescriptionResponsesStatic(medicalRecord.getPrescriptions()))
-                .labResults(toLabResultResponses(medicalRecord.getLabResults()))
+                .labResults(toLabResultResponses(medicalRecord.getTestResults()))
                 .build();
     }
 
@@ -170,15 +170,15 @@ public class MedicalRecordMapper {
                 .build();
     }
 
-    public BillResponse toBillResponse(Bill bill) {
-        if (bill == null) {
+    public BillResponse toBillResponse(Invoice invoice) {
+        if (invoice == null) {
             return null;
         }
 
         return BillResponse.builder()
-                .billId(bill.getBillId())
-                .totalPrice(bill.getTotalPrice())
-                .status(bill.getStatus())
+                .billId(invoice.getId() != null ? invoice.getId().intValue() : 0)
+                .totalPrice(invoice.getTotalAmount())
+                .status(invoice.getPaymentStatus() != null ? invoice.getPaymentStatus().name() : "PAID")
                 .build();
     }
 

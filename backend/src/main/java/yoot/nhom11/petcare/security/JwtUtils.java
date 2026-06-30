@@ -15,7 +15,7 @@ import io.jsonwebtoken.security.Keys;
 public class JwtUtils {
   private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-  @Value("${petcare.jwtSecret:======================PetCareSecretKeyJWTAuthenticationService======================}")
+  @Value("${petcare.jwtSecret:UGV0Q2FyZVNlY3JldEtleUpXVEF1dGhlbnRpY2F0aW9uU2VydmljZVBldENhcmVTZWNyZXRLZXlKV1RBdXRoZW50aWNhdGlvblNlcnZpY2U=}")
   private String jwtSecret;
 
   @Value("${petcare.jwtExpirationMs:86400000}")

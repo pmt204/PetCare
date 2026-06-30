@@ -1,6 +1,6 @@
 import React from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { FileText, DollarSign, Calendar, Clock } from 'lucide-react';
+import { FileText, Coins, Calendar, Clock } from 'lucide-react';
 import InvoiceSummary from '../../components/InvoiceSummary';
 import type { InvoiceServiceItem, InvoicePrescriptionItem } from '../../components/InvoiceSummary';
 
@@ -21,30 +21,30 @@ export const Invoices: React.FC = () => {
       id: 101,
       petName: 'Milo',
       ownerName: 'Alice',
-      totalAmount: 95.00,
+      totalAmount: 950000,
       paymentStatus: 'PAID',
       createdAt: '2026-06-22 09:45',
       services: [
-        { name: 'General Physical Consultation', price: 45.00 },
-        { name: 'Throat Swab / Culture', price: 20.00 }
+        { name: 'General Physical Consultation', price: 450000 },
+        { name: 'Throat Swab / Culture', price: 200000 }
       ],
       medications: [
-        { name: 'Cough Syrup PetPlus', price: 15.00 },
-        { name: 'Amoxicillin Vet', price: 15.00 }
+        { name: 'Cough Syrup PetPlus', price: 150000 },
+        { name: 'Amoxicillin Vet', price: 150000 }
       ]
     },
     {
       id: 102,
       petName: 'Bella',
       ownerName: 'Bob',
-      totalAmount: 50.00,
+      totalAmount: 550000,
       paymentStatus: 'PENDING',
       createdAt: '2026-06-25 10:30',
       services: [
-        { name: 'Routine Vaccination Consultation', price: 35.00 }
+        { name: 'Routine Vaccination Consultation', price: 350000 }
       ],
       medications: [
-        { name: 'Flea Prevention Pipette', price: 15.00 }
+        { name: 'Flea Prevention Pipette', price: 150000 }
       ]
     }
   ]);
@@ -81,11 +81,11 @@ export const Invoices: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
             <div className="bg-green-50 p-3 rounded-xl text-green-600 border border-green-150">
-              <DollarSign className="h-6 w-6" />
+              <Coins className="h-6 w-6" />
             </div>
             <div>
               <span className="text-slate-400 text-xs block uppercase">Collected Earnings</span>
-              <span className="text-2xl font-bold text-slate-800">${totalSales.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-slate-800">{totalSales.toLocaleString('vi-VN')} ₫</span>
             </div>
           </div>
           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
@@ -94,7 +94,7 @@ export const Invoices: React.FC = () => {
             </div>
             <div>
               <span className="text-slate-400 text-xs block uppercase">Pending Receivables</span>
-              <span className="text-2xl font-bold text-slate-800">${pendingSales.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-slate-800">{pendingSales.toLocaleString('vi-VN')} ₫</span>
             </div>
           </div>
           <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex items-center space-x-4">
@@ -132,7 +132,7 @@ export const Invoices: React.FC = () => {
                     <p className="text-slate-700 font-medium">Owner: {inv.ownerName} • Pet: {inv.petName}</p>
                   </div>
                   <div className="text-right space-y-1.5">
-                    <span className="text-base font-extrabold text-slate-900">${inv.totalAmount.toFixed(2)}</span>
+                    <span className="text-base font-extrabold text-slate-900">{inv.totalAmount.toLocaleString('vi-VN')} ₫</span>
                     <div onClick={(e) => e.stopPropagation()} className="block">
                       {inv.paymentStatus === 'PENDING' && (
                         <button

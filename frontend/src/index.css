@@ -20,3 +20,18 @@ body {
   display: flex;
   flex-direction: column;
 }
+
+@keyframes slide-in-up {
+  0% {
+    transform: translateY(100%) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-toast-in {
+  animation: slide-in-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

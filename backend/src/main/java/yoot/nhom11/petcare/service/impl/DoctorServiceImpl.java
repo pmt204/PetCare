@@ -5,6 +5,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import yoot.nhom11.petcare.dto.request.DoctorRequest;
 import yoot.nhom11.petcare.dto.response.DoctorResponse;
@@ -14,6 +15,7 @@ import yoot.nhom11.petcare.repository.DoctorRepository;
 import yoot.nhom11.petcare.service.DoctorService;
 
 @Service
+@Transactional(readOnly = true)
 public class DoctorServiceImpl implements DoctorService {
 
     private final DoctorRepository repository;
@@ -23,6 +25,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     public DoctorResponse create(DoctorRequest request) {
         Doctor d = DoctorMapper.toEntity(request);
         Doctor saved = repository.save(d);
@@ -42,6 +45,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     public DoctorResponse update(Long id, DoctorRequest request) {
         Doctor exist = repository.findById(id).orElseThrow(() -> new NoSuchElementException("Doctor not found: " + id));
         DoctorMapper.updateEntityFromRequest(request, exist);
@@ -50,6 +54,7 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         if (!repository.existsById(id)) throw new NoSuchElementException("Doctor not found: " + id);
         repository.deleteById(id);

@@ -13,6 +13,6 @@ public record AppointmentBookingRequest(
 		@NotNull @Min(1) Long petId,
 		@NotNull @Min(1) Long veterinarianId,
 		@NotNull @Future LocalDateTime appointmentAt,
-		@NotBlank @Size(max = 1000) String reasonForVisit
+		@Size(max = 1000) String reasonForVisit
 ) {
 }

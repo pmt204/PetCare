@@ -63,12 +63,18 @@ public class AppointmentServiceImpl implements AppointmentService {
 				.filter(user -> user.getRole() == UserRole.VET && user.isActive())
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Veterinarian not found"));
 
+		Doctor doctor = doctorRepository.findAll().stream()
+				.filter(d -> d.getName().equalsIgnoreCase(veterinarian.getFullName()))
+				.findFirst()
+				.orElse(null);
+
 		Appointment appointment = Appointment.builder()
 				.owner(owner)
 				.pet(pet)
 				.veterinarian(veterinarian)
+				.doctor(doctor)
 				.appointmentAt(request.appointmentAt())
-				.reasonForVisit(request.reasonForVisit())
+				.reasonForVisit(request.reasonForVisit() != null && !request.reasonForVisit().isBlank() ? request.reasonForVisit().trim() : "Khám bệnh dịch vụ")
 				.status(AppointmentStatus.REQUESTED)
 				.build();
 

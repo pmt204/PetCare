@@ -68,14 +68,10 @@ public class MedicalRecord extends BaseEntity {
 
 	@Builder.Default
 	@OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<LabResult> labResults = new ArrayList<>();
-
-	@Builder.Default
-	@OneToMany(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<TestResult> testResults = new ArrayList<>();
 
 	@OneToOne(mappedBy = "medicalRecord", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Bill bill;
+	private Invoice invoice;
 
 	// Fields for tai/admin:
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -163,9 +159,8 @@ public class MedicalRecord extends BaseEntity {
 		private String followUpInstruction;
 		private LocalDate nextVisitDate;
 		private List<Prescription> prescriptions;
-		private List<LabResult> labResults;
 		private List<TestResult> testResults;
-		private Bill bill;
+		private Invoice invoice;
 		private Doctor doctor;
 		private String patientName;
 		private LocalDateTime createdDate;
@@ -189,8 +184,8 @@ public class MedicalRecord extends BaseEntity {
 			return this;
 		}
 
-		public MedicalRecordBuilder labResults(List<LabResult> labResults) {
-			this.labResults = labResults;
+		public MedicalRecordBuilder invoice(Invoice invoice) {
+			this.invoice = invoice;
 			return this;
 		}
 
@@ -221,7 +216,7 @@ public class MedicalRecord extends BaseEntity {
 		}
 
 		public MedicalRecord build() {
-			MedicalRecord record = new MedicalRecord(pet, veterinarian, visitAt, status, reasonForVisit, diagnosis, treatmentNote, followUpInstruction, nextVisitDate, prescriptions, labResults, testResults, bill, doctor, patientName, createdDate, symptoms, notes, createBy, updateBy);
+			MedicalRecord record = new MedicalRecord(pet, veterinarian, visitAt, status, reasonForVisit, diagnosis, treatmentNote, followUpInstruction, nextVisitDate, prescriptions, testResults, invoice, doctor, patientName, createdDate, symptoms, notes, createBy, updateBy);
 			record.setId(id);
 			record.setCreatedAt(createdAt);
 			record.setUpdatedAt(updatedAt);

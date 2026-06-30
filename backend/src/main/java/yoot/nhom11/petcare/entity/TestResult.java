@@ -25,6 +25,15 @@ public class TestResult {
     @Column(name = "pdf_url")
     private String pdfUrl;
 
+    @Column(name = "file_name")
+    private String fileName;
+
+    @Column(name = "mime_type")
+    private String mimeType;
+
+    @Column(name = "note")
+    private String note;
+
     @Column(name = "create_at")
     private LocalDateTime createAt;
 

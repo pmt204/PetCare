@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
 
 import yoot.nhom11.petcare.entity.AppUser;
-import yoot.nhom11.petcare.entity.LabResult;
+import yoot.nhom11.petcare.entity.TestResult;
 import yoot.nhom11.petcare.entity.MedicalRecord;
 import yoot.nhom11.petcare.entity.MedicalRecordStatus;
 import yoot.nhom11.petcare.entity.Pet;
@@ -95,15 +95,15 @@ class MedicalRecordControllerTest {
 				.build();
 		entityManager.persist(prescription);
 
-		LabResult labResult = LabResult.builder()
+		TestResult testResult = TestResult.builder()
 				.medicalRecord(record)
-				.title("Blood test")
+				.testName("Blood test")
 				.fileName("blood-test.pdf")
-				.fileUrl("/files/blood-test.pdf")
+				.pdfUrl("/files/blood-test.pdf")
 				.mimeType("application/pdf")
 				.note("Normal result")
 				.build();
-		entityManager.persist(labResult);
+		entityManager.persist(testResult);
 
 		MedicalRecord draftRecord = MedicalRecord.builder()
 				.pet(pet)

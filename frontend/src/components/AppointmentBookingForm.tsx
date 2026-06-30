@@ -8,11 +8,13 @@ export interface Vet {
   specialty: string;
   experienceYears?: string;
   rating?: number;
+  image?: string;
 }
 
 interface AppointmentBookingFormProps {
   pets: Pet[];
   vets: Vet[];
+  services?: string[];
   onSubmit: (data: {
     petId: string;
     service: string;
@@ -22,23 +24,34 @@ interface AppointmentBookingFormProps {
     reason: string;
   }) => void;
   isLoading?: boolean;
+  initialVetId?: string;
+  onCancel?: () => void;
 }
 
 export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({ 
   pets, 
   vets, 
+  services: servicesProp,
   onSubmit, 
-  isLoading = false 
+  isLoading = false,
+  initialVetId,
+  onCancel
 }) => {
   const [step, setStep] = React.useState(1);
   const [formData, setFormData] = React.useState({
     petId: '',
     service: 'Khám bệnh tổng quát',
-    vetId: '',
+    vetId: initialVetId || '',
     date: '',
     time: '',
     reason: '',
   });
+
+  React.useEffect(() => {
+    if (initialVetId) {
+      setFormData(prev => ({ ...prev, vetId: initialVetId }));
+    }
+  }, [initialVetId]);
 
   const [showAddPetModal, setShowAddPetModal] = React.useState(false);
   const [newPetName, setNewPetName] = React.useState('');
@@ -50,11 +63,11 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
   }, [pets]);
 
   // Clinical medical services list only
-  const services = [
+  const services = servicesProp && servicesProp.length > 0 ? servicesProp : [
     'Khám bệnh tổng quát',
     'Tiêm phòng vaccine',
-    'Phẫu thuật & Điều trị ngoại khoa',
-    'Xét nghiệm & Siêu âm chẩn đoán',
+    'Phẫu thuật ngoại khoa',
+    'Xét nghiệm & Siêu âm',
     'Nha khoa thú y',
     'Điều trị nội trú theo dõi'
   ];
@@ -207,24 +220,76 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
                 </select>
               </div>
 
-              {/* Vet Selection */}
+              {/* Vet Selection Cards Grid */}
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                  <User className="h-4 w-4 text-slate-400" /> Chọn bác sĩ phụ trách (Tùy chọn)
+                <label className="block text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                  <User className="h-4 w-4 text-slate-400" /> Chọn bác sĩ phụ trách
                 </label>
-                <select 
-                  value={formData.vetId}
-                  onChange={(e) => setFormData({ ...formData, vetId: e.target.value })}
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition duration-200"
-                >
-                  <option value="">Bác sĩ bất kỳ (Ngẫu nhiên)</option>
-                  {vets.map(vet => (
-                    <option key={vet.id} value={vet.id}>{vet.name} ({vet.specialty})</option>
-                  ))}
-                </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Random Option Card */}
+                  <div
+                    onClick={() => setFormData({ ...formData, vetId: '' })}
+                    className={`flex items-center space-x-4 p-4 border rounded-2xl cursor-pointer transition duration-200 ${
+                      formData.vetId === ''
+                        ? 'border-teal-500 bg-teal-50/30 ring-2 ring-teal-500/10'
+                        : 'border-slate-200 bg-white hover:border-slate-300'
+                    }`}
+                  >
+                    <div className="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-lg font-bold">
+                      🎲
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-800 text-sm">Bác sĩ bất kỳ</h4>
+                      <p className="text-slate-400 text-xs">Hệ thống chọn ngẫu nhiên</p>
+                    </div>
+                  </div>
+
+                  {vets.map((vet) => {
+                    const isSelected = String(formData.vetId) === String(vet.id);
+                    const docImg = vet.image;
+                    const initials = vet.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase();
+
+                    return (
+                      <div
+                        key={vet.id}
+                        onClick={() => setFormData({ ...formData, vetId: String(vet.id) })}
+                        className={`flex items-center space-x-4 p-4 border rounded-2xl cursor-pointer transition duration-200 ${
+                          isSelected
+                            ? 'border-teal-500 bg-teal-50/30 ring-2 ring-teal-500/10'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        {docImg ? (
+                          <img
+                            src={docImg}
+                            alt={vet.name}
+                            className="h-12 w-12 rounded-full object-cover border border-slate-100"
+                          />
+                        ) : (
+                          <div className="h-12 w-12 rounded-full bg-gradient-to-tr from-teal-500 to-teal-400 text-white flex items-center justify-center text-sm font-bold shadow-inner">
+                            {initials}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-bold text-slate-800 text-sm truncate">{vet.name}</h4>
+                          <p className="text-slate-400 text-[11px] truncate">{vet.specialty || 'Bác sĩ Thú y'}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="flex justify-end pt-4">
+              <div className="flex justify-between pt-4">
+                {onCancel ? (
+                  <button 
+                    type="button" 
+                    onClick={onCancel}
+                    className="border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold py-3 px-6 rounded-xl text-sm transition"
+                  >
+                    Hủy
+                  </button>
+                ) : <div />}
                 <button 
                   type="button" 
                   onClick={nextStep}
@@ -282,13 +347,24 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
               </div>
 
               <div className="flex justify-between pt-4 border-t border-slate-100">
-                <button 
-                  type="button" 
-                  onClick={prevStep}
-                  className="border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 rounded-xl text-sm transition"
-                >
-                  Quay lại
-                </button>
+                <div className="flex gap-2">
+                  {onCancel && (
+                    <button 
+                      type="button" 
+                      onClick={onCancel}
+                      className="border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold py-3 px-6 rounded-xl text-sm transition"
+                    >
+                      Hủy
+                    </button>
+                  )}
+                  <button 
+                    type="button" 
+                    onClick={prevStep}
+                    className="border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 rounded-xl text-sm transition"
+                  >
+                    Quay lại
+                  </button>
+                </div>
                 <button 
                   type="button" 
                   onClick={nextStep}
@@ -336,19 +412,30 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
                   rows={4}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition duration-200"
                   placeholder="Vui lòng mô tả chi tiết biểu hiện bệnh của bé hoặc ghi chú thêm cho bác sĩ..."
-                  required
                 />
               </div>
 
               <div className="flex justify-between pt-4 border-t border-slate-100">
-                <button 
-                  type="button" 
-                  onClick={prevStep}
-                  className="border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 rounded-xl text-sm transition"
-                  disabled={isLoading}
-                >
-                  Quay lại
-                </button>
+                <div className="flex gap-2">
+                  {onCancel && (
+                    <button 
+                      type="button" 
+                      onClick={onCancel}
+                      className="border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold py-3 px-6 rounded-xl text-sm transition"
+                      disabled={isLoading}
+                    >
+                      Hủy
+                    </button>
+                  )}
+                  <button 
+                    type="button" 
+                    onClick={prevStep}
+                    className="border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 rounded-xl text-sm transition"
+                    disabled={isLoading}
+                  >
+                    Quay lại
+                  </button>
+                </div>
                 <button 
                   type="submit"
                   disabled={isLoading}

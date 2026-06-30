@@ -2,6 +2,7 @@ package yoot.nhom11.petcare.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,6 +14,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Invoice {
 
     @Id
@@ -22,6 +24,10 @@ public class Invoice {
     @OneToOne
     @JoinColumn(name = "appointment_id", referencedColumnName = "id")
     private Appointment appointment;
+
+    @OneToOne
+    @JoinColumn(name = "medical_record_id", referencedColumnName = "id")
+    private MedicalRecord medicalRecord;
 
     @ManyToMany
     @JoinTable(

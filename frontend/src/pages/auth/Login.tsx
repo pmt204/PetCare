@@ -25,14 +25,8 @@ export const Login: React.FC = () => {
       
       login(token, { id, username, email, fullName, role }, refreshToken);
 
-      // Redirect depending on role
-      if (role === 'ADMIN') {
-        navigate('/admin/vets');
-      } else if (role === 'VET') {
-        navigate('/vet/schedule');
-      } else {
-        navigate('/owner/pets');
-      }
+      // Redirect to home page
+      navigate('/');
     } catch (err: any) {
       console.warn("Backend auth failed, falling back to mock authentication:", err);
       
@@ -40,13 +34,13 @@ export const Login: React.FC = () => {
       const user = data.username.toLowerCase();
       if (user === 'admin') {
         login('mock-jwt-token-admin', { id: 1, username: 'admin', email: 'admin@petcare.com', fullName: 'Administrator', role: 'ADMIN' }, 'mock-refresh-token-admin');
-        navigate('/admin/vets');
+        navigate('/');
       } else if (user === 'vet' || user === 'doctor') {
         login('mock-jwt-token-vet', { id: 2, username: 'vet', email: 'vet@petcare.com', fullName: 'Dr. John Doe', role: 'VET' }, 'mock-refresh-token-vet');
-        navigate('/vet/schedule');
+        navigate('/');
       } else if (user === 'owner') {
         login('mock-jwt-token-owner', { id: 3, username: 'owner', email: 'owner@petcare.com', fullName: 'Pet Owner', role: 'OWNER' }, 'mock-refresh-token-owner');
-        navigate('/owner/pets');
+        navigate('/');
       } else {
         setErrorMsg(err.response?.data?.message || 'Authentication failed. Please verify credentials or try default ones.');
       }

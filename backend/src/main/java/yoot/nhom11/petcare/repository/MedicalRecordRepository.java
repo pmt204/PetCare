@@ -14,7 +14,7 @@ import yoot.nhom11.petcare.entity.MedicalRecord;
 public interface MedicalRecordRepository extends JpaRepository<MedicalRecord, Long>, JpaSpecificationExecutor<MedicalRecord> {
 
     @Query("SELECT mr FROM MedicalRecord mr " +
-           "LEFT JOIN FETCH mr.bill " +
+           "LEFT JOIN FETCH mr.invoice " +
            "LEFT JOIN FETCH mr.prescriptions p " +
            "LEFT JOIN FETCH p.medicine " +
            "WHERE mr.id = :id")

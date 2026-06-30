@@ -1,6 +1,7 @@
 package yoot.nhom11.petcare.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yoot.nhom11.petcare.dto.request.PetServiceRequest;
 import yoot.nhom11.petcare.dto.response.PetServiceResponse;
 import yoot.nhom11.petcare.entity.PetService;
@@ -13,6 +14,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class PetServiceServiceImpl implements PetServiceService {
 
     private final PetServiceRepository petServiceRepository;
@@ -22,6 +24,7 @@ public class PetServiceServiceImpl implements PetServiceService {
     }
 
     @Override
+    @Transactional
     public PetServiceResponse create(PetServiceRequest request) {
         PetService petService = PetServiceMapper.toEntity(request);
         PetService saved = petServiceRepository.save(petService);
@@ -43,6 +46,7 @@ public class PetServiceServiceImpl implements PetServiceService {
     }
 
     @Override
+    @Transactional
     public PetServiceResponse update(Long id, PetServiceRequest request) {
         PetService existingService = petServiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("PetService not found: " + id));
@@ -54,6 +58,7 @@ public class PetServiceServiceImpl implements PetServiceService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         if (!petServiceRepository.existsById(id)) {
             throw new NoSuchElementException("PetService not found: " + id);

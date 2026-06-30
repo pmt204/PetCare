@@ -1,5 +1,5 @@
 import React from 'react';
-import { DollarSign, FileText, CheckCircle, Clock } from 'lucide-react';
+import { FileText, CheckCircle, Clock } from 'lucide-react';
 
 export interface InvoiceServiceItem {
   id?: number;
@@ -52,7 +52,7 @@ export const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ services, medica
                 {services.map((item, idx) => (
                   <div key={item.id || idx} className="py-2 flex justify-between text-slate-700">
                     <span>{item.name}</span>
-                    <span className="font-semibold">${item.price.toFixed(2)}</span>
+                    <span className="font-semibold">{item.price.toLocaleString('vi-VN')} ₫</span>
                   </div>
                 ))}
               </div>
@@ -67,7 +67,7 @@ export const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ services, medica
                 {medications.map((item, idx) => (
                   <div key={idx} className="py-2 flex justify-between text-slate-700">
                     <span>{item.name}</span>
-                    <span className="font-semibold">${item.price.toFixed(2)}</span>
+                    <span className="font-semibold">{item.price.toLocaleString('vi-VN')} ₫</span>
                   </div>
                 ))}
               </div>
@@ -79,15 +79,15 @@ export const InvoiceSummary: React.FC<InvoiceSummaryProps> = ({ services, medica
         <div className="border-t border-slate-150 pt-4 space-y-2.5 text-sm">
           <div className="flex justify-between text-slate-500">
             <span>Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>{subtotal.toLocaleString('vi-VN')} ₫</span>
           </div>
           <div className="flex justify-between text-slate-500">
             <span>VAT ({taxRate * 100}%)</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>{tax.toLocaleString('vi-VN')} ₫</span>
           </div>
           <div className="flex justify-between text-slate-900 font-extrabold text-base pt-2.5 border-t border-slate-100">
             <span>Total Bill</span>
-            <span className="text-indigo-600 flex items-center"><DollarSign className="h-4.5 w-4.5" />{total.toFixed(2)}</span>
+            <span className="text-indigo-600 flex items-center font-extrabold">{total.toLocaleString('vi-VN')} ₫</span>
           </div>
         </div>
       </div>

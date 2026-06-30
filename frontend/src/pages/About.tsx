@@ -1,14 +1,36 @@
 import React from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Heart, Shield, Award } from 'lucide-react';
+import api from '../services/api';
 
 export const About: React.FC = () => {
-  const team = [
-    { name: 'Dr. John Doe', role: 'Bác sĩ trưởng khoa & Sáng lập', initial: 'JD' },
-    { name: 'Dr. Sarah Conner', role: 'Chuyên gia Phẫu thuật ngoại khoa', initial: 'SC' },
-    { name: 'Dr. Helen Carter', role: 'Chuyên khoa Nội & Da liễu thú y', initial: 'HC' },
-    { name: 'Dr. Adam Smith', role: 'Trưởng phòng Xét nghiệm y khoa', initial: 'AS' },
-  ];
+  const [team, setTeam] = React.useState<any[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const res = await api.get('/doctors');
+        const mappedTeam = res.data.map((doc: any) => ({
+          name: doc.name,
+          role: doc.name.includes('John') ? 'Bác sĩ trưởng khoa & Sáng lập' : (doc.name.includes('Sarah') ? 'Chuyên gia Phẫu thuật ngoại khoa' : 'Chuyên khoa Nội & Da liễu thú y'),
+          image: doc.image,
+          initial: doc.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()
+        }));
+        setTeam(mappedTeam);
+      } catch (err) {
+        console.warn('Error fetching doctors in About page, using fallback:', err);
+        setTeam([
+          { name: 'Dr. John Doe', role: 'Bác sĩ trưởng khoa & Sáng lập', initial: 'JD', image: '/images/doctor_john.jpg' },
+          { name: 'Dr. Sarah Conner', role: 'Chuyên gia Phẫu thuật ngoại khoa', initial: 'SC', image: '/images/doctor_sarah.jpg' },
+          { name: 'Dr. Helen Carter', role: 'Chuyên khoa Nội & Da liễu thú y', initial: 'HC', image: '/images/doctor_helen.jpg' },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctors();
+  }, []);
 
   return (
     <DashboardLayout>
@@ -27,10 +49,8 @@ export const About: React.FC = () => {
           </div>
         </section>
 
-        {/* Story & Mission: Zig-zag layout */}
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-          
-          {/* Row 1 */}
+        {/* Story Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="h-1 w-12 bg-teal-500 rounded-full" />
@@ -44,7 +64,7 @@ export const About: React.FC = () => {
             </div>
             <div className="bg-slate-100 rounded-3xl overflow-hidden aspect-video shadow-md">
               <img 
-                src="/vet_hero_banner.jpg" 
+                src="/images/clinic_lobby.jpg" 
                 alt="Clinic Lobby" 
                 className="w-full h-full object-cover transform hover:scale-105 transition duration-500"
               />
@@ -52,69 +72,83 @@ export const About: React.FC = () => {
           </div>
 
           {/* Row 2: Alternated */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center lg:flex-row-reverse">
-            <div className="lg:order-2 space-y-6">
-              <div className="h-1 w-12 bg-orange-400 rounded-full" />
-              <h2 className="text-3xl font-extrabold text-slate-900 leading-tight">Sứ mệnh y tế & Tầm nhìn</h2>
-              <p className="text-slate-500 leading-relaxed">
-                Sứ mệnh của chúng tôi là nâng cao sức khỏe vật nuôi và tạo sự thuận lợi tối đa cho chủ nuôi thông qua hệ thống sổ tiêm vaccine điện tử, bệnh án điện tử, giúp giảm thiểu thời gian chờ đợi tại phòng khám và số hóa việc kê đơn.
-              </p>
-              <p className="text-slate-500 leading-relaxed">
-                Tầm nhìn trở thành hệ thống phòng khám lâm sàng hàng đầu Việt Nam đi đầu trong công nghệ y tế thú y thông minh và chăm sóc chuyên sâu.
-              </p>
-            </div>
-            <div className="lg:order-1 bg-gradient-to-tr from-teal-50 to-teal-100/50 p-1.5 rounded-3xl shadow-md">
-              <div className="bg-white p-8 rounded-[22px] space-y-6">
-                <h3 className="text-lg font-bold text-slate-800">Giá trị cốt lõi</h3>
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    <Heart className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-600 text-sm font-medium">Y đức và tình thương đặt lên hàng đầu.</span>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Shield className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-600 text-sm font-medium">Thông tin bệnh trạng và giá cả công khai minh bạch.</span>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <Award className="h-5 w-5 text-teal-600 flex-shrink-0 mt-0.5" />
-                    <span className="text-slate-600 text-sm font-medium">Quy chuẩn y tế chuyên môn hóa cao.</span>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center lg:flex-row-reverse mt-16">
+            <div className="bg-white border border-slate-200/60 rounded-3xl p-8 sm:p-10 shadow-sm space-y-6">
+              <div className="space-y-4">
+                <span className="text-[11px] font-bold text-teal-700 bg-teal-50 py-1 px-3 rounded-full uppercase tracking-wider">Mục tiêu phát triển</span>
+                <h3 className="text-2xl font-extrabold text-slate-900 leading-snug">Giá trị cốt lõi & Cam kết y tế</h3>
+              </div>
+              
+              <div className="space-y-4 text-sm text-slate-650">
+                <div className="flex items-start space-x-3">
+                  <Heart className="h-5 w-5 text-teal-650 mt-0.5 flex-shrink-0" />
+                  <p><strong>Yêu thương vô điều kiện:</strong> Đối xử với thú cưng của khách hàng như chính thành viên trong gia đình mình.</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Shield className="h-5 w-5 text-teal-650 mt-0.5 flex-shrink-0" />
+                  <p><strong>An toàn & Chuẩn xác:</strong> Mọi quy trình chẩn đoán lâm sàng, cận lâm sàng đều được thực hiện theo tiêu chuẩn kiểm duyệt khắt khe.</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <Award className="h-5 w-5 text-teal-650 mt-0.5 flex-shrink-0" />
+                  <p><strong>Chuyên môn liên tục cải tiến:</strong> Đội ngũ y tế không ngừng đào tạo và cập nhật các phác đồ y khoa hiện đại nhất thế giới.</p>
                 </div>
               </div>
             </div>
+            
+            <div className="space-y-6">
+              <h3 className="text-2xl font-extrabold text-slate-900 leading-snug">Hành trình 5 năm đồng hành</h3>
+              <p className="text-slate-500 leading-relaxed">
+                Trong suốt thời gian hoạt động, PetCare tự hào đã đồng hành và chăm sóc cho hàng ngàn bé thú cưng tại Việt Nam. Không chỉ cung cấp dịch vụ y tế chuẩn mực, chúng tôi còn xây dựng cộng đồng nâng cao kiến thức chăm sóc vật nuôi khoa học cho các chủ nuôi.
+              </p>
+            </div>
           </div>
-
         </section>
 
-        {/* Team Section */}
+        {/* Doctors Section */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 bg-slate-50/50">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Đội ngũ bác sĩ của chúng tôi</h2>
             <p className="text-slate-500">Các chuyên gia trực tiếp khám và chịu trách nhiệm y khoa tại PetCare.</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
-            {team.map((member, index) => (
-              <div 
-                key={index} 
-                className="bg-white p-6 rounded-2xl border border-slate-100 hover:border-teal-100 shadow-md hover:shadow-lg transition duration-300 text-center flex flex-col items-center space-y-4"
-              >
-                <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-teal-500 to-teal-400 text-white flex items-center justify-center text-xl font-bold shadow-inner">
-                  {member.initial}
+          {loading ? (
+            <div className="text-center py-20 text-teal-600 font-bold animate-pulse">
+              Đang tải danh sách bác sĩ...
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+              {team.map((member, index) => (
+                <div 
+                  key={index} 
+                  className="bg-white p-6 rounded-2xl border border-slate-100 hover:border-teal-100 shadow-md hover:shadow-lg transition duration-300 text-center flex flex-col items-center space-y-4"
+                >
+                  {/* Avatar image or initials */}
+                  {member.image ? (
+                    <img 
+                      src={member.image} 
+                      alt={member.name} 
+                      className="h-20 w-20 rounded-full object-cover border border-slate-100 shadow-inner"
+                    />
+                  ) : (
+                    <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-teal-500 to-teal-400 text-white flex items-center justify-center text-xl font-bold shadow-inner">
+                      {member.initial}
+                    </div>
+                  )}
+                  <div className="space-y-1">
+                    <h4 className="font-extrabold text-slate-800 text-lg">{member.name}</h4>
+                    <p className="text-teal-600 text-xs font-semibold">{member.role}</p>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Tận tâm và chu đáo, luôn hết lòng chăm sóc sức khỏe và cứu chữa thú cưng trong mọi tình huống.
+                  </p>
                 </div>
-                <div className="space-y-1">
-                  <h4 className="font-extrabold text-slate-800 text-lg">{member.name}</h4>
-                  <p className="text-teal-600 text-xs font-semibold">{member.role}</p>
-                </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Tận tâm và chu đáo, luôn hết lòng chăm sóc sức khỏe và cứu chữa thú cưng trong mọi tình huống.
-                </p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
       </div>
     </DashboardLayout>
   );
 };
+export default About;

@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../../layouts/DashboardLayout';
-import { User as UserIcon, Heart, Calendar, Plus, Camera, Mail, Phone, MapPin, Eye, FileText, Download, X } from 'lucide-react';
+import { User as UserIcon, Heart, Calendar, Plus, Camera, Mail, Phone, MapPin, Eye, FileText, Download, X, History } from 'lucide-react';
 import PetCard from '../../components/PetCard';
 import type { Pet } from '../../components/PetCard';
 import PrescriptionViewer from '../../components/PrescriptionViewer';
@@ -10,6 +10,7 @@ import InvoiceSummary from '../../components/InvoiceSummary';
 import type { InvoiceServiceItem, InvoicePrescriptionItem } from '../../components/InvoiceSummary';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import { showToast } from '../../components/Toast';
 
 interface DetailedMedicalRecord {
   id: number;
@@ -29,20 +30,24 @@ interface DetailedMedicalRecord {
   totalAmount: number;
 }
 
-export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ defaultTab }) => {
+export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appointments' }> = ({ defaultTab }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   
   // Tab logic: read tab from query params if available, else use defaultTab prop
   const queryTab = searchParams.get('tab');
-  const activeTab = queryTab === 'profile' ? 'profile' : (defaultTab === 'history' ? 'history' : 'pets');
+  const activeTab = queryTab === 'profile' ? 'profile' : 
+                    (defaultTab === 'history' ? 'history' : 
+                    (defaultTab === 'appointments' ? 'appointments' : 'pets'));
 
   const handleTabChange = (tabName: string) => {
     if (tabName === 'profile') {
       navigate('/owner/pets?tab=profile');
     } else if (tabName === 'pets') {
       navigate('/owner/pets');
+    } else if (tabName === 'appointments') {
+      navigate('/owner/appointments');
     } else {
       navigate('/owner/history');
     }
@@ -96,7 +101,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
         address: profile.address,
         avatarUrl: profile.avatar
       });
-      alert('🎉 Đã lưu thay đổi hồ sơ cá nhân thành công!');
+      showToast('Đã lưu thay đổi hồ sơ cá nhân thành công!', 'success');
       updateUser({
         fullName: response.data.fullName,
         email: response.data.email,
@@ -106,7 +111,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
       });
     } catch (err) {
       console.error('Error saving profile:', err);
-      alert('❌ Lưu thay đổi hồ sơ thất bại!');
+      showToast('Lưu thay đổi hồ sơ thất bại!', 'error');
     }
   };
 
@@ -137,10 +142,10 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
         updateUser({
           avatarUrl: uploadedUrl
         });
-        alert('🎉 Đã cập nhật ảnh đại diện thành công!');
+        showToast('Đã cập nhật ảnh đại diện thành công!', 'success');
       } catch (err) {
         console.error('Upload failed:', err);
-        alert('❌ Tải ảnh đại diện lên thất bại!');
+        showToast('Tải ảnh đại diện lên thất bại!', 'error');
       }
     }
   };
@@ -224,10 +229,10 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
       try {
         await api.delete(`/pets/${id}`);
         setPets(prev => prev.filter(p => p.id !== id));
-        alert('🎉 Đã xóa hồ sơ thú cưng thành công!');
+        showToast('Đã xóa hồ sơ thú cưng thành công!', 'success');
       } catch (err) {
         console.error('Error deleting pet:', err);
-        alert('❌ Xóa hồ sơ thất bại!');
+        showToast('Xóa hồ sơ thất bại!', 'error');
       }
     }
   };
@@ -247,16 +252,16 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
 
       if (editingPet) {
         await api.put(`/pets/${editingPet.id}`, payload);
-        alert('🎉 Đã cập nhật hồ sơ thú cưng thành công!');
+        showToast('Đã cập nhật hồ sơ thú cưng thành công!', 'success');
       } else {
         await api.post('/pets', payload);
-        alert('🎉 Đã thêm mới thú cưng thành công!');
+        showToast('Đã thêm mới thú cưng thành công!', 'success');
       }
       setPetModalOpen(false);
       fetchPets();
     } catch (err) {
       console.error('Error submitting pet:', err);
-      alert('❌ Lưu hồ sơ thú cưng thất bại!');
+      showToast('Lưu hồ sơ thú cưng thất bại!', 'error');
     }
   };
 
@@ -276,10 +281,10 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
           }
         });
         setPetForm(prev => ({ ...prev, avatarUrl: response.data.url }));
-        alert('🎉 Tải ảnh đại diện thú cưng lên thành công!');
+        showToast('Tải ảnh đại diện thú cưng lên thành công!', 'success');
       } catch (err) {
         console.error('Upload failed:', err);
-        alert('❌ Tải ảnh đại diện thú cưng thất bại!');
+        showToast('Tải ảnh đại diện thú cưng thất bại!', 'error');
       }
     }
   };
@@ -321,6 +326,48 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
     };
     fetchHistory();
   }, [pets]);
+
+  // 5. Appointments API Integration
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [loadingAppointments, setLoadingAppointments] = useState(false);
+
+  const fetchAppointments = async () => {
+    if (!user?.id) return;
+    setLoadingAppointments(true);
+    try {
+      const res = await api.get('/appointments', { params: { ownerId: user.id } });
+      setAppointments(res.data);
+    } catch (err) {
+      console.warn('Error fetching appointments from API, using mock data:', err);
+      // Fallback mock appointments for demo
+      setAppointments([
+        {
+          id: 101,
+          pet: { name: 'LuLu', species: 'DOG', breed: 'Golden Retriever' },
+          veterinarian: { fullName: 'Dr. John Doe' },
+          appointmentAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+          reasonForVisit: 'Routine Checkup & Vaccination',
+          status: 'COMPLETED'
+        },
+        {
+          id: 102,
+          pet: { name: 'MiMi', species: 'CAT', breed: 'Persian' },
+          veterinarian: { fullName: 'Dr. Jane Smith' },
+          appointmentAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+          reasonForVisit: 'Surgical consultation (Spaying)',
+          status: 'CONFIRMED'
+        }
+      ]);
+    } finally {
+      setLoadingAppointments(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'appointments') {
+      fetchAppointments();
+    }
+  }, [activeTab, user?.id]);
 
   const [selectedRecord, setSelectedRecord] = useState<DetailedMedicalRecord | null>(null);
 
@@ -428,8 +475,20 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
                     : 'text-slate-600 hover:bg-slate-50 hover:text-teal-600'
                 }`}
               >
-                <Calendar className="h-4.5 w-4.5" />
+                <History className="h-4.5 w-4.5" />
                 <span>Lịch sử khám bệnh</span>
+              </button>
+
+              <button
+                onClick={() => handleTabChange('appointments')}
+                className={`flex items-center space-x-3 px-4 py-3 text-sm font-bold rounded-2xl transition duration-200 ${
+                  activeTab === 'appointments'
+                    ? 'bg-teal-600 text-white shadow-md shadow-teal-500/10'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-teal-600'
+                }`}
+              >
+                <Calendar className="h-4.5 w-4.5" />
+                <span>Lịch hẹn của tôi</span>
               </button>
             </nav>
           </aside>
@@ -638,6 +697,122 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' }> = ({ d
                     ))}
                   </div>
 
+                </div>
+              </div>
+            )}
+
+            {/* Tab 4: Appointments Tab Panel */}
+            {activeTab === 'appointments' && (
+              <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6 animate-fade-in">
+                <div>
+                  <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Lịch hẹn của tôi</h2>
+                  <p className="text-slate-500 text-sm mt-1">Danh sách các lịch hẹn đã đăng ký và trạng thái phê duyệt từ phòng khám</p>
+                </div>
+
+                {loadingAppointments ? (
+                  <div className="text-center py-12 text-teal-600 font-semibold animate-pulse">
+                    Đang tải danh sách lịch hẹn...
+                  </div>
+                ) : appointments.length === 0 ? (
+                  <div className="text-center py-12 space-y-4">
+                    <p className="text-slate-500 font-bold">Bạn chưa có lịch hẹn nào.</p>
+                    <button 
+                      onClick={() => navigate('/services?book=true')}
+                      className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition"
+                    >
+                      Đặt lịch khám ngay
+                    </button>
+                  </div>
+                ) : (
+                  <div className="overflow-hidden border border-slate-100 rounded-2xl shadow-inner">
+                    {/* Desktop Table View */}
+                    <div className="hidden sm:block overflow-x-auto">
+                      <table className="w-full text-left border-collapse">
+                        <thead>
+                          <tr className="bg-slate-50 text-[10px] text-slate-500 uppercase tracking-wider font-bold border-b border-slate-100">
+                            <th className="py-4 px-5">Mã hẹn / Ngày giờ</th>
+                            <th className="py-4 px-5">Thú cưng</th>
+                            <th className="py-4 px-5">Bác sĩ phụ trách</th>
+                            <th className="py-4 px-5">Lý do khám</th>
+                            <th className="py-4 px-5 text-center">Trạng thái</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-sm font-medium">
+                          {appointments.map((app) => (
+                            <tr key={app.id} className="hover:bg-slate-50/50 transition">
+                              <td className="py-4 px-5">
+                                <span className="text-slate-400 block text-xs">#{app.id}</span>
+                                <span className="text-slate-800 font-bold">
+                                  {new Date(app.appointmentAt || app.appointmentTime).toLocaleString('vi-VN', {
+                                    year: 'numeric',
+                                    month: '2-digit',
+                                    day: '2-digit',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </span>
+                              </td>
+                              <td className="py-4 px-5 text-slate-700 font-bold">{app.pet?.name || app.patientName}</td>
+                              <td className="py-4 px-5 text-slate-600">{app.veterinarian?.fullName || app.doctorName || 'Bác sĩ PetCare'}</td>
+                              <td className="py-4 px-5 text-slate-500 font-normal max-w-xs truncate">{app.reasonForVisit || app.reason}</td>
+                              <td className="py-4 px-5 text-center">
+                                <span className={`inline-block text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
+                                  app.status === 'CONFIRMED'
+                                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                    : app.status === 'REQUESTED'
+                                    ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                                    : app.status === 'COMPLETED'
+                                    ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                                    : 'bg-slate-100 text-slate-500 border border-slate-200'
+                                }`}>
+                                  {app.status === 'CONFIRMED' ? 'Đã xác nhận' : app.status === 'REQUESTED' ? 'Chờ duyệt' : app.status === 'COMPLETED' ? 'Đã khám' : 'Đã hủy'}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Stacked List View */}
+                    <div className="block sm:hidden divide-y divide-slate-100 bg-white">
+                      {appointments.map((app) => (
+                        <div key={app.id} className="p-4 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs text-slate-400 font-bold">
+                              #{app.id} • {new Date(app.appointmentAt || app.appointmentTime).toLocaleString('vi-VN', {
+                                month: '2-digit',
+                                day: '2-digit',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </span>
+                            <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                              app.status === 'CONFIRMED'
+                                ? 'bg-emerald-50 text-emerald-700 border border-emerald-100'
+                                : app.status === 'REQUESTED'
+                                ? 'bg-amber-50 text-amber-700 border border-amber-100'
+                                : app.status === 'COMPLETED'
+                                ? 'bg-blue-50 text-blue-700 border border-blue-100'
+                                : 'bg-slate-100 text-slate-500 border border-slate-200'
+                            }`}>
+                              {app.status === 'CONFIRMED' ? 'Đã xác nhận' : app.status === 'REQUESTED' ? 'Chờ duyệt' : app.status === 'COMPLETED' ? 'Đã khám' : 'Đã hủy'}
+                            </span>
+                          </div>
+                          <div>
+                            <h4 className="font-extrabold text-slate-800 text-sm">{app.pet?.name || app.patientName}</h4>
+                            <p className="text-xs text-slate-500 mt-0.5">BS: {app.veterinarian?.fullName || app.doctorName || 'PetCare'}</p>
+                            <p className="text-xs text-slate-450 mt-1 italic">"{app.reasonForVisit || app.reason}"</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                  </div>
+                )}
+                
+                <div className="text-xs text-slate-400 mt-2 bg-slate-50 p-4 rounded-2xl border border-slate-150">
+                  ⚠️ <strong>Lưu ý:</strong> Để thay đổi giờ khám hoặc hủy lịch hẹn, quý khách vui lòng liên hệ Hotline trực tuyến <strong>1900 8888</strong> trước giờ hẹn ít nhất 2 tiếng.
                 </div>
               </div>
             )}
