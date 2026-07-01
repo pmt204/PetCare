@@ -1,7 +1,9 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Menu, X, Shield, Users, FileText, BarChart2, ArrowLeft } from 'lucide-react';
+import { LogOut, Menu, X, Shield, Users, FileText, BarChart2, ArrowLeft, Activity, LayoutDashboard } from 'lucide-react';
+
+
 
 const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -39,6 +41,17 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
         {/* Sidebar Nav */}
         <nav className="flex-grow space-y-1">
+          <Link to="/admin/dashboard" className={sidebarLinkClass('/admin/dashboard')}>
+            <LayoutDashboard className="h-4.5 w-4.5" />
+            <span>Trang tổng quan</span>
+          </Link>
+
+          <Link to="/admin/reports" className={sidebarLinkClass('/admin/reports')}>
+            <BarChart2 className="h-4.5 w-4.5" />
+            <span>Báo cáo Thống kê</span>
+          </Link>
+
+
           <Link to="/admin/vets" className={sidebarLinkClass('/admin/vets')}>
             <Users className="h-4.5 w-4.5" />
             <span>Quản lý Bác sĩ</span>
@@ -49,10 +62,12 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             <span>Quản lý Hóa đơn</span>
           </Link>
 
-          <Link to="/admin/reports" className={sidebarLinkClass('/admin/reports')}>
-            <BarChart2 className="h-4.5 w-4.5" />
-            <span>Báo cáo Thống kê</span>
+          <Link to="/admin/services" className={sidebarLinkClass('/admin/services')}>
+            <Activity className="h-4.5 w-4.5" />
+            <span>Quản lý Dịch vụ</span>
           </Link>
+
+
         </nav>
 
         {/* Sidebar Footer actions */}
@@ -93,6 +108,9 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               {isActive('/admin/vets') && 'Danh sách Bác sĩ Thú y'}
               {isActive('/admin/invoices') && 'Quản lý Hóa đơn Phòng khám'}
               {isActive('/admin/reports') && 'Báo cáo & Thống kê Công việc'}
+              {isActive('/admin/services') && 'Quản lý Dịch vụ Thú y'}
+              {isActive('/admin/dashboard') && 'Trang tổng quan Quản trị viên'}
+
             </h2>
           </div>
 
@@ -137,6 +155,25 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
             <nav className="flex-grow space-y-1">
               <Link 
+                to="/admin/dashboard" 
+                onClick={() => setMobileSidebarOpen(false)} 
+                className={sidebarLinkClass('/admin/dashboard')}
+              >
+                <LayoutDashboard className="h-4.5 w-4.5" />
+                <span>Trang tổng quan</span>
+              </Link>
+
+              <Link 
+                to="/admin/reports" 
+                onClick={() => setMobileSidebarOpen(false)} 
+                className={sidebarLinkClass('/admin/reports')}
+              >
+                <BarChart2 className="h-4.5 w-4.5" />
+                <span>Báo cáo Thống kê</span>
+              </Link>
+
+
+              <Link 
                 to="/admin/vets" 
                 onClick={() => setMobileSidebarOpen(false)} 
                 className={sidebarLinkClass('/admin/vets')}
@@ -155,13 +192,15 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </Link>
 
               <Link 
-                to="/admin/reports" 
+                to="/admin/services" 
                 onClick={() => setMobileSidebarOpen(false)} 
-                className={sidebarLinkClass('/admin/reports')}
+                className={sidebarLinkClass('/admin/services')}
               >
-                <BarChart2 className="h-4.5 w-4.5" />
-                <span>Báo cáo Thống kê</span>
+                <Activity className="h-4.5 w-4.5" />
+                <span>Quản lý Dịch vụ</span>
               </Link>
+
+
             </nav>
 
             <div className="pt-6 border-t border-slate-800 space-y-2">

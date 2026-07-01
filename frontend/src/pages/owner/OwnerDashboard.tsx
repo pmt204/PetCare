@@ -178,7 +178,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
         age: p.petAge ? `${p.petAge} tuổi` : 'Chưa rõ',
         gender: p.petGender,
         avatarUrl: p.petAvatar,
-        weight: 'N/A',
+        weight: p.petWeight || 'N/A',
         lastVisitDate: 'Chưa khám',
         status: 'Khỏe mạnh'
       }));
@@ -190,7 +190,10 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
 
   useEffect(() => {
     if (user?.id) {
-      fetchPets();
+      const timer = setTimeout(() => {
+        fetchPets();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [user]);
 
@@ -247,8 +250,10 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
         petAge: parseInt(petForm.age) || 0,
         petGender: petForm.gender,
         petAvatar: petForm.avatarUrl,
+        petWeight: petForm.weight,
         ownerId: user?.id
       };
+
 
       if (editingPet) {
         await api.put(`/pets/${editingPet.id}`, payload);
@@ -365,7 +370,10 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
 
   useEffect(() => {
     if (activeTab === 'appointments') {
-      fetchAppointments();
+      const timer = setTimeout(() => {
+        fetchAppointments();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [activeTab, user?.id]);
 

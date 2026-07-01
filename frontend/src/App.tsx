@@ -8,6 +8,8 @@ import { Doctors } from './pages/Doctors';
 import { DoctorDetails } from './pages/DoctorDetails';
 import { Services } from './pages/Services';
 import { Login } from './pages/auth/Login';
+import { Register } from './pages/auth/Register';
+
 import { Pets } from './pages/owner/Pets';
 import { BookAppointment } from './pages/owner/BookAppointment';
 import { MedicalHistory } from './pages/owner/MedicalHistory';
@@ -15,9 +17,16 @@ import { AppointmentsList } from './pages/owner/AppointmentsList';
 import { MedicalRecordDetails } from './pages/owner/MedicalRecordDetails';
 import { Schedule } from './pages/vet/Schedule';
 import { CreateRecord } from './pages/vet/CreateRecord';
+import { Prescriptions } from './pages/vet/Prescriptions';
+
 import { Vets } from './pages/admin/Vets';
 import { Invoices } from './pages/admin/Invoices';
 import { Reports } from './pages/admin/Reports';
+import { Services as AdminServices } from './pages/admin/Services';
+import { Dashboard as AdminDashboard } from './pages/admin/Dashboard';
+
+
+
 import './App.css';
 import ScrollToTop from './components/common/ScrollToTop';
 
@@ -32,6 +41,8 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+
 
       <Route element={<ProtectedRoute />}>
         <Route path="/vets" element={<Doctors />} />
@@ -52,14 +63,20 @@ function AppRoutes() {
       {/* Protected Routes for Vet */}
       <Route element={<ProtectedRoute allowedRoles={['VET']} />}>
         <Route path="/vet/schedule" element={<Schedule />} />
-        <Route path="/vet/records" element={<CreateRecord />} />
+        <Route path="/vet/records/create" element={<CreateRecord />} />
+        <Route path="/vet/prescriptions" element={<Prescriptions />} />
       </Route>
 
       {/* Protected Routes for Admin */}
       <Route element={<ProtectedRoute allowedRoles={['ADMIN']} />}>
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/vets" element={<Vets />} />
         <Route path="/admin/invoices" element={<Invoices />} />
         <Route path="/admin/reports" element={<Reports />} />
+        <Route path="/admin/services" element={<AdminServices />} />
+
+
+
       </Route>
 
       {/* Fallback routing */}
@@ -68,7 +85,8 @@ function AppRoutes() {
         element={
           user ? (
             user.role === 'ADMIN' ? (
-              <Navigate to="/admin/vets" replace />
+              <Navigate to="/admin/dashboard" replace />
+
             ) : user.role === 'VET' ? (
               <Navigate to="/vet/schedule" replace />
             ) : (

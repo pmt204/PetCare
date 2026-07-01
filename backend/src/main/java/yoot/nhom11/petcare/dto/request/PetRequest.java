@@ -25,5 +25,7 @@ public class PetRequest {
 
     private String petAvatar;
 
+    private String petWeight;
+
     private Long ownerId;
 }

@@ -1,5 +1,6 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+
 import { useAuth } from '../../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import api from '../../services/api';
@@ -25,8 +26,16 @@ export const Login: React.FC = () => {
       
       login(token, { id, username, email, fullName, role }, refreshToken);
 
-      // Redirect to home page
-      navigate('/');
+      // Redirect to correct dashboard based on role
+      if (role === 'ADMIN') {
+        navigate('/admin/dashboard');
+      } else if (role === 'VET') {
+        navigate('/vet/schedule');
+      } else if (role === 'OWNER') {
+        navigate('/owner/pets');
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       console.warn("Backend auth failed, falling back to mock authentication:", err);
       
@@ -34,13 +43,13 @@ export const Login: React.FC = () => {
       const user = data.username.toLowerCase();
       if (user === 'admin') {
         login('mock-jwt-token-admin', { id: 1, username: 'admin', email: 'admin@petcare.com', fullName: 'Administrator', role: 'ADMIN' }, 'mock-refresh-token-admin');
-        navigate('/');
+        navigate('/admin/dashboard');
       } else if (user === 'vet' || user === 'doctor') {
         login('mock-jwt-token-vet', { id: 2, username: 'vet', email: 'vet@petcare.com', fullName: 'Dr. John Doe', role: 'VET' }, 'mock-refresh-token-vet');
-        navigate('/');
+        navigate('/vet/schedule');
       } else if (user === 'owner') {
         login('mock-jwt-token-owner', { id: 3, username: 'owner', email: 'owner@petcare.com', fullName: 'Pet Owner', role: 'OWNER' }, 'mock-refresh-token-owner');
-        navigate('/');
+        navigate('/owner/pets');
       } else {
         setErrorMsg(err.response?.data?.message || 'Authentication failed. Please verify credentials or try default ones.');
       }
@@ -96,8 +105,16 @@ export const Login: React.FC = () => {
             </button>
           </div>
         </form>
-        
+
+        <div className="text-center pt-2 text-sm">
+          <span className="text-slate-500">Chưa có tài khoản? </span>
+          <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-700 transition">
+            Đăng ký ngay
+          </Link>
+        </div>
+
         <div className="text-center pt-4 border-t border-slate-100 text-xs text-slate-400 space-y-1">
+
           <p>💡 Default Credentials: "admin" / "admin123",</p>
           <p>"vet" / "vet123", or "owner" / "owner123".</p>
         </div>

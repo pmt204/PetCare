@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { LogOut, User, Menu, X, ChevronDown, Calendar, History, Shield, LogIn } from 'lucide-react';
 import { BookAppointmentModal } from '../components/BookAppointmentModal';
+import { ZaloWidget } from '../components/common/ZaloWidget';
+
 
 const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -28,12 +30,15 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
   React.useEffect(() => {
     const params = new URLSearchParams(location.search);
     if (params.get('book') === 'true' && user?.role === 'OWNER') {
-      setIsBookingModalOpen(true);
       const vetId = params.get('vetId');
-      if (vetId) {
-        setInitialVetId(vetId);
-      }
+      const timer = setTimeout(() => {
+        setIsBookingModalOpen(true);
+        if (vetId) {
+          setInitialVetId(vetId);
+        }
+      }, 0);
       window.history.replaceState({}, '', location.pathname);
+      return () => clearTimeout(timer);
     }
   }, [location, user]);
 
@@ -79,7 +84,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               {user?.role === 'VET' && (
                 <>
                   <Link to="/vet/schedule" className={navLinkClass('/vet/schedule')}>Lịch hẹn bác sĩ</Link>
-                  <Link to="/vet/records" className={navLinkClass('/vet/records')}>Tạo bệnh án</Link>
+                  <Link to="/vet/records/create" className={navLinkClass('/vet/records/create')}>Tạo bệnh án</Link>
+
                 </>
               )}
             </nav>
@@ -150,7 +156,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
 
                       {user.role === 'ADMIN' && (
                         <Link 
-                          to="/admin/vets" 
+                          to="/admin/dashboard" 
                           className="flex items-center space-x-2 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-teal-600 transition"
                         >
                           <Shield className="h-4 w-4 text-slate-400" />
@@ -203,7 +209,8 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             {user?.role === 'VET' && (
               <>
                 <Link to="/vet/schedule" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/schedule')}>Lịch làm việc</Link>
-                <Link to="/vet/records" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/records')}>Tạo bệnh án</Link>
+                <Link to="/vet/records/create" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/records/create')}>Tạo bệnh án</Link>
+
               </>
             )}
 
@@ -341,8 +348,12 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           </div>
         </div>
       </footer>
+
+      {/* Floating Zalo Contact Button */}
+      <ZaloWidget />
     </div>
   );
 };
+
 
 export default DashboardLayout;

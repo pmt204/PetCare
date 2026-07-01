@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import DashboardLayout from '../../layouts/DashboardLayout';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import VetLayout from '../../layouts/VetLayout';
 import { Save, Plus, Trash2, Activity, FileText } from 'lucide-react';
 import LabResultUploader from '../../components/LabResultUploader';
 import type { PrescriptionItem } from '../../components/PrescriptionViewer';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import { showToast } from '../../components/Toast';
 
 interface LocalPet {
   id: number;
@@ -16,9 +17,34 @@ interface LocalPet {
 
 export const CreateRecord: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  
+  const queryPetId = searchParams.get('petId');
+  
   const [pets, setPets] = useState<LocalPet[]>([]);
+  const [formData, setFormData] = useState({
+    petId: '',
+    diagnosis: '',
+    symptoms: '',
+    notes: '',
+    followUpInstruction: '',
+    nextVisitDate: '',
+  });
 
+  const [prescriptions, setPrescriptions] = useState<Omit<PrescriptionItem, 'id'>[]>([]);
+  const [newMed, setNewMed] = useState({
+    medicationName: '',
+    dosage: '',
+    frequency: '',
+    durationDays: 5,
+    instructions: '',
+  });
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Tải danh sách thú cưng
   useEffect(() => {
     const loadPets = async () => {
       try {
@@ -37,30 +63,19 @@ export const CreateRecord: React.FC = () => {
     loadPets();
   }, []);
 
-  const [formData, setFormData] = React.useState({
-    petId: '',
-    diagnosis: '',
-    symptoms: '',
-    notes: '',
-    followUpInstruction: '',
-    nextVisitDate: '',
-  });
-
-  const [prescriptions, setPrescriptions] = React.useState<Omit<PrescriptionItem, 'id'>[]>([]);
-  const [newMed, setNewMed] = React.useState({
-    medicationName: '',
-    dosage: '',
-    frequency: '',
-    durationDays: 5,
-    instructions: '',
-  });
-
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-  const [loading, setLoading] = React.useState(false);
+  // Tự động chọn thú cưng dựa trên tham số query truyền từ lịch khám
+  useEffect(() => {
+    if (queryPetId && pets.length > 0) {
+      const match = pets.find(p => p.id.toString() === queryPetId);
+      if (match) {
+        setFormData(prev => ({ ...prev, petId: queryPetId }));
+      }
+    }
+  }, [queryPetId, pets]);
 
   const handleAddMedication = () => {
     if (!newMed.medicationName || !newMed.dosage || !newMed.frequency) {
-      alert('Please fill out medication name, dosage, and frequency.');
+      showToast('Vui lòng nhập đầy đủ Tên thuốc, Liều lượng và Tần suất!', 'warning');
       return;
     }
     setPrescriptions([...prescriptions, { ...newMed }]);
@@ -73,8 +88,12 @@ export const CreateRecord: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.petId || !formData.diagnosis) {
-      alert('Pet selection and Diagnosis are required.');
+    if (!formData.petId) {
+      showToast('Vui lòng chọn thú cưng!', 'error');
+      return;
+    }
+    if (!formData.diagnosis.trim()) {
+      showToast('Vui lòng điền chẩn đoán lâm sàng!', 'error');
       return;
     }
 
@@ -83,21 +102,21 @@ export const CreateRecord: React.FC = () => {
       const selectedPet = pets.find(p => p.id.toString() === formData.petId);
       const patientName = selectedPet ? selectedPet.name : 'Unknown';
 
-      // 1. Create the Medical Record
+      // 1. Lưu hồ sơ bệnh án
       await api.post('/medical-records', {
         doctorId: user?.id,
         veterinarianId: user?.id,
         petId: Number(formData.petId),
         patientName: patientName,
-        diagnosis: formData.diagnosis,
-        symptoms: formData.symptoms,
-        notes: formData.notes,
-        treatmentNote: formData.notes,
-        followUpInstruction: formData.followUpInstruction,
+        diagnosis: formData.diagnosis.trim(),
+        symptoms: formData.symptoms.trim(),
+        notes: formData.notes.trim(),
+        treatmentNote: formData.notes.trim(),
+        followUpInstruction: formData.followUpInstruction.trim(),
         nextVisitDate: formData.nextVisitDate || null
       });
 
-      // 2. Submit prescriptions
+      // 2. Kê đơn thuốc (nếu có)
       if (prescriptions.length > 0) {
         const medicineList = prescriptions.map(p => `${p.medicationName} (${p.dosage} ${p.frequency})`).join(', ');
         const instructions = prescriptions.map(p => p.instructions).filter(Boolean).join('; ');
@@ -110,7 +129,7 @@ export const CreateRecord: React.FC = () => {
         });
       }
 
-      // 3. Submit Lab Result PDF
+      // 3. Tải lên tệp báo cáo xét nghiệm (nếu có)
       if (selectedFile) {
         const fileData = new FormData();
         fileData.append('file', selectedFile);
@@ -131,18 +150,18 @@ export const CreateRecord: React.FC = () => {
         });
       }
 
-      setLoading(false);
-      alert('🎉 Bệnh án đã được tạo và lưu thành công!');
+      showToast('Lưu hồ sơ bệnh án & đơn thuốc thành công!', 'success');
       navigate('/vet/schedule');
     } catch (err) {
       console.error('Error submitting medical record:', err);
+      showToast('Lưu bệnh án thất bại! Vui lòng thử lại.', 'error');
+    } finally {
       setLoading(false);
-      alert('❌ Lưu bệnh án thất bại! Vui lòng thử lại.');
     }
   };
 
   return (
-    <DashboardLayout>
+    <VetLayout>
       <div className="max-w-4xl mx-auto space-y-8 animate-fade-in font-sans">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Create Medical Record</h1>
@@ -165,7 +184,7 @@ export const CreateRecord: React.FC = () => {
                     <select
                       value={formData.petId}
                       onChange={(e) => setFormData({ ...formData, petId: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition cursor-pointer bg-white"
                       required
                     >
                       <option value="">Select pet</option>
@@ -181,7 +200,7 @@ export const CreateRecord: React.FC = () => {
                       value={formData.diagnosis}
                       onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
                       rows={3}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition"
                       placeholder="Enter symptoms, physical findings and final diagnosis..."
                       required
                     />
@@ -194,7 +213,7 @@ export const CreateRecord: React.FC = () => {
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         rows={3}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition"
                         placeholder="Directions for home care or clinic administration..."
                       />
                     </div>
@@ -204,7 +223,7 @@ export const CreateRecord: React.FC = () => {
                         value={formData.followUpInstruction}
                         onChange={(e) => setFormData({ ...formData, followUpInstruction: e.target.value })}
                         rows={3}
-                        className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                        className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition"
                         placeholder="Conditions to return, subsequent care instructions..."
                       />
                     </div>
@@ -216,7 +235,7 @@ export const CreateRecord: React.FC = () => {
                       type="date"
                       value={formData.nextVisitDate}
                       onChange={(e) => setFormData({ ...formData, nextVisitDate: e.target.value })}
-                      className="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition"
+                      className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition cursor-pointer bg-white"
                       min={new Date().toISOString().split('T')[0]}
                     />
                   </div>
@@ -237,7 +256,7 @@ export const CreateRecord: React.FC = () => {
                       type="text"
                       value={newMed.medicationName}
                       onChange={(e) => setNewMed({ ...newMed, medicationName: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-350 rounded-lg text-xs outline-none bg-white"
+                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
                       placeholder="e.g. Amoxicillin"
                     />
                   </div>
@@ -247,7 +266,7 @@ export const CreateRecord: React.FC = () => {
                       type="text"
                       value={newMed.dosage}
                       onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-350 rounded-lg text-xs outline-none bg-white"
+                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
                       placeholder="e.g. 250mg or 5ml"
                     />
                   </div>
@@ -257,7 +276,7 @@ export const CreateRecord: React.FC = () => {
                       type="text"
                       value={newMed.frequency}
                       onChange={(e) => setNewMed({ ...newMed, frequency: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-350 rounded-lg text-xs outline-none bg-white"
+                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
                       placeholder="e.g. Twice daily"
                     />
                   </div>
@@ -267,7 +286,7 @@ export const CreateRecord: React.FC = () => {
                       type="number"
                       value={newMed.durationDays}
                       onChange={(e) => setNewMed({ ...newMed, durationDays: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 border border-slate-350 rounded-lg text-xs outline-none bg-white"
+                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
                       min={1}
                     />
                   </div>
@@ -277,7 +296,7 @@ export const CreateRecord: React.FC = () => {
                       type="text"
                       value={newMed.instructions}
                       onChange={(e) => setNewMed({ ...newMed, instructions: e.target.value })}
-                      className="w-full px-2.5 py-1.5 border border-slate-350 rounded-lg text-xs outline-none bg-white"
+                      className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
                       placeholder="e.g. After meals"
                     />
                   </div>
@@ -297,7 +316,7 @@ export const CreateRecord: React.FC = () => {
                 {prescriptions.length > 0 ? (
                   <div className="border border-slate-200 rounded-xl overflow-hidden text-sm">
                     <table className="min-w-full divide-y divide-slate-200 text-left text-slate-700">
-                      <thead className="bg-slate-50 text-slate-500 uppercase text-xs font-bold">
+                      <thead className="bg-slate-50 text-slate-505 uppercase text-xs font-bold">
                         <tr>
                           <th className="px-4 py-2">Drug Name</th>
                           <th className="px-4 py-2">Dosage</th>
@@ -308,7 +327,7 @@ export const CreateRecord: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-slate-150 bg-white">
                         {prescriptions.map((med, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50/50">
+                          <tr key={idx} className="hover:bg-slate-50/50 transition">
                             <td className="px-4 py-3 font-semibold text-slate-800">{med.medicationName}</td>
                             <td className="px-4 py-3">{med.dosage}</td>
                             <td className="px-4 py-3">{med.frequency}</td>
@@ -347,7 +366,7 @@ export const CreateRecord: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition disabled:opacity-75"
+                  className="w-full flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition disabled:opacity-75"
                 >
                   <Save className="h-4.5 w-4.5" />
                   <span>{loading ? 'Saving Record...' : 'Save Medical Record'}</span>
@@ -355,7 +374,7 @@ export const CreateRecord: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
-                  className="w-full text-center border border-slate-350 bg-white hover:bg-slate-50 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-sm transition"
+                  className="w-full text-center border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-sm transition"
                 >
                   Cancel
                 </button>
@@ -365,7 +384,8 @@ export const CreateRecord: React.FC = () => {
           </div>
         </form>
       </div>
-    </DashboardLayout>
+    </VetLayout>
   );
 };
+
 export default CreateRecord;

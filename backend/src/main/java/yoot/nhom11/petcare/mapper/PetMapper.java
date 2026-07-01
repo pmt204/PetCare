@@ -22,10 +22,12 @@ public class PetMapper {
                 .petAge(pet.getPetAge())
                 .petGender(pet.getPetGender())
                 .petAvatar(pet.getPetAvatar())
+                .petWeight(pet.getPetWeight())
                 .slug(pet.getSlug())
                 .createAt(pet.getCreateAt())
                 .updateAt(pet.getUpdateAt())
                 .build();
+
     }
 
     public Pet toPet(PetRequest request) {
@@ -49,7 +51,9 @@ public class PetMapper {
                 .petAge(request.getPetAge())
                 .gender(request.getPetGender())
                 .avatarUrl(request.getPetAvatar())
+                .weight(request.getPetWeight())
                 .build();
+
     }
 
     public void updatePetFromRequest(PetRequest request, Pet pet) {
@@ -63,5 +67,7 @@ public class PetMapper {
         pet.setPetAge(request.getPetAge());
         pet.setPetGender(request.getPetGender());
         pet.setPetAvatar(request.getPetAvatar());
+        pet.setPetWeight(request.getPetWeight());
     }
+
 }

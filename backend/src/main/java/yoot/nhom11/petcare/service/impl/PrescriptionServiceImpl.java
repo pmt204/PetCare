@@ -1,6 +1,7 @@
 package yoot.nhom11.petcare.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yoot.nhom11.petcare.dto.request.PrescriptionRequest;
 import yoot.nhom11.petcare.dto.response.PrescriptionResponse;
 import yoot.nhom11.petcare.entity.Doctor;
@@ -15,6 +16,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class PrescriptionServiceImpl implements PrescriptionService {
 
     private final PrescriptionRepository prescriptionRepository;
@@ -26,6 +28,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
+    @Transactional
     public PrescriptionResponse create(PrescriptionRequest request) {
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + request.getDoctorId()));
@@ -43,17 +46,32 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     public List<PrescriptionResponse> listAll() {
-        return prescriptionRepository.findAll().stream()
+        // Use eager fetching to avoid LazyInitializationException
+        return prescriptionRepository.findAllWithDetails().stream()
                 .map(PrescriptionMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public PrescriptionResponse update(Long id, PrescriptionRequest request) {
-        throw new UnsupportedOperationException("Update operation is not supported.");
+        Prescription prescription = prescriptionRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Prescription not found: " + id));
+        Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + request.getDoctorId()));
+        
+        prescription.setDoctor(doctor);
+        prescription.setPatientName(request.getPatientName());
+        prescription.setMedicineList(request.getMedicineList());
+        prescription.setInstructions(request.getInstructions());
+        prescription.setStatus(request.getStatus() != null ? request.getStatus() : "Active");
+        
+        Prescription saved = prescriptionRepository.save(prescription);
+        return PrescriptionMapper.toResponse(saved);
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
         if (!prescriptionRepository.existsById(id)) throw new NoSuchElementException("Prescription not found: " + id);
         prescriptionRepository.deleteById(id);

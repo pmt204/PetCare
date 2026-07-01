@@ -81,7 +81,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 		}
 		System.out.println("Default users seeded/updated successfully!");
 
-		// Lấy người dùng mẫu để thiết lập quan hệ
 		AppUser owner = appUserRepository.findByUsername("owner").orElse(null);
 		AppUser owner2 = appUserRepository.findByUsername("owner2").orElse(null);
 		AppUser vet = appUserRepository.findByUsername("vet").orElse(null);
@@ -129,14 +128,10 @@ public class DatabaseSeeder implements CommandLineRunner {
 			System.out.println("Doctors seeded/updated successfully!");
 		}
 
-		Doctor doc1 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. John Doe")).findFirst().orElse(null);
-		Doctor doc2 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. Sarah Conner")).findFirst().orElse(null);
-
 		// 3. Seed / Update PetServices
 		{
 			List<PetService> existingServices = petServiceRepository.findAll();
 			
-			// 1. General Checkup -> Khám bệnh tổng quát
 			PetService s1 = existingServices.stream()
 					.filter(s -> s.getName().equals("General Checkup") || s.getName().equals("Khám bệnh tổng quát"))
 					.findFirst().orElse(new PetService());
@@ -145,7 +140,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 			s1.setPrice(150000.0);
 			petServiceRepository.save(s1);
 
-			// 2. Vaccination Package -> Tiêm phòng vaccine
 			PetService s2 = existingServices.stream()
 					.filter(s -> s.getName().equals("Vaccination Package") || s.getName().equals("Tiêm phòng vaccine"))
 					.findFirst().orElse(new PetService());
@@ -154,7 +148,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 			s2.setPrice(250000.0);
 			petServiceRepository.save(s2);
 
-			// 3. Surgical Sterilization -> Phẫu thuật ngoại khoa
 			PetService s3 = existingServices.stream()
 					.filter(s -> s.getName().equals("Surgical Sterilization") || s.getName().equals("Phẫu thuật ngoại khoa"))
 					.findFirst().orElse(new PetService());
@@ -163,7 +156,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 			s3.setPrice(1500000.0);
 			petServiceRepository.save(s3);
 
-			// 4. Blood Test & Diagnostics -> Xét nghiệm & Siêu âm
 			PetService s4 = existingServices.stream()
 					.filter(s -> s.getName().equals("Blood Test & Diagnostics") || s.getName().equals("Xét nghiệm & Siêu âm"))
 					.findFirst().orElse(new PetService());
@@ -172,7 +164,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 			s4.setPrice(350000.0);
 			petServiceRepository.save(s4);
 
-			// 5. Dental Cleaning -> Nha khoa thú y
 			PetService s5 = existingServices.stream()
 					.filter(s -> s.getName().equals("Dental Cleaning") || s.getName().equals("Nha khoa thú y"))
 					.findFirst().orElse(new PetService());
@@ -181,7 +172,6 @@ public class DatabaseSeeder implements CommandLineRunner {
 			s5.setPrice(500000.0);
 			petServiceRepository.save(s5);
 
-			// 6. -> Điều trị nội trú theo dõi (mới)
 			PetService s6 = existingServices.stream()
 					.filter(s -> s.getName().equals("Điều trị nội trú theo dõi"))
 					.findFirst().orElse(new PetService());
@@ -193,14 +183,11 @@ public class DatabaseSeeder implements CommandLineRunner {
 			System.out.println("Pet Services seeded/updated successfully!");
 		}
 
-		List<PetService> services = petServiceRepository.findAll();
-		PetService checkupService = services.stream().filter(s -> s.getName().equals("Khám bệnh tổng quát")).findFirst().orElse(null);
-		PetService vaccineService = services.stream().filter(s -> s.getName().equals("Tiêm phòng vaccine")).findFirst().orElse(null);
-		PetService surgService = services.stream().filter(s -> s.getName().equals("Phẫu thuật ngoại khoa")).findFirst().orElse(null);
-
-		// 4. Seed Pets (nếu chưa có)
-		if (petRepository.count() == 0 && owner != null && owner2 != null) {
-			Pet pet1 = new Pet();
+		// 4. Seed Pets
+		{
+			List<Pet> existingPets = petRepository.findAll();
+			
+			Pet pet1 = existingPets.stream().filter(p -> p.getName().equals("LuLu")).findFirst().orElse(new Pet());
 			pet1.setOwner(owner);
 			pet1.setName("LuLu");
 			pet1.setSpecies(PetSpecies.DOG);
@@ -214,7 +201,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			pet1.setUpdatedAt(Instant.now());
 			petRepository.save(pet1);
 
-			Pet pet2 = new Pet();
+			Pet pet2 = existingPets.stream().filter(p -> p.getName().equals("MiMi")).findFirst().orElse(new Pet());
 			pet2.setOwner(owner);
 			pet2.setName("MiMi");
 			pet2.setSpecies(PetSpecies.CAT);
@@ -228,7 +215,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			pet2.setUpdatedAt(Instant.now());
 			petRepository.save(pet2);
 
-			Pet pet3 = new Pet();
+			Pet pet3 = existingPets.stream().filter(p -> p.getName().equals("Rocky")).findFirst().orElse(new Pet());
 			pet3.setOwner(owner2);
 			pet3.setName("Rocky");
 			pet3.setSpecies(PetSpecies.DOG);
@@ -242,17 +229,42 @@ public class DatabaseSeeder implements CommandLineRunner {
 			pet3.setUpdatedAt(Instant.now());
 			petRepository.save(pet3);
 
-			System.out.println("Pets seeded successfully!");
+			Pet pet4 = existingPets.stream().filter(p -> p.getName().equals("Bông")).findFirst().orElse(new Pet());
+			pet4.setOwner(owner2);
+			pet4.setName("Bông");
+			pet4.setSpecies(PetSpecies.DOG);
+			pet4.setBreed("Poodle");
+			pet4.setBirthDate(LocalDate.now().minusMonths(18));
+			pet4.setGender("Female");
+			pet4.setSlug("bong");
+			pet4.setPetAge(1);
+			pet4.setAvatarUrl("https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=200");
+			pet4.setCreatedAt(Instant.now());
+			pet4.setUpdatedAt(Instant.now());
+			petRepository.save(pet4);
+
+			Pet pet5 = existingPets.stream().filter(p -> p.getName().equals("Simba")).findFirst().orElse(new Pet());
+			pet5.setOwner(owner);
+			pet5.setName("Simba");
+			pet5.setSpecies(PetSpecies.CAT);
+			pet5.setBreed("British Shorthair");
+			pet5.setBirthDate(LocalDate.now().minusYears(2));
+			pet5.setGender("Male");
+			pet5.setSlug("simba");
+			pet5.setPetAge(2);
+			pet5.setAvatarUrl("https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&q=80&w=200");
+			pet5.setCreatedAt(Instant.now());
+			pet5.setUpdatedAt(Instant.now());
+			petRepository.save(pet5);
+
+			System.out.println("Pets seeded/updated successfully!");
 		}
 
-		List<Pet> pets = petRepository.findAll();
-		Pet lulu = pets.stream().filter(p -> p.getName().equals("LuLu")).findFirst().orElse(null);
-		Pet mimi = pets.stream().filter(p -> p.getName().equals("MiMi")).findFirst().orElse(null);
-		Pet rocky = pets.stream().filter(p -> p.getName().equals("Rocky")).findFirst().orElse(null);
-
-		// 5. Seed Medicines (nếu chưa có)
-		if (medicineRepository.count() == 0) {
-			Medicine med1 = new Medicine();
+		// 5. Seed Medicines
+		{
+			List<Medicine> existingMeds = medicineRepository.findAll();
+			
+			Medicine med1 = existingMeds.stream().filter(m -> m.getMedicineName().equals("Amoxicillin")).findFirst().orElse(new Medicine());
 			med1.setMedicineName("Amoxicillin");
 			med1.setUnit("tablets");
 			med1.setDescription("Antibiotic for bacterial infections in pets.");
@@ -262,7 +274,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			med1.setUpdateBy("System");
 			medicineRepository.save(med1);
 
-			Medicine med2 = new Medicine();
+			Medicine med2 = existingMeds.stream().filter(m -> m.getMedicineName().equals("Paracetamol Vet")).findFirst().orElse(new Medicine());
 			med2.setMedicineName("Paracetamol Vet");
 			med2.setUnit("syrup");
 			med2.setDescription("Pain relief and fever reducer formula for canines.");
@@ -272,7 +284,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			med2.setUpdateBy("System");
 			medicineRepository.save(med2);
 
-			Medicine med3 = new Medicine();
+			Medicine med3 = existingMeds.stream().filter(m -> m.getMedicineName().equals("Ivermectin")).findFirst().orElse(new Medicine());
 			med3.setMedicineName("Ivermectin");
 			med3.setUnit("tablets");
 			med3.setDescription("Effective dewormer and parasite control.");
@@ -282,144 +294,387 @@ public class DatabaseSeeder implements CommandLineRunner {
 			med3.setUpdateBy("System");
 			medicineRepository.save(med3);
 
-			System.out.println("Medicines seeded successfully!");
+			Medicine med4 = existingMeds.stream().filter(m -> m.getMedicineName().equals("Dewormer Max")).findFirst().orElse(new Medicine());
+			med4.setMedicineName("Dewormer Max");
+			med4.setUnit("tablets");
+			med4.setDescription("Broad-spectrum dewormer for cats and dogs.");
+			med4.setCreateAt(LocalDateTime.now());
+			med4.setUpdateAt(LocalDateTime.now());
+			med4.setCreateBy("System");
+			med4.setUpdateBy("System");
+			medicineRepository.save(med4);
+
+			Medicine med5 = existingMeds.stream().filter(m -> m.getMedicineName().equals("Ear Clean Pro")).findFirst().orElse(new Medicine());
+			med5.setMedicineName("Ear Clean Pro");
+			med5.setUnit("drops");
+			med5.setDescription("Eardrops for treating ear infections and mites.");
+			med5.setCreateAt(LocalDateTime.now());
+			med5.setUpdateAt(LocalDateTime.now());
+			med5.setCreateBy("System");
+			med5.setUpdateBy("System");
+			medicineRepository.save(med5);
+
+			System.out.println("Medicines seeded/updated successfully!");
 		}
 
-		List<Medicine> medicines = medicineRepository.findAll();
-		Medicine amox = medicines.stream().filter(m -> m.getMedicineName().equals("Amoxicillin")).findFirst().orElse(null);
+		// 6. Seed Appointments & Invoices & Medical Records & Prescriptions
+		{
+			List<Appointment> existingApps = appointmentRepository.findAll();
+			
+			Pet lulu = petRepository.findAll().stream().filter(p -> p.getName().equals("LuLu")).findFirst().orElse(null);
+			Pet mimi = petRepository.findAll().stream().filter(p -> p.getName().equals("MiMi")).findFirst().orElse(null);
+			Pet rocky = petRepository.findAll().stream().filter(p -> p.getName().equals("Rocky")).findFirst().orElse(null);
+			Pet bong = petRepository.findAll().stream().filter(p -> p.getName().equals("Bông")).findFirst().orElse(null);
+			Pet simba = petRepository.findAll().stream().filter(p -> p.getName().equals("Simba")).findFirst().orElse(null);
 
-		// 6. Seed Appointments & Invoices (nếu chưa có)
-		if (appointmentRepository.count() == 0 && lulu != null && mimi != null && rocky != null) {
-			// Lịch hẹn 1: Đã qua, trạng thái CONFIRMED (phục vụ bệnh án)
-			Appointment app1 = new Appointment();
-			app1.setOwner(owner);
-			app1.setPet(lulu);
-			app1.setVeterinarian(vet);
-			app1.setDoctor(doc1);
-			app1.setAppointmentAt(LocalDateTime.now().minusDays(5));
-			app1.setAppointmentTime(LocalDateTime.now().minusDays(5));
-			app1.setReasonForVisit("Routine Checkup & Vaccination");
-			app1.setReason("Routine Checkup & Vaccination");
-			app1.setStatus(AppointmentStatus.CONFIRMED);
-			app1.setPatientName(lulu.getName());
-			app1.setPatientPhone(owner.getPhone());
-			app1.setCreatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
-			app1.setUpdatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
-			appointmentRepository.save(app1);
+			List<PetService> services = petServiceRepository.findAll();
+			PetService checkupService = services.stream().filter(s -> s.getName().equals("Khám bệnh tổng quát")).findFirst().orElse(null);
+			PetService vaccineService = services.stream().filter(s -> s.getName().equals("Tiêm phòng vaccine")).findFirst().orElse(null);
+			PetService surgService = services.stream().filter(s -> s.getName().equals("Phẫu thuật ngoại khoa")).findFirst().orElse(null);
+			PetService scanService = services.stream().filter(s -> s.getName().equals("Xét nghiệm & Siêu âm")).findFirst().orElse(null);
 
-			// Hóa đơn đã thanh toán cho lịch hẹn 1
-			Invoice inv1 = new Invoice();
-			inv1.setAppointment(app1);
-			inv1.setServices(new ArrayList<>(List.of(checkupService, vaccineService)));
-			inv1.setTotalAmount(checkupService.getPrice() + vaccineService.getPrice());
-			inv1.setPaymentStatus(PaymentStatus.PAID);
-			inv1.setCreatedAt(LocalDateTime.now().minusDays(5));
-			invoiceRepository.save(inv1);
+			List<Medicine> medicines = medicineRepository.findAll();
+			Medicine amox = medicines.stream().filter(m -> m.getMedicineName().equals("Amoxicillin")).findFirst().orElse(null);
+			Medicine earClean = medicines.stream().filter(m -> m.getMedicineName().equals("Ear Clean Pro")).findFirst().orElse(null);
+			Medicine dewormer = medicines.stream().filter(m -> m.getMedicineName().equals("Dewormer Max")).findFirst().orElse(null);
 
-			// Lịch hẹn 2: Sắp tới, chưa thanh toán
-			Appointment app2 = new Appointment();
-			app2.setOwner(owner);
-			app2.setPet(mimi);
-			app2.setVeterinarian(vet2);
-			app2.setDoctor(doc2);
-			app2.setAppointmentAt(LocalDateTime.now().plusDays(2));
-			app2.setAppointmentTime(LocalDateTime.now().plusDays(2));
-			app2.setReasonForVisit("Surgical consultation (Spaying)");
-			app2.setReason("Surgical consultation (Spaying)");
-			app2.setStatus(AppointmentStatus.CONFIRMED);
-			app2.setPatientName(mimi.getName());
-			app2.setPatientPhone(owner.getPhone());
-			app2.setCreatedAt(Instant.now());
-			app2.setUpdatedAt(Instant.now());
-			appointmentRepository.save(app2);
+			Doctor doc1 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. John Doe")).findFirst().orElse(null);
+			Doctor doc2 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. Sarah Conner")).findFirst().orElse(null);
+			Doctor doc3 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. Helen Carter")).findFirst().orElse(null);
 
-			// Hóa đơn chưa thanh toán cho lịch hẹn 2
-			Invoice inv2 = new Invoice();
-			inv2.setAppointment(app2);
-			inv2.setServices(new ArrayList<>(List.of(surgService)));
-			inv2.setTotalAmount(surgService.getPrice());
-			inv2.setPaymentStatus(PaymentStatus.UNPAID);
-			inv2.setCreatedAt(LocalDateTime.now());
-			invoiceRepository.save(inv2);
+			// --- Lịch hẹn 1 (Đã hoàn thành, 5 ngày trước) ---
+			Appointment app1 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("LuLu") && a.getReason().equals("Routine Checkup & Vaccination")).findFirst().orElse(null);
+			if (app1 == null && lulu != null) {
+				app1 = new Appointment();
+				app1.setOwner(owner);
+				app1.setPet(lulu);
+				app1.setVeterinarian(vet);
+				app1.setDoctor(doc1);
+				app1.setAppointmentAt(LocalDateTime.now().minusDays(5));
+				app1.setAppointmentTime(LocalDateTime.now().minusDays(5));
+				app1.setReasonForVisit("Routine Checkup & Vaccination");
+				app1.setReason("Routine Checkup & Vaccination");
+				app1.setStatus(AppointmentStatus.CONFIRMED);
+				app1.setPatientName(lulu.getName());
+				app1.setPatientPhone(owner != null ? owner.getPhone() : "");
+				app1.setCreatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
+				app1.setUpdatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
+				appointmentRepository.save(app1);
 
-			// Lịch hẹn 3: Đang yêu cầu duyệt (Pending)
-			Appointment app3 = new Appointment();
-			app3.setOwner(owner2);
-			app3.setPet(rocky);
-			app3.setVeterinarian(vet);
-			app3.setDoctor(doc1);
-			app3.setAppointmentAt(LocalDateTime.now().plusDays(1));
-			app3.setAppointmentTime(LocalDateTime.now().plusDays(1));
-			app3.setReasonForVisit("General Checkup - Coughing");
-			app3.setReason("General Checkup - Coughing");
-			app3.setStatus(AppointmentStatus.REQUESTED);
-			app3.setPatientName(rocky.getName());
-			app3.setPatientPhone(owner2.getPhone());
-			app3.setCreatedAt(Instant.now());
-			app3.setUpdatedAt(Instant.now());
-			appointmentRepository.save(app3);
+				// Hóa đơn 1 (Đã thanh toán)
+				Invoice inv1 = new Invoice();
+				inv1.setAppointment(app1);
+				inv1.setServices(new ArrayList<>(List.of(checkupService, vaccineService)));
+				inv1.setTotalAmount(checkupService.getPrice() + vaccineService.getPrice());
+				inv1.setPaymentStatus(PaymentStatus.PAID);
+				inv1.setCreatedAt(LocalDateTime.now().minusDays(5));
+				invoiceRepository.save(inv1);
 
-			System.out.println("Appointments and Invoices seeded successfully!");
-		}
+				// Bệnh án 1
+				MedicalRecord rec1 = new MedicalRecord();
+				rec1.setPet(lulu);
+				rec1.setVeterinarian(vet);
+				rec1.setDoctor(doc1);
+				rec1.setVisitAt(Instant.now().minus(5, ChronoUnit.DAYS));
+				rec1.setStatus(MedicalRecordStatus.COMPLETED);
+				rec1.setReasonForVisit("Routine Checkup & Vaccination");
+				rec1.setDiagnosis("Healthy Retriever, completed annual vaccines.");
+				rec1.setTreatmentNote("Vaccinated with DHPP vaccine. Cleaned ears.");
+				rec1.setFollowUpInstruction("Monitor injection site for swelling. Keep quiet for 24h.");
+				rec1.setNextVisitDate(LocalDate.now().plusYears(1));
+				rec1.setPatientName(lulu.getName());
+				rec1.setSymptoms("Normal appetite, energetic, no coughing.");
+				rec1.setNotes("Lulu behaves well during examination.");
+				rec1.setCreatedDate(LocalDateTime.now().minusDays(5));
+				rec1.setCreatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
+				rec1.setUpdatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
+				rec1.setCreateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+				rec1.setUpdateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+				rec1.setInvoice(inv1);
 
-		List<Appointment> appointments = appointmentRepository.findAll();
-		Appointment completedApp = appointments.stream().filter(a -> a.getPet().getName().equals("LuLu")).findFirst().orElse(null);
-
-		// 7. Seed MedicalRecords & Prescriptions (nếu chưa có)
-		if (medicalRecordRepository.count() == 0 && completedApp != null && lulu != null) {
-			MedicalRecord record = new MedicalRecord();
-			record.setPet(lulu);
-			record.setVeterinarian(vet);
-			record.setDoctor(doc1);
-			record.setVisitAt(Instant.now().minus(5, ChronoUnit.DAYS));
-			record.setStatus(MedicalRecordStatus.COMPLETED);
-			record.setReasonForVisit("Routine Checkup & Vaccination");
-			record.setDiagnosis("Healthy Retriever, completed annual vaccines.");
-			record.setTreatmentNote("Vaccinated with DHPP vaccine. Cleaned ears.");
-			record.setFollowUpInstruction("Monitor injection site for swelling. Keep quiet for 24h.");
-			record.setNextVisitDate(LocalDate.now().plusYears(1));
-			record.setPatientName(lulu.getName());
-			record.setSymptoms("Normal appetite, energetic, no coughing.");
-			record.setNotes("Lulu behaves well during examination.");
-			record.setCreatedDate(LocalDateTime.now().minusDays(5));
-			record.setCreatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
-			record.setUpdatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
-			record.setCreateBy(vet.getFullName());
-			record.setUpdateBy(vet.getFullName());
-
-			// Đơn thuốc đi kèm
-			if (amox != null) {
-				Prescription p = new Prescription();
-				p.setMedicalRecord(record);
-				p.setMedicationName(amox.getMedicineName());
-				p.setDosage("1 tablet");
-				p.setFrequency("twice daily");
-				p.setDurationDays(5);
-				p.setInstructions("Take after meals.");
-				p.setQuantity(10);
-				p.setMedicine(amox);
-				p.setDoctor(doc1);
-				p.setPatientName(lulu.getName());
-				p.setCreatedDate(LocalDateTime.now().minusDays(5));
-				p.setCreatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
-				p.setUpdatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
-				p.setCreateBy(vet.getFullName());
-				p.setUpdateBy(vet.getFullName());
-				p.setStatus("Active");
-				record.getPrescriptions().add(p);
+				if (amox != null) {
+					Prescription p = new Prescription();
+					p.setMedicalRecord(rec1);
+					p.setMedicationName(amox.getMedicineName());
+					p.setDosage("1 tablet");
+					p.setFrequency("twice daily");
+					p.setDurationDays(5);
+					p.setInstructions("Take after meals.");
+					p.setQuantity(10);
+					p.setMedicine(amox);
+					p.setDoctor(doc1);
+					p.setPatientName(lulu.getName());
+					p.setCreatedDate(LocalDateTime.now().minusDays(5));
+					p.setCreatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
+					p.setUpdatedAt(Instant.now().minus(5, ChronoUnit.DAYS));
+					p.setCreateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+					p.setUpdateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+					p.setStatus("Active");
+					rec1.getPrescriptions().add(p);
+				}
+				medicalRecordRepository.save(rec1);
 			}
 
-			// Invoice thanh toán viện phí đi kèm bệnh án
-			Invoice invoice = new Invoice();
-			invoice.setMedicalRecord(record);
-			invoice.setAppointment(completedApp);
-			invoice.setTotalAmount(checkupService.getPrice() + vaccineService.getPrice() + (amox != null ? 50000.0 : 0.0));
-			invoice.setCreatedAt(LocalDateTime.now().minusDays(5));
-			invoice.setPaymentStatus(PaymentStatus.PAID);
-			record.setInvoice(invoice);
+			// --- Lịch hẹn 2 (Đang chờ khám, 2 ngày tới) ---
+			Appointment app2 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("MiMi") && a.getReason().equals("Surgical consultation (Spaying)")).findFirst().orElse(null);
+			if (app2 == null && mimi != null) {
+				app2 = new Appointment();
+				app2.setOwner(owner);
+				app2.setPet(mimi);
+				app2.setVeterinarian(vet2);
+				app2.setDoctor(doc2);
+				app2.setAppointmentAt(LocalDateTime.now().plusDays(2));
+				app2.setAppointmentTime(LocalDateTime.now().plusDays(2));
+				app2.setReasonForVisit("Surgical consultation (Spaying)");
+				app2.setReason("Surgical consultation (Spaying)");
+				app2.setStatus(AppointmentStatus.CONFIRMED);
+				app2.setPatientName(mimi.getName());
+				app2.setPatientPhone(owner != null ? owner.getPhone() : "");
+				app2.setCreatedAt(Instant.now());
+				app2.setUpdatedAt(Instant.now());
+				appointmentRepository.save(app2);
 
-			medicalRecordRepository.save(record);
-			System.out.println("Medical Records (with Prescriptions & Bill) seeded successfully!");
+				// Hóa đơn 2 (Chưa thanh toán)
+				Invoice inv2 = new Invoice();
+				inv2.setAppointment(app2);
+				inv2.setServices(new ArrayList<>(List.of(surgService)));
+				inv2.setTotalAmount(surgService.getPrice());
+				inv2.setPaymentStatus(PaymentStatus.UNPAID);
+				inv2.setCreatedAt(LocalDateTime.now());
+				invoiceRepository.save(inv2);
+			}
+
+			// --- Lịch hẹn 3 (Chưa duyệt, 1 ngày tới) ---
+			Appointment app3 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Rocky") && a.getReason().equals("General Checkup - Coughing")).findFirst().orElse(null);
+			if (app3 == null && rocky != null) {
+				app3 = new Appointment();
+				app3.setOwner(owner2);
+				app3.setPet(rocky);
+				app3.setVeterinarian(vet);
+				app3.setDoctor(doc1);
+				app3.setAppointmentAt(LocalDateTime.now().plusDays(1));
+				app3.setAppointmentTime(LocalDateTime.now().plusDays(1));
+				app3.setReasonForVisit("General Checkup - Coughing");
+				app3.setReason("General Checkup - Coughing");
+				app3.setStatus(AppointmentStatus.REQUESTED);
+				app3.setPatientName(rocky.getName());
+				app3.setPatientPhone(owner2 != null ? owner2.getPhone() : "");
+				app3.setCreatedAt(Instant.now());
+				app3.setUpdatedAt(Instant.now());
+				appointmentRepository.save(app3);
+			}
+
+			// --- Lịch hẹn 4 (Hôm qua, đã khám, đã thanh toán) ---
+			Appointment app4 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Simba") && a.getReason().equals("Tai bị ngứa đỏ")).findFirst().orElse(null);
+			if (app4 == null && simba != null) {
+				app4 = new Appointment();
+				app4.setOwner(owner);
+				app4.setPet(simba);
+				app4.setVeterinarian(vet);
+				app4.setDoctor(doc1); // Dr. John Doe
+
+				app4.setAppointmentAt(LocalDateTime.now().minusDays(1));
+				app4.setAppointmentTime(LocalDateTime.now().minusDays(1));
+				app4.setReasonForVisit("Tai bị ngứa đỏ");
+				app4.setReason("Tai bị ngứa đỏ");
+				app4.setStatus(AppointmentStatus.CONFIRMED);
+
+				app4.setPatientName(simba.getName());
+				app4.setPatientPhone(owner != null ? owner.getPhone() : "");
+				app4.setCreatedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+				app4.setUpdatedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+				appointmentRepository.save(app4);
+
+				// Hóa đơn 4 (Đã thanh toán)
+				Invoice inv4 = new Invoice();
+				inv4.setAppointment(app4);
+				inv4.setServices(new ArrayList<>(List.of(checkupService)));
+				inv4.setTotalAmount(checkupService.getPrice());
+				inv4.setPaymentStatus(PaymentStatus.PAID);
+				inv4.setCreatedAt(LocalDateTime.now().minusDays(1));
+				invoiceRepository.save(inv4);
+
+				// Bệnh án 4
+				MedicalRecord rec4 = new MedicalRecord();
+				rec4.setPet(simba);
+				rec4.setVeterinarian(vet);
+				rec4.setDoctor(doc1);
+
+				rec4.setVisitAt(Instant.now().minus(1, ChronoUnit.DAYS));
+				rec4.setStatus(MedicalRecordStatus.COMPLETED);
+				rec4.setReasonForVisit("Tai bị ngứa đỏ");
+				rec4.setDiagnosis("Bị nhiễm rận tai & viêm tai nhẹ.");
+				rec4.setTreatmentNote("Vệ sinh sạch tai bằng dung dịch chuyên dụng. Nhỏ thuốc Ear Clean Pro.");
+				rec4.setFollowUpInstruction("Nhỏ tai hàng ngày 2 lần. Tránh để nước vào tai khi tắm.");
+				rec4.setNextVisitDate(LocalDate.now().plusDays(10));
+				rec4.setPatientName(simba.getName());
+				rec4.setSymptoms("Ngứa tai, gãi liên tục, có nhiều dịch màu nâu đen trong tai.");
+				rec4.setNotes("Mèo Simba rất hợp tác.");
+				rec4.setCreatedDate(LocalDateTime.now().minusDays(1));
+				rec4.setCreatedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+				rec4.setUpdatedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+				rec4.setCreateBy(vet != null ? vet.getFullName() : "Dr. Helen Carter");
+				rec4.setUpdateBy(vet != null ? vet.getFullName() : "Dr. Helen Carter");
+				rec4.setInvoice(inv4);
+
+				if (earClean != null) {
+					Prescription p = new Prescription();
+					p.setMedicalRecord(rec4);
+					p.setMedicationName(earClean.getMedicineName());
+					p.setDosage("Nhỏ 3 giọt mỗi tai");
+					p.setFrequency("ngày 2 lần");
+					p.setDurationDays(7);
+					p.setInstructions("Lắc đều trước khi nhỏ, lau sạch dịch tai trước.");
+					p.setQuantity(1);
+					p.setMedicine(earClean);
+					p.setDoctor(doc1);
+
+					p.setPatientName(simba.getName());
+					p.setCreatedDate(LocalDateTime.now().minusDays(1));
+					p.setCreatedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+					p.setUpdatedAt(Instant.now().minus(1, ChronoUnit.DAYS));
+					p.setCreateBy(vet != null ? vet.getFullName() : "Dr. Helen Carter");
+					p.setUpdateBy(vet != null ? vet.getFullName() : "Dr. Helen Carter");
+					p.setStatus("Active");
+					rec4.getPrescriptions().add(p);
+				}
+				medicalRecordRepository.save(rec4);
+			}
+
+			// --- Lịch hẹn 5 (3 ngày trước, đã khám, đã thanh toán) ---
+			Appointment app5 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Bông") && a.getReason().equals("Kiểm tra sức khỏe định kỳ & tẩy giun")).findFirst().orElse(null);
+			if (app5 == null && bong != null) {
+				app5 = new Appointment();
+				app5.setOwner(owner2);
+				app5.setPet(bong);
+				app5.setVeterinarian(vet);
+				app5.setDoctor(doc1);
+
+				app5.setAppointmentAt(LocalDateTime.now().minusDays(3));
+				app5.setAppointmentTime(LocalDateTime.now().minusDays(3));
+				app5.setReasonForVisit("Kiểm tra sức khỏe định kỳ & tẩy giun");
+				app5.setReason("Kiểm tra sức khỏe định kỳ & tẩy giun");
+				app5.setStatus(AppointmentStatus.CONFIRMED);
+
+				app5.setPatientName(bong.getName());
+				app5.setPatientPhone(owner2 != null ? owner2.getPhone() : "");
+				app5.setCreatedAt(Instant.now().minus(3, ChronoUnit.DAYS));
+				app5.setUpdatedAt(Instant.now().minus(3, ChronoUnit.DAYS));
+				appointmentRepository.save(app5);
+
+				// Hóa đơn 5 (Đã thanh toán)
+				Invoice inv5 = new Invoice();
+				inv5.setAppointment(app5);
+				inv5.setServices(new ArrayList<>(List.of(checkupService, scanService)));
+				inv5.setTotalAmount(checkupService.getPrice() + scanService.getPrice());
+				inv5.setPaymentStatus(PaymentStatus.PAID);
+				inv5.setCreatedAt(LocalDateTime.now().minusDays(3));
+				invoiceRepository.save(inv5);
+
+				// Bệnh án 5
+				MedicalRecord rec5 = new MedicalRecord();
+				rec5.setPet(bong);
+				rec5.setVeterinarian(vet);
+				rec5.setDoctor(doc1);
+				rec5.setVisitAt(Instant.now().minus(3, ChronoUnit.DAYS));
+				rec5.setStatus(MedicalRecordStatus.COMPLETED);
+				rec5.setReasonForVisit("Kiểm tra sức khỏe định kỳ & tẩy giun");
+				rec5.setDiagnosis("Poodle Bông khỏe mạnh bình thường, siêu âm không phát sinh bệnh lý.");
+				rec5.setTreatmentNote("Siêu âm ổ bụng tổng quát. Cho uống tẩy giun Dewormer Max.");
+				rec5.setFollowUpInstruction("Tẩy giun nhắc lại sau 3 tháng.");
+				rec5.setNextVisitDate(LocalDate.now().plusMonths(3));
+				rec5.setPatientName(bong.getName());
+				rec5.setSymptoms("Không có triệu chứng bệnh.");
+				rec5.setNotes("Chủ nuôi chăm sóc cún rất chu đáo.");
+				rec5.setCreatedDate(LocalDateTime.now().minusDays(3));
+				rec5.setCreatedAt(Instant.now().minus(3, ChronoUnit.DAYS));
+				rec5.setUpdatedAt(Instant.now().minus(3, ChronoUnit.DAYS));
+				rec5.setCreateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+				rec5.setUpdateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+				rec5.setInvoice(inv5);
+
+				if (dewormer != null) {
+					Prescription p = new Prescription();
+					p.setMedicalRecord(rec5);
+					p.setMedicationName(dewormer.getMedicineName());
+					p.setDosage("1 viên duy nhất");
+					p.setFrequency("uống sáng");
+					p.setDurationDays(1);
+					p.setInstructions("Uống trực tiếp hoặc trộn vào thức ăn.");
+					p.setQuantity(1);
+					p.setMedicine(dewormer);
+					p.setDoctor(doc1);
+					p.setPatientName(bong.getName());
+					p.setCreatedDate(LocalDateTime.now().minusDays(3));
+					p.setCreatedAt(Instant.now().minus(3, ChronoUnit.DAYS));
+					p.setUpdatedAt(Instant.now().minus(3, ChronoUnit.DAYS));
+					p.setCreateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+					p.setUpdateBy(vet != null ? vet.getFullName() : "Dr. John Doe");
+					p.setStatus("Active");
+					rec5.getPrescriptions().add(p);
+				}
+				medicalRecordRepository.save(rec5);
+			}
+
+			// --- Lịch hẹn 6 (Hôm nay, đang chờ khám của Dr. Sarah Conner) ---
+			Appointment app6 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("LuLu") && a.getReason().equals("Kiểm tra hậu phẫu triệt sản")).findFirst().orElse(null);
+			if (app6 == null && lulu != null) {
+				app6 = new Appointment();
+				app6.setOwner(owner);
+				app6.setPet(lulu);
+				app6.setVeterinarian(vet2);
+				app6.setDoctor(doc2);
+				app6.setAppointmentAt(LocalDateTime.now());
+				app6.setAppointmentTime(LocalDateTime.now());
+				app6.setReasonForVisit("Kiểm tra hậu phẫu triệt sản");
+				app6.setReason("Kiểm tra hậu phẫu triệt sản");
+				app6.setStatus(AppointmentStatus.CONFIRMED);
+				app6.setPatientName(lulu.getName());
+				app6.setPatientPhone(owner != null ? owner.getPhone() : "");
+				app6.setCreatedAt(Instant.now());
+				app6.setUpdatedAt(Instant.now());
+				appointmentRepository.save(app6);
+
+				// Hóa đơn 6 (Chưa thanh toán)
+				Invoice inv6 = new Invoice();
+				inv6.setAppointment(app6);
+				inv6.setServices(new ArrayList<>(List.of(checkupService)));
+				inv6.setTotalAmount(checkupService.getPrice());
+				inv6.setPaymentStatus(PaymentStatus.UNPAID);
+				inv6.setCreatedAt(LocalDateTime.now());
+				invoiceRepository.save(inv6);
+			}
+
+			// --- Lịch hẹn 7 (Hôm nay, đang chờ khám của Dr. John Doe) ---
+			Appointment app7 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("MiMi") && a.getReason().equals("Tiêm vaccine nhắc lại 4 bệnh")).findFirst().orElse(null);
+			if (app7 == null && mimi != null) {
+				app7 = new Appointment();
+				app7.setOwner(owner);
+				app7.setPet(mimi);
+				app7.setVeterinarian(vet);
+				app7.setDoctor(doc1);
+				app7.setAppointmentAt(LocalDateTime.now());
+				app7.setAppointmentTime(LocalDateTime.now());
+				app7.setReasonForVisit("Tiêm vaccine nhắc lại 4 bệnh");
+				app7.setReason("Tiêm vaccine nhắc lại 4 bệnh");
+				app7.setStatus(AppointmentStatus.CONFIRMED);
+				app7.setPatientName(mimi.getName());
+				app7.setPatientPhone(owner != null ? owner.getPhone() : "");
+				app7.setCreatedAt(Instant.now());
+				app7.setUpdatedAt(Instant.now());
+				appointmentRepository.save(app7);
+
+				// Hóa đơn 7 (Chưa thanh toán)
+				Invoice inv7 = new Invoice();
+				inv7.setAppointment(app7);
+				inv7.setServices(new ArrayList<>(List.of(vaccineService)));
+				inv7.setTotalAmount(vaccineService.getPrice());
+				inv7.setPaymentStatus(PaymentStatus.UNPAID);
+				inv7.setCreatedAt(LocalDateTime.now());
+				invoiceRepository.save(inv7);
+			}
+
+			System.out.println("Appointments, Invoices, Records and Prescriptions seeded/updated successfully!");
 		}
 	}
 }

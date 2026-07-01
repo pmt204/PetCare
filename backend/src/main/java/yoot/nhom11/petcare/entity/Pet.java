@@ -111,6 +111,18 @@ public class Pet extends BaseEntity {
 	@Column(name = "pet_age")
 	private Integer petAge;
 
+	@Column(name = "weight", length = 50)
+	private String weight;
+
+	public String getPetWeight() {
+		return weight;
+	}
+
+	public void setPetWeight(String weight) {
+		this.weight = weight;
+	}
+
+
 	public LocalDateTime getCreateAt() {
 		return getCreatedAt() != null ? LocalDateTime.ofInstant(getCreatedAt(), java.time.ZoneId.systemDefault()) : null;
 	}
@@ -145,6 +157,8 @@ public class Pet extends BaseEntity {
 		private String slug;
 		private List<MedicalRecord> medicalRecords;
 		private Integer petAge;
+		private String weight;
+
 
 		public PetBuilder petId(int petId) {
 			this.id = (long) petId;
@@ -180,6 +194,12 @@ public class Pet extends BaseEntity {
 			return this;
 		}
 
+		public PetBuilder weight(String weight) {
+			this.weight = weight;
+			return this;
+		}
+
+
 		public PetBuilder createAt(LocalDateTime createAt) {
 			if (createAt != null) {
 				this.createdAt = createAt.atZone(java.time.ZoneId.systemDefault()).toInstant();
@@ -195,11 +215,12 @@ public class Pet extends BaseEntity {
 		}
 
 		public Pet build() {
-			Pet pet = new Pet(owner, name, species, breed, avatarUrl, birthDate, gender, slug, medicalRecords, petAge);
+			Pet pet = new Pet(owner, name, species, breed, avatarUrl, birthDate, gender, slug, medicalRecords, petAge, weight);
 			pet.setId(id);
 			pet.setCreatedAt(createdAt);
 			pet.setUpdatedAt(updatedAt);
 			return pet;
 		}
+
 	}
 }

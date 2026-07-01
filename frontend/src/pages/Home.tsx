@@ -16,7 +16,7 @@ export const Home: React.FC = () => {
       } else if (user.role === 'VET') {
         navigate('/vet/schedule');
       } else {
-        navigate('/admin/vets');
+        navigate('/admin/dashboard');
       }
     } else {
       navigate('/login');

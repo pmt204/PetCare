@@ -116,4 +116,5 @@ export const Reports: React.FC = () => {
     </AdminLayout>
   );
 };
+
 export default Reports;

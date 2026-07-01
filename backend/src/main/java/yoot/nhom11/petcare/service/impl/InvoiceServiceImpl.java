@@ -1,6 +1,7 @@
 package yoot.nhom11.petcare.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import yoot.nhom11.petcare.dto.request.InvoiceRequest;
 import yoot.nhom11.petcare.dto.response.InvoiceResponse;
 import yoot.nhom11.petcare.entity.Appointment;
@@ -18,6 +19,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class InvoiceServiceImpl implements InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
@@ -31,6 +33,7 @@ public class InvoiceServiceImpl implements InvoiceService {
     }
 
     @Override
+    @Transactional
     public InvoiceResponse create(InvoiceRequest request) {
         Appointment appointment = appointmentRepository.findById(request.getAppointmentId())
                 .orElseThrow(() -> new NoSuchElementException("Appointment not found: " + request.getAppointmentId()));
@@ -62,12 +65,14 @@ public class InvoiceServiceImpl implements InvoiceService {
 
     @Override
     public List<InvoiceResponse> listAll() {
-        return invoiceRepository.findAll().stream()
+        // Use eager fetching to avoid LazyInitializationException
+        return invoiceRepository.findAllWithDetails().stream()
                 .map(InvoiceMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public InvoiceResponse updatePaymentStatus(Long id, InvoiceRequest request) {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found: " + id));
