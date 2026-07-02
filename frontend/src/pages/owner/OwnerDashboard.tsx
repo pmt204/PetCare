@@ -17,6 +17,7 @@ interface DetailedMedicalRecord {
   petName: string;
   vetName: string;
   visitDate: string;
+  visitDateRaw: string;
   diagnosis: string;
   treatmentNote: string;
   followUpInstruction?: string;
@@ -311,6 +312,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
               petName: pet.name,
               vetName: item.veterinarianName || 'Bác sĩ PetCare',
               visitDate: new Date(item.visitAt).toLocaleDateString('vi-VN'),
+              visitDateRaw: item.visitAt,
               diagnosis: item.diagnosis,
               treatmentNote: item.reasonForVisit || 'Khám lâm sàng',
               status: item.status === 'COMPLETED' ? 'Completed' : (item.status === 'UPCOMING' ? 'Upcoming' : 'Cancelled'),
@@ -323,7 +325,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
             });
           }
         }
-        allRecords.sort((a, b) => new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime());
+        allRecords.sort((a, b) => new Date(b.visitDateRaw).getTime() - new Date(a.visitDateRaw).getTime());
         setHistory(allRecords);
       } catch (err) {
         console.error('Error fetching medical history:', err);
@@ -389,6 +391,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
         petName: petName,
         vetName: data.veterinarian?.fullName || 'Bác sĩ PetCare',
         visitDate: new Date(data.visitAt).toLocaleDateString('vi-VN'),
+        visitDateRaw: data.visitAt,
         diagnosis: data.diagnosis,
         treatmentNote: data.treatmentNote || 'N/A',
         followUpInstruction: data.followUpInstruction,
@@ -1082,6 +1085,7 @@ export const OwnerDashboard: React.FC<{ defaultTab: 'pets' | 'history' | 'appoin
                   services={selectedRecord.services}
                   medications={selectedRecord.medications}
                   paymentStatus={selectedRecord.paymentStatus}
+                  totalOverride={selectedRecord.totalAmount}
                 />
               </div>
 

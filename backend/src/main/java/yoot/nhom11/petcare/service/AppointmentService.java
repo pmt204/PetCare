@@ -18,6 +18,8 @@ public interface AppointmentService {
     void delete(Long id);
 
     AppointmentOptionResponse getBookingOptions(Long ownerId);
-    AppointmentResponse createAppointment(AppointmentBookingRequest request);
+    AppointmentResponse createAppointment(AppointmentBookingRequest request, jakarta.servlet.http.HttpServletRequest httpServletRequest);
+    AppointmentResponse processPaymentCallback(java.util.Map<String, String> queryParams);
     List<AppointmentResponse> getAppointmentsByOwner(Long ownerId, AppointmentListFilterRequest request);
+    List<String> getBusySlots(Long vetId, String date);
 }

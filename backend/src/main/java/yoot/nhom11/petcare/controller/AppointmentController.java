@@ -30,12 +30,30 @@ public class AppointmentController {
 	}
 
 	@PostMapping
-	public AppointmentResponse create(@Valid @RequestBody AppointmentBookingRequest request) {
-		return appointmentService.createAppointment(request);
+	public AppointmentResponse create(
+			@Valid @RequestBody AppointmentBookingRequest request,
+			jakarta.servlet.http.HttpServletRequest httpServletRequest
+	) {
+		return appointmentService.createAppointment(request, httpServletRequest);
+	}
+
+	@GetMapping("/payment-callback")
+	public AppointmentResponse handleVNPayCallback(
+			@RequestParam java.util.Map<String, String> queryParams
+	) {
+		return appointmentService.processPaymentCallback(queryParams);
 	}
 
 	@GetMapping
 	public List<AppointmentResponse> listByOwner(@RequestParam Long ownerId, @Valid AppointmentListFilterRequest request) {
 		return appointmentService.getAppointmentsByOwner(ownerId, request);
+	}
+
+	@GetMapping("/busy-slots")
+	public List<String> getBusySlots(
+			@RequestParam(required = false) Long vetId,
+			@RequestParam String date
+	) {
+		return appointmentService.getBusySlots(vetId, date);
 	}
 }

@@ -1,192 +1,196 @@
-# 📂 Bản đồ Cấu trúc Dự án PetCare
-
-Tài liệu này mô tả chi tiết vai trò, tác dụng của từng thư mục và tệp tin trong dự án **PetCare** (Hệ thống Quản lý Phòng khám Thú y).
+# 📂 PetCare Project Structure Map
+ 
+This document describes in detail the role and purpose of each directory and file in the **PetCare** project (Veterinary Clinic Management System).
 
 ---
 
-## 🗺️ Tổng quan Cấu trúc Thư mục
+## 🗺️ Directory Structure Overview
 
 ```text
 PetCare/
-├── .agents/                 # Cấu hình và luật dành cho AI Agent
-├── .github/                 # Cấu hình GitHub Workflows và Scripts nâng cấp
-├── backend/                 # Mã nguồn Backend (Spring Boot 3.3.5, Java 21)
-├── frontend/                # Mã nguồn Frontend (React 19, TS, Vite, Tailwind CSS)
-├── uploads/                 # Thư mục lưu trữ tệp tải lên (lab results, avatar...)
-├── DATABASE_ERD.md          # Tài liệu thiết kế cơ sở dữ liệu ERD (Mermaid)
-├── PETCARE.md               # Mô tả tổng quan yêu cầu dự án
-├── README.md                # Hướng dẫn cài đặt và chạy ứng dụng
-└── .gitignore               # Cấu hình các tệp tin Git bỏ qua
+├── .agents/                 # AI Agent configurations and guidelines
+├── .github/                 # GitHub Workflows and upgrade scripts
+├── backend/                 # Backend Source Code (Spring Boot 3.3.5, Java 21)
+├── frontend/                # Frontend Source Code (React 19, TS, Vite, Tailwind CSS)
+├── uploads/                 # File storage for uploads (lab results, avatars...)
+├── DATABASE_ERD.md          # Database design documentation ERD (Mermaid)
+├── PETCARE.md               # Project business requirements overview
+├── README.md                # Installation and startup guide
+└── .gitignore               # Ignored Git files configuration
 ```
 
 ---
 
-## 📁 Chi tiết Thư mục Gốc (Root)
+## 📁 Root Directory Details
 
-*   **[.agents](file:///C:/J2EE/ThucTap/PetCare/.agents/)**: Chứa các quy tắc hành vi và hướng dẫn riêng cho AI khi hoạt động trong dự án.
-    *   `AGENTS.md`: Định nghĩa các nguyên tắc bắt buộc AI phải tuân thủ (ví dụ: xin phép trước khi sửa file/chạy lệnh).
+*   **[.agents](file:///C:/J2EE/ThucTap/PetCare/.agents/)**: Contains behavior rules and instructions for the AI agent when working in the project.
+    *   `AGENTS.md`: Defines mandatory rules the AI must follow (e.g., asking for permission before editing files or running commands).
 *   **[.github](file:///C:/J2EE/ThucTap/PetCare/.github/)**: Chứa các cấu hình CI/CD và công cụ tự động hóa.
     *   `modernize/java-upgrade/hooks/scripts/`: Chứa các script PowerShell (`recordToolUse.ps1`) và Shell script (`recordToolUse.sh`) phục vụ cho việc ghi nhận lịch sử nâng cấp/sử dụng công cụ.
-*   **[uploads](file:///C:/J2EE/ThucTap/PetCare/uploads/)**: Thư mục lưu trữ các file động được upload từ ứng dụng (ví dụ: kết quả xét nghiệm PDF, ảnh thú cưng).
-*   **[DATABASE_ERD.md](file:///C:/J2EE/ThucTap/PetCare/DATABASE_ERD.md)**: File Markdown chứa sơ đồ ERD trực quan (sử dụng cú pháp Mermaid) mô tả các bảng cơ sở dữ liệu và quan hệ giữa chúng.
-*   **[PETCARE.md](file:///C:/J2EE/ThucTap/PetCare/PETCARE.md)**: File tài liệu chứa thông tin đặc tả nghiệp vụ, yêu cầu công nghệ và tiêu chí đánh giá dự án.
-*   **[README.md](file:///C:/J2EE/ThucTap/PetCare/README.md)**: Tài liệu hướng dẫn cài đặt môi trường, cấu hình cơ sở dữ liệu PostgreSQL, các bước khởi chạy Backend & Frontend, cùng tài liệu API Swagger.
-*   **`.gitignore`**: Danh sách các tệp tin/thư mục tạm thời hoặc nhạy cảm mà Git không cần theo dõi.
+*   **[uploads](file:///C:/J2EE/ThucTap/PetCare/uploads/)**: Directory for storing dynamic files uploaded from the application (e.g., PDF lab results, pet avatars).
+*   **[DATABASE_ERD.md](file:///C:/J2EE/ThucTap/PetCare/DATABASE_ERD.md)**: Markdown file containing the visual database ERD (using Mermaid syntax) describing tables and their relationships.
+*   **[PETCARE.md](file:///C:/J2EE/ThucTap/PetCare/PETCARE.md)**: Document containing business specifications, technology requirements, and project evaluation criteria.
+*   **[README.md](file:///C:/J2EE/ThucTap/PetCare/README.md)**: Document guiding environment setup, PostgreSQL database configuration, backend & frontend startup steps, and Swagger API documentation.
+*   **`.gitignore`**: List of temporary or sensitive files/folders that Git should ignore.
 
 ---
 
 ## ☕ 1. Backend (Spring Boot)
 
-Thư mục **[backend](file:///C:/J2EE/ThucTap/PetCare/backend/)** chứa toàn bộ logic xử lý phía máy chủ, bảo mật JWT, xác thực và cơ sở dữ liệu.
+The **[backend](file:///C:/J2EE/ThucTap/PetCare/backend/)** directory contains all server-side logic, JWT security, authentication, and database access.
 
-### ⚙️ Các file cấu hình hệ thống
-*   `pom.xml`: Quản lý các dependencies của dự án Maven (Spring Boot, Spring Security, JPA, Flyway, Lombok, JWT...).
-*   `mvnw` / `mvnw.cmd`: Maven wrapper giúp chạy lệnh build/run dự án không phụ thuộc vào Maven cài cục bộ.
-*   `src/main/resources/application.properties`: Cấu hình kết nối PostgreSQL, JPA/Hibernate, kích hoạt Flyway và cài đặt các tham số bảo mật JWT.
+### ⚙️ System Configuration Files
+*   `pom.xml`: Manages Maven dependency definitions (Spring Boot, Spring Security, JPA, Flyway, Lombok, JWT...).
+*   `mvnw` / `mvnw.cmd`: Maven wrapper helping to build/run the project without relying on a locally installed Maven.
+*   `src/main/resources/application.properties`: Configures PostgreSQL connection, JPA/Hibernate, Flyway activation, and JWT security parameters.
 
 ### 💾 Database Migration (Flyway)
-Nằm tại `src/main/resources/db/migration/`, tự động tạo/cập nhật bảng khi chạy ứng dụng:
-*   `V1__init_medical_history.sql`: Khởi tạo bảng người dùng, vai trò, hồ sơ thú cưng và bệnh án.
-*   `V2__create_appointments.sql`: Khởi tạo bảng đặt lịch hẹn.
-*   `V3__create_additional_entities.sql`: Tạo bảng bổ sung cho hóa đơn (`bill`), thuốc (`medicine`), đơn thuốc (`prescription`), dịch vụ phòng khám (`pet_service`).
-*   `V4__add_appointment_compatibility_columns.sql`: Bổ sung cột cho bảng cuộc hẹn.
-*   `V5__create_invoice_and_services.sql`: Tạo bảng hóa đơn nâng cấp và dịch vụ.
-*   `V6__add_missing_audit_and_relation_columns.sql`: Bổ sung các cột audit và quan hệ giữa các bảng.
-*   `V7__add_prescription_compatibility_columns.sql`: Cập nhật cấu trúc đơn thuốc tương thích.
-*   `V8__create_refresh_token_table.sql`: Tạo bảng lưu trữ JWT Refresh Token để duy trì đăng nhập an toàn.
-*   `V9__add_user_profile_columns.sql`: Bổ sung thông tin cá nhân của người dùng.
+Located at `src/main/resources/db/migration/`, automatically creates/updates tables on application startup:
+*   `V1__init_medical_history.sql`: Initializes tables for users, roles, pet profiles, and medical records.
+*   `V2__create_appointments.sql`: Initializes the appointments table.
+*   `V3__create_additional_entities.sql`: Creates additional tables for bills, medicines, prescriptions, and clinic services.
+*   `V4__add_appointment_compatibility_columns.sql`: Adds compatibility columns for the appointments table.
+*   `V5__create_invoice_and_services.sql`: Creates upgraded invoices and services tables.
+*   `V6__add_missing_audit_and_relation_columns.sql`: Adds audit columns and relationship constraints.
+*   `V7__add_prescription_compatibility_columns.sql`: Updates compatibility columns for prescriptions.
+*   `V8__create_refresh_token_table.sql`: Creates refresh tokens table to persist secure JWT sessions.
+*   `V9__add_user_profile_columns.sql`: Adds user profile columns.
+*   `V10__merge_duplicate_tables.sql`: Merges duplicate bill/invoice entities and links the `invoices` table directly to `medical_records`.
+*   `V11__add_pet_weight_column.sql`: Adds pet weight column to the medical records table.
+*   `V12__make_prescription_medical_record_nullable.sql`: Updates the `medical_record_id` column in the prescriptions table to drop NOT NULL constraint for independent prescribing workflows.
+*   `V13__add_appointment_payment_fields.sql`: Adds columns to record the payment method and status for appointments.
 
-### 📂 Cấu trúc Code Logic (`src/main/java/yoot/nhom11/petcare/`)
+### 📂 Source Code Structure (`src/main/java/yoot/nhom11/petcare/`)
 
 #### 🔹 [PetcareApplication.java](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/PetcareApplication.java)
-Tệp chạy chính (Main Entry Point) của ứng dụng Spring Boot.
+Main entry point of the Spring Boot application.
 
 #### 🔹 [config/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/config/)
-*   `DatabaseSeeder.java`: Tự động tạo dữ liệu mẫu (Tài khoản Admin, Vet, Owner và các dịch vụ mẫu) khi cơ sở dữ liệu trống.
-*   `SecurityConfig.java`: Cấu hình Spring Security, phân quyền đường dẫn API (RBAC), CORS, tích hợp bộ lọc JWT và mã hóa mật khẩu BCrypt.
+*   `DatabaseSeeder.java`: Automatically seeds initial data (Admin, Vet, Owner accounts, and clinic services) when the database is empty.
+*   `SecurityConfig.java`: Configures Spring Security, API endpoint authorization (RBAC), CORS, JWT filter integration, and BCrypt password encoding.
 
-#### 🔹 [security/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/security/) (Bảo mật JWT)
-*   `AuthEntryPointJwt.java`: Xử lý ngoại lệ khi người dùng không có quyền truy cập (Unauthorized - 401).
-*   `AuthTokenFilter.java`: Bộ lọc (Filter) kiểm tra, giải mã JWT từ Request Header trước khi cho phép vào Controller.
-*   `JwtUtils.java`: Lớp tiện ích để tạo, giải mã và xác thực tính hợp lệ của Access Token & Refresh Token.
-*   `UserDetailsImpl.java` / `UserDetailsServiceImpl.java`: Hiện thực hóa Interface của Spring Security để tải thông tin người dùng từ DB.
+#### 🔹 [security/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/security/) (JWT Security)
+*   `AuthEntryPointJwt.java`: Handles unauthorized access exceptions (returns HTTP 401).
+*   `AuthTokenFilter.java`: Filter checking and parsing JWT from request headers before routing to controllers.
+*   `JwtUtils.java`: Utility class for generating, parsing, and validating Access and Refresh Tokens.
+*   `UserDetailsImpl.java` / `UserDetailsServiceImpl.java`: Implements Spring Security UserDetails/UserDetailsService interfaces to load user data from the database.
 
-#### 🔹 [entity/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/entity/) (Thực thể JPA biểu diễn các bảng Database)
-*   `BaseEntity.java`: Lớp cha cung cấp các trường tự động (`createdAt`, `updatedAt`, `createdBy`, `updatedBy`).
-*   `AppUser.java`: Thông tin tài khoản người dùng và vai trò.
-*   `Doctor.java`: Thông tin chi tiết của bác sĩ thú y (liên kết với AppUser).
-*   `Pet.java`: Hồ sơ thú cưng (tên, loài, giống, ảnh đại diện, chủ sở hữu).
-*   `Appointment.java`: Lịch hẹn (ngày giờ, trạng thái, bác sĩ phụ trách, thú cưng).
-*   `MedicalRecord.java`: Bệnh án điều trị thú cưng (chẩn đoán, lý do khám, cân nặng, nhiệt độ).
-*   `Prescription.java` & `Medicine.java`: Đơn thuốc và thông tin thuốc kê cho thú cưng.
-*   `TestResult.java` & `LabResult.java`: Kết quả xét nghiệm và các file kết quả đi kèm.
-*   `Invoice.java` & `Bill.java`: Hóa đơn dịch vụ và thanh toán.
-*   `PetService.java`: Các loại dịch vụ y tế của phòng khám.
-*   *Các Enum*: `UserRole.java`, `AppointmentStatus.java`, `MedicalRecordStatus.java`, `PaymentStatus.java`, `PetSpecies.java`.
+#### 🔹 [entity/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/entity/) (JPA Entities representing Database Tables)
+*   `BaseEntity.java`: Base entity class providing auditing fields (createdAt, updatedAt, createdBy, updatedBy).
+*   `AppUser.java`: User account details and system roles.
+*   `Doctor.java`: Detailed veterinarian profile (linked to AppUser).
+*   `Pet.java`: Pet profile details (name, species, breed, avatar, owner).
+*   `Appointment.java`: Appointment schedule (datetime, status, veterinarian, pet).
+*   `MedicalRecord.java`: Pet medical records (diagnosis, visit reason, symptoms, notes).
+*   `Prescription.java` & `Medicine.java`: Prescription and medication details.
+*   `TestResult.java` & `LabResult.java`: Lab test results and accompanying outcome files.
+*   `Invoice.java` & `Bill.java`: Billing invoices.
+*   `PetService.java`: Clinic pet services.
+*   *Enums*: `UserRole.java`, `AppointmentStatus.java`, `MedicalRecordStatus.java`, `PaymentStatus.java`, `PetSpecies.java`.
 
-#### 🔹 [dto/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/dto/) (Dữ liệu truyền nhận giữa Client và Server)
-*   `request/`: Các đối tượng dữ liệu gửi lên từ Frontend (ví dụ: `LoginRequest.java`, `SignupRequest.java`, `AppointmentBookingRequest.java`, `PetRequest.java`, `MedicalRecordRequest.java`).
-*   `response/`: Các đối tượng dữ liệu trả về từ API (ví dụ: `JwtResponse.java`, `PetResponse.java`, `AppointmentResponse.java`, `MedicalRecordDetailResponse.java`).
+#### 🔹 [dto/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/dto/) (Data Transfer Objects)
+*   `request/`: Incoming requests from the frontend (e.g. `LoginRequest.java`, `SignupRequest.java`, `AppointmentBookingRequest.java`, `PetRequest.java`, `MedicalRecordRequest.java`).
+*   `response/`: Outgoing responses returned by the API (e.g. `JwtResponse.java`, `PetResponse.java`, `AppointmentResponse.java`, `MedicalRecordDetailResponse.java`).
 
-#### 🔹 [controller/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/controller/) (Các REST API Endpoints)
-*   `AuthController.java`: API Đăng ký, đăng nhập, gia hạn token (Refresh Token), đăng xuất.
-*   `UserController.java`: API quản lý thông tin hồ sơ cá nhân của người dùng.
-*   `PetController.java`: API CRUD thông tin thú cưng của khách hàng.
-*   `AppointmentController.java`: API đặt lịch hẹn, xem danh sách hẹn.
-*   `DoctorController.java`: API quản lý và lấy thông tin bác sĩ thú y.
-*   `MedicalRecordController.java`: API xem và cập nhật hồ sơ bệnh án.
-*   `PrescriptionController.java`: API kê đơn thuốc.
-*   `TestResultController.java`: API lưu kết quả xét nghiệm lâm sàng.
-*   `FileController.java`: API xử lý upload tệp tin và trả về đường dẫn tệp (file download/viewing).
-*   `AdminInvoiceController.java`: API cho phép Admin quản lý hóa đơn.
-*   `AdminPetServiceController.java`: API cho phép Admin quản lý các dịch vụ thú y.
-*   `AdminReportController.java`: API xuất báo cáo hiệu suất làm việc và doanh thu.
+#### 🔹 [controller/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/controller/) (REST API Controllers)
+*   `AuthController.java`: Auth endpoints: sign up, log in, token refresh, log out.
+*   `UserController.java`: Endpoints to manage user profile information.
+*   `PetController.java`: Endpoints to manage pet records.
+*   `AppointmentController.java`: Endpoints to book appointments, retrieve appointment list, and fetch busy time slots to prevent scheduling conflicts (`/api/appointments/busy-slots`).
+*   `DoctorController.java`: Endpoints to view and update veterinarian information.
+*   `MedicalRecordController.java`: Endpoints to view and add medical records.
+*   `PrescriptionController.java`: Endpoints to manage prescriptions.
+*   `TestResultController.java`: Endpoints to save clinical lab test results.
+*   `FileController.java`: Endpoints to handle file uploads and download/view files.
+*   `AdminInvoiceController.java`: Endpoints for administrators to manage invoices.
+*   `AdminPetServiceController.java`: Endpoints for administrators to manage clinic pet services.
+*   `AdminReportController.java`: Endpoints to generate revenue and veterinarian workload reports.
 
-#### 🔹 [service/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/service/) (Tầng chứa Logic nghiệp vụ)
-*   Chứa các Interface định nghĩa các phương thức dịch vụ như `PetService.java`, `AppointmentService.java`, `MedicalRecordService.java`...
-*   **[service/impl/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/service/impl/)**: Lớp hiện thực hóa các interface trên (ví dụ: `PetServiceImpl.java`, `AppointmentServiceImpl.java`). Đây là nơi xử lý logic nghiệp vụ chính.
+#### 🔹 [service/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/service/) (Service Layer - Business Logic)
+*   Defines interfaces representing core services like `PetService.java`, `AppointmentService.java`, `MedicalRecordService.java`...
+*   **[service/impl/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/service/impl/)**: Implements service interfaces (e.g. `PetServiceImpl.java`, `AppointmentServiceImpl.java`), serving as the core business logic hub.
 
-#### 🔹 [repository/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/repository/) (Tầng truy vấn Cơ sở dữ liệu)
-*   Các Interface kế thừa `JpaRepository` để thực hiện các câu lệnh SQL (ví dụ: `PetRepository.java`, `AppointmentRepository.java`).
-*   `specification/PetSpecification.java`: Hỗ trợ tìm kiếm, lọc động thông tin thú cưng.
+#### 🔹 [repository/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/repository/) (Repository Layer - Database Queries)
+*   Interfaces extending `JpaRepository` for querying database tables (e.g. `PetRepository.java`, `AppointmentRepository.java`).
+*   `specification/PetSpecification.java`: Supports dynamic filtering and specifications for pets.
 
-#### 🔹 [mapper/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/mapper/) (Chuyển đổi dữ liệu Entity <-> DTO)
-*   Các class chuyển đổi thủ công để tránh rò rỉ cấu trúc Database ra ngoài API (ví dụ: `PetMapper.java`, `AppointmentMapper.java`, `MedicalRecordMapper.java`).
+#### 🔹 [mapper/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/mapper/) (Mappers - Entity <-> DTO Conversion)
+*   Manual mapper classes to convert data and prevent database schema exposure (e.g. `PetMapper.java`, `AppointmentMapper.java`, `MedicalRecordMapper.java`).
 
-#### 🔹 [exception/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/exception/) (Xử lý lỗi tập trung)
-*   `ErrorResponse.java`: Định dạng phản hồi lỗi chuẩn hóa.
-*   `GlobalExceptionHandler.java`: Bắt các ngoại lệ (Exception) toàn hệ thống và trả về mã lỗi HTTP thân thiện.
+#### 🔹 [exception/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/exception/) (Global Exception Handling)
+*   `ErrorResponse.java`: Standardized error response payload format.
+*   `GlobalExceptionHandler.java`: Intercepts backend exceptions globally and returns readable HTTP status codes.
 
 #### 🔹 [util/](file:///C:/J2EE/ThucTap/PetCare/backend/src/main/java/yoot/nhom11/petcare/util/)
-*   `SlugUtils.java`: Công cụ hỗ trợ định dạng chuỗi ký tự (URL friendly).
+*   `SlugUtils.java`: Utility helper to construct URL friendly slugs.
 
 ---
 
-### 🧪 Bộ mã nguồn Kiểm thử (Tests)
-Nằm tại `src/test/java/yoot/nhom11/petcare/`:
-*   `controller/`: Test giả lập API sử dụng MockMvc (`AppointmentControllerTest.java`, `PetControllerTest.java`, `MedicalRecordControllerTest.java`).
-*   `service/`: Test logic của các lớp nghiệp vụ (`PetServiceTest.java`, `MedicalRecordServiceTest.java`, `InvoiceServiceTest.java`).
-*   `mapper/`: Đảm bảo ánh xạ dữ liệu chính xác giữa Entity và DTO (`MedicalRecordMapperTest.java`).
+### 🧪 Test Suite
+Located at `src/test/java/yoot/nhom11/petcare/`:
+*   `controller/`: API controllers mocking tests using MockMvc (`AppointmentControllerTest.java`, `PetControllerTest.java`, `MedicalRecordControllerTest.java`).
+*   `service/`: Unit tests verifying service business logic (`PetServiceTest.java`, `MedicalRecordServiceTest.java`, `InvoiceServiceTest.java`).
+*   `mapper/`: Ensures accurate mapping between entities and DTOs (`MedicalRecordMapperTest.java`).
 
 ---
 
 ## ⚛️ 2. Frontend (React)
 
-Thư mục **[frontend](file:///C:/J2EE/ThucTap/PetCare/frontend/)** chứa mã nguồn giao diện người dùng SPA (Single Page Application).
+The **[frontend](file:///C:/J2EE/ThucTap/PetCare/frontend/)** directory contains the React SPA (Single Page Application) source code.
 
-### ⚙️ Các file cấu hình
-*   `package.json`: Quản lý dependencies (React 19, TypeScript, Axios, React Router, Tailwind CSS...).
-*   `vite.config.ts`: Cấu hình build và dev-server của Vite.
-*   `tailwind.config.js` & `postcss.config.js`: Cấu hình tiện ích CSS Tailwind.
-*   `tsconfig.json` & các file config TS: Cấu hình trình biên dịch TypeScript.
+### ⚙️ Configuration Files
+*   `package.json`: Manages npm dependencies (React 19, TypeScript, Axios, React Router, Tailwind CSS...).
+*   `vite.config.ts`: Vite compiler and dev server setup.
+*   `tailwind.config.js` & `postcss.config.js`: Tailwind utility CSS configurations.
+*   `tsconfig.json` & TS config files: TypeScript compilation configuration.
 
-### 📂 Chi tiết thư mục nguồn (`src/`)
+### 📂 Source Directory Details
 
 #### 🔹 [main.tsx](file:///C:/J2EE/ThucTap/PetCare/frontend/src/main.tsx) & [index.css](file:///C:/J2EE/ThucTap/PetCare/frontend/src/index.css)
-*   `main.tsx`: Điểm khởi đầu của ứng dụng React, kết nối Component `App` vào DOM HTML.
-*   `index.css`: Cấu hình CSS toàn cục và Tailwind.
+*   `main.tsx`: Application entry point mapping the React root component into the HTML DOM.
+*   `index.css`: Global CSS and Tailwind styles imports.
 
 #### 🔹 [App.tsx](file:///C:/J2EE/ThucTap/PetCare/frontend/src/App.tsx)
-Định nghĩa hệ thống định tuyến (Routing) chính của ứng dụng bằng `react-router-dom`, bảo vệ các route theo vai trò (Admin, Vet, Owner).
+Defines client-side routing using `react-router-dom`, protecting paths by role (Admin, Vet, Owner).
 
 #### 🔹 [services/api.ts](file:///C:/J2EE/ThucTap/PetCare/frontend/src/services/api.ts)
-Cấu hình Axios Instance. Tích hợp Interceptors tự động đính kèm Bearer Token vào tiêu đề HTTP, đồng thời tự động gọi API làm mới token khi Access Token hết hạn.
+Configures Axios instance. Integrates request/response interceptors to automatically attach Bearer JWTs and trigger refresh token rotation when expired.
 
 #### 🔹 [context/AuthContext.tsx](file:///C:/J2EE/ThucTap/PetCare/frontend/src/context/AuthContext.tsx)
-Lưu trữ trạng thái đăng nhập toàn cục của người dùng (thông tin tài khoản, accessToken, role) và các hàm `login`, `logout`.
+Manages global user session state (user details, accessToken, role) and auth functions (login, logout).
 
-#### 🔹 [layouts/](file:///C:/J2EE/ThucTap/PetCare/frontend/src/layouts/) (Bố cục chung trang Web)
-*   `DashboardLayout.tsx`: Bố cục thanh Sidebar điều hướng, thanh Header và nội dung chính của bảng điều khiển (dành cho Vet và Owner).
-*   `AdminLayout.tsx`: Bố cục thanh điều hướng thiết kế riêng cho người quản trị.
+#### 🔹 [layouts/](file:///C:/J2EE/ThucTap/PetCare/frontend/src/layouts/) (Layouts)
+*   `DashboardLayout.tsx`: General layout containing Sidebar navigation, Header, and main viewport for Vets and Pet Owners.
+*   `AdminLayout.tsx`: Dedicated layout designed for Administrator views.
 
-#### 🔹 [components/](file:///C:/J2EE/ThucTap/PetCare/frontend/src/components/) (Các Component dùng chung)
-*   `AppointmentBookingForm.tsx`: Giao diện đặt lịch hẹn từng bước (Select Pet -> Select Vet -> Choose Date/Time).
-*   `InvoiceSummary.tsx`: Hiển thị bảng tổng hợp hóa đơn (tiền khám, tiền thuốc, tổng cộng).
-*   `LabResultUploader.tsx`: Component hỗ trợ kéo thả và tải tệp kết quả xét nghiệm định dạng PDF.
-*   `MedicalRecordTimeline.tsx`: Hiển thị dòng thời gian bệnh sử của thú cưng theo thứ tự thời gian.
-*   `PetCard.tsx`: Thẻ hiển thị thông tin nhanh của thú cưng (loài, giống, tuổi, chủ sở hữu).
-*   `PrescriptionViewer.tsx`: Component xem đơn thuốc chi tiết.
-*   `common/ProtectedRoute.tsx`: Route bảo vệ, chặn truy cập trái phép nếu không đúng vai trò tài khoản.
+#### 🔹 [components/](file:///C:/J2EE/ThucTap/PetCare/frontend/src/components/) (Reusable Components)
+*   `AppointmentBookingForm.tsx`: Step-by-step appointment booking form (Pet → Vet → Date/Time).
+*   `InvoiceSummary.tsx`: Renders invoice breakdown (consultation, prescription, total fee).
+*   `LabResultUploader.tsx`: Drag-and-drop file uploader component for PDF lab test results.
+*   `MedicalRecordTimeline.tsx`: Timeline showing pet's medical history sorted chronologically.
+*   `PetCard.tsx`: Renders a summarized pet card (photo, name, species, breed, last visit).
+*   `PrescriptionViewer.tsx`: Table component displaying detailed prescription info.
+*   `common/ProtectedRoute.tsx`: Route guard preventing unauthorized access based on user role.
 
-#### 🔹 [pages/](file:///C:/J2EE/ThucTap/PetCare/frontend/src/pages/) (Các trang màn hình chính)
+#### 🔹 [pages/](file:///C:/J2EE/ThucTap/PetCare/frontend/src/pages/) (Pages)
 
-##### 🏠 Trang công cộng (Public Pages)
-*   `Home.tsx`: Màn hình trang chủ giới thiệu phòng khám.
-*   `About.tsx`: Giới thiệu thông tin về phòng khám.
-*   `Doctors.tsx`: Hiển thị danh sách bác sĩ tại phòng khám.
-*   `Services.tsx`: Danh sách các dịch vụ phòng khám cung cấp.
-*   `auth/Login.tsx`: Trang đăng nhập hệ thống.
+##### 🏠 Public Pages
+*   `Home.tsx`: Landing homepage of the clinic.
+*   `About.tsx`: About us information page.
+*   `Doctors.tsx`: Veterinarians listing page.
+*   `Services.tsx`: Clinic medical services list.
+*   `auth/Login.tsx`: Sign-in authentication page.
 
-##### 👤 Trang của Khách hàng (Pet Owner Pages)
-*   `owner/OwnerDashboard.tsx`: Bảng điều khiển chính của khách hàng, quản lý danh sách thú cưng của mình.
-*   `owner/BookAppointment.tsx`: Trang thực hiện đặt lịch hẹn khám.
-*   `owner/MedicalRecordDetails.tsx`: Xem chi tiết một bệnh án cụ thể (bao gồm chẩn đoán, thuốc, file kết quả xét nghiệm, hóa đơn).
+##### 👤 Pet Owner Pages
+*   `owner/OwnerDashboard.tsx`: Owner control dashboard, displaying registered pets and upcoming schedules.
+*   `owner/BookAppointment.tsx`: Appointment scheduling page.
+*   `owner/MedicalRecordDetails.tsx`: Detailed view of a medical record (including diagnosis, medications, uploaded lab results, and invoices).
 
-##### 🩺 Trang của Bác sĩ thú y (Veterinarian Pages)
-*   `vet/Schedule.tsx`: Quản lý danh sách các lịch hẹn khám bệnh trong ngày của bác sĩ.
-*   `vet/CreateRecord.tsx`: Màn hình cho phép bác sĩ tạo bệnh án mới, chẩn đoán, kê đơn thuốc và upload tệp PDF xét nghiệm.
+##### 🩺 Veterinarian Pages
+*   `vet/Schedule.tsx`: Schedule tracking of doctor's daily appointments.
+*   `vet/CreateRecord.tsx`: Diagnostics page for veterinarians to log visits, prescribe drugs, and upload PDF lab results.
 
-##### 👑 Trang của Quản trị viên (Admin Pages)
-*   `admin/Vets.tsx`: Màn hình quản lý danh sách tài khoản bác sĩ thú y (Thêm, Sửa, Xóa).
-*   `admin/Invoices.tsx`: Quản lý và xử lý trạng thái thanh toán hóa đơn của phòng khám.
-*   `admin/Reports.tsx`: Thống kê doanh thu, số ca khám và hiệu suất làm việc của bác sĩ.
+##### 👑 Administrator Pages
+*   `admin/Vets.tsx`: Veterinarians administration board (Create, Read, Update, Delete profiles).
+*   `admin/Invoices.tsx`: Invoice manager to view bills and confirm payment status.
+*   `admin/Reports.tsx`: Statistics page showing revenue, visit logs, and doctor workloads.

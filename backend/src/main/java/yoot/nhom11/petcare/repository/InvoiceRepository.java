@@ -9,4 +9,6 @@ public interface InvoiceRepository extends JpaRepository<Invoice, Long> {
 
     @Query("SELECT i FROM Invoice i LEFT JOIN FETCH i.appointment app LEFT JOIN FETCH app.doctor LEFT JOIN FETCH app.owner LEFT JOIN FETCH app.pet LEFT JOIN FETCH i.services")
     List<Invoice> findAllWithDetails();
+
+    java.util.Optional<Invoice> findByAppointmentId(Long appointmentId);
 }

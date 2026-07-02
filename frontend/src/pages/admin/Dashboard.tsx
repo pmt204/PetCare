@@ -9,7 +9,7 @@ interface InvoiceItem {
   petName: string;
   ownerName: string;
   totalAmount: number;
-  paymentStatus: 'PAID' | 'PENDING';
+  paymentStatus: 'PAID' | 'UNPAID';
   createdAtRaw: string; // ISO string
   createdAtFormatted: string; // vi-VN formatted
   servicesString: string;
@@ -40,7 +40,7 @@ export const Dashboard: React.FC = () => {
           petName: pet.name || appointment.patientName || 'Thú cưng',
           ownerName: owner.fullName || appointment.patientName || 'Khách hàng',
           totalAmount: inv.totalAmount || 0,
-          paymentStatus: inv.paymentStatus || 'PENDING',
+          paymentStatus: inv.paymentStatus || 'UNPAID',
           createdAtRaw: inv.createdAt || '',
           createdAtFormatted: inv.createdAt 
             ? new Date(inv.createdAt).toLocaleString('vi-VN') 
@@ -67,7 +67,7 @@ export const Dashboard: React.FC = () => {
     .reduce((sum, inv) => sum + inv.totalAmount, 0);
 
   const totalSalesPending = invoices
-    .filter(inv => inv.paymentStatus === 'PENDING')
+    .filter(inv => inv.paymentStatus === 'UNPAID')
     .reduce((sum, inv) => sum + inv.totalAmount, 0);
 
   const totalInvoicesCount = invoices.length;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Calendar as CalendarIcon, User, Clock, FileText, Check, Plus, AlertCircle } from 'lucide-react';
 import type { Pet } from './PetCard';
+import api from '../services/api';
 
 export interface Vet {
   id: number;
@@ -11,10 +12,15 @@ export interface Vet {
   image?: string;
 }
 
+export interface ServiceItem {
+  name: string;
+  price: number;
+}
+
 interface AppointmentBookingFormProps {
   pets: Pet[];
   vets: Vet[];
-  services?: string[];
+  services?: ServiceItem[];
   onSubmit: (data: {
     petId: string;
     service: string;
@@ -22,6 +28,7 @@ interface AppointmentBookingFormProps {
     date: string;
     time: string;
     reason: string;
+    paymentMethod: string;
   }) => void;
   isLoading?: boolean;
   initialVetId?: string;
@@ -45,6 +52,7 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
     date: '',
     time: '',
     reason: '',
+    paymentMethod: 'DIRECT',
   });
 
   React.useEffect(() => {
@@ -64,12 +72,12 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
 
   // Clinical medical services list only
   const services = servicesProp && servicesProp.length > 0 ? servicesProp : [
-    'Khám bệnh tổng quát',
-    'Tiêm phòng vaccine',
-    'Phẫu thuật ngoại khoa',
-    'Xét nghiệm & Siêu âm',
-    'Nha khoa thú y',
-    'Điều trị nội trú theo dõi'
+    { name: 'Khám bệnh tổng quát', price: 100000 },
+    { name: 'Tiêm phòng vaccine', price: 150000 },
+    { name: 'Phẫu thuật ngoại khoa', price: 1000000 },
+    { name: 'Xét nghiệm & Siêu âm', price: 300000 },
+    { name: 'Nha khoa thú y', price: 250000 },
+    { name: 'Điều trị nội trú theo dõi', price: 500000 }
   ];
 
   const timeSlots = [
@@ -77,12 +85,63 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
     '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'
   ];
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 3));
+  const [busySlots, setBusySlots] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    if (!formData.date) {
+      setBusySlots([]);
+      return;
+    }
+    const fetchBusySlots = async () => {
+      try {
+        const params: any = { date: formData.date };
+        if (formData.vetId) {
+          params.vetId = formData.vetId;
+        }
+        const res = await api.get('/appointments/busy-slots', { params });
+        setBusySlots(res.data || []);
+      } catch (err) {
+        console.error('Error fetching busy slots:', err);
+        setBusySlots([]);
+      }
+    };
+    fetchBusySlots();
+  }, [formData.date, formData.vetId]);
+
+  const isSlotDisabled = (slot: string) => {
+    if (!formData.date) return false;
+    
+    // 1. Check if the slot is in the past (for today)
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    if (formData.date === todayStr) {
+      const now = new Date();
+      const [slotHour, slotMin] = slot.split(':').map(Number);
+      const slotTime = new Date();
+      slotTime.setHours(slotHour, slotMin, 0, 0);
+      if (slotTime.getTime() < now.getTime()) {
+        return true;
+      }
+    }
+    
+    // 2. Check if the slot is already busy/booked
+    return busySlots.includes(slot);
+  };
+
+  React.useEffect(() => {
+    if (formData.date && formData.time) {
+      const isDisabled = isSlotDisabled(formData.time);
+      if (isDisabled) {
+        setFormData(prev => ({ ...prev, time: '' }));
+      }
+    }
+  }, [formData.date, formData.time, busySlots]);
+
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, 4));
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (step === 3) {
+    if (step === 4) {
       onSubmit(formData);
     }
   };
@@ -112,13 +171,15 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
 
   const selectedPet = localPets.find(p => p.id.toString() === formData.petId);
   const selectedVet = vets.find(v => v.id.toString() === formData.vetId);
+  const selectedServiceObj = services.find(s => s.name === formData.service);
+  const selectedServicePrice = selectedServiceObj ? selectedServiceObj.price : 100000;
 
   return (
     <div className="space-y-8 max-w-xl mx-auto">
       {/* Stepper Progress Bar */}
       <div className="flex items-center justify-between relative py-2 mx-auto">
         <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-slate-200 -z-10" />
-        <div className="absolute left-0 top-1/2 h-0.5 bg-teal-500 transition-all duration-500 -z-10" style={{ width: `${(step - 1) * 50}%` }} />
+        <div className="absolute left-0 top-1/2 h-0.5 bg-teal-500 transition-all duration-500 -z-10" style={{ width: `${(step - 1) * 33.33}%` }} />
         
         <div className="flex flex-col items-center">
           <button 
@@ -132,7 +193,7 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
           >
             {step > 1 ? <Check className="h-4 w-4" /> : '1'}
           </button>
-          <span className="text-xs font-bold mt-2 text-slate-600">Thú cưng & Dịch vụ</span>
+          <span className="text-xs font-bold mt-2 text-slate-600 text-center">Dịch vụ</span>
         </div>
         
         <div className="flex flex-col items-center">
@@ -148,18 +209,34 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
           >
             {step > 2 ? <Check className="h-4 w-4" /> : '2'}
           </button>
-          <span className="text-xs font-bold mt-2 text-slate-600">Chọn thời gian</span>
+          <span className="text-xs font-bold mt-2 text-slate-600 text-center">Thời gian</span>
         </div>
         
         <div className="flex flex-col items-center">
+          <button 
+            type="button"
+            onClick={() => step > 3 && setStep(3)}
+            disabled={step < 3}
+            className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition duration-200 ${
+              step >= 3 
+                ? 'bg-teal-600 border-teal-600 text-white shadow-lg shadow-teal-500/20' 
+                : 'bg-white border-slate-300 text-slate-500'
+            }`}
+          >
+            {step > 3 ? <Check className="h-4 w-4" /> : '3'}
+          </button>
+          <span className="text-xs font-bold mt-2 text-slate-600 text-center">Xác nhận</span>
+        </div>
+
+        <div className="flex flex-col items-center">
           <div className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-sm border-2 transition duration-200 ${
-            step >= 3 
+            step >= 4 
               ? 'bg-teal-600 border-teal-600 text-white shadow-lg shadow-teal-500/20' 
               : 'bg-white border-slate-300 text-slate-500'
           }`}>
-            3
+            4
           </div>
-          <span className="text-xs font-bold mt-2 text-slate-600">Xác nhận</span>
+          <span className="text-xs font-bold mt-2 text-slate-600 text-center">Thanh toán</span>
         </div>
       </div>
 
@@ -215,7 +292,7 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
                   required
                 >
                   {services.map((service, idx) => (
-                    <option key={idx} value={service}>{service}</option>
+                    <option key={idx} value={service.name}>{service.name}</option>
                   ))}
                 </select>
               </div>
@@ -314,7 +391,7 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition duration-200"
-                  min={new Date().toISOString().split('T')[0]}
+                  min={new Date().toLocaleDateString('en-CA')}
                   required
                 />
               </div>
@@ -328,13 +405,17 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
                 <div className="grid grid-cols-4 gap-2.5">
                   {timeSlots.map((slot) => {
                     const isSelected = formData.time === slot;
+                    const isDisabled = isSlotDisabled(slot);
                     return (
                       <button
                         key={slot}
                         type="button"
+                        disabled={isDisabled}
                         onClick={() => setFormData({ ...formData, time: slot })}
                         className={`py-2.5 px-2 rounded-xl text-xs font-bold border transition duration-200 ${
-                          isSelected 
+                          isDisabled
+                            ? 'bg-slate-100 border-slate-100 text-slate-300 cursor-not-allowed opacity-50'
+                            : isSelected 
                             ? 'bg-teal-600 border-teal-600 text-white shadow-md shadow-teal-500/15' 
                             : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
                         }`}
@@ -413,6 +494,108 @@ export const AppointmentBookingForm: React.FC<AppointmentBookingFormProps> = ({
                   className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:bg-white focus:border-teal-500 focus:ring-2 focus:ring-teal-500/20 transition duration-200"
                   placeholder="Vui lòng mô tả chi tiết biểu hiện bệnh của bé hoặc ghi chú thêm cho bác sĩ..."
                 />
+              </div>
+
+              <div className="flex justify-between pt-4 border-t border-slate-100">
+                <div className="flex gap-2">
+                  {onCancel && (
+                    <button 
+                      type="button" 
+                      onClick={onCancel}
+                      className="border border-slate-200 hover:bg-slate-50 text-slate-500 font-bold py-3 px-6 rounded-xl text-sm transition"
+                      disabled={isLoading}
+                    >
+                      Hủy
+                    </button>
+                  )}
+                  <button 
+                    type="button" 
+                    onClick={prevStep}
+                    className="border border-slate-200 hover:bg-slate-50 text-slate-600 font-bold py-3 px-6 rounded-xl text-sm transition"
+                    disabled={isLoading}
+                  >
+                    Quay lại
+                  </button>
+                </div>
+                <button 
+                  type="button"
+                  onClick={nextStep}
+                  className="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-xl text-sm shadow-md hover:shadow-lg hover:shadow-teal-500/10 transition duration-200 flex items-center gap-2"
+                >
+                  Tiếp theo
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Step 4: Payment method selection */}
+          {step === 4 && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="bg-slate-50 border border-slate-200/80 p-5 rounded-2xl space-y-4">
+                <h3 className="font-bold text-slate-800 border-b border-slate-200 pb-2 text-sm uppercase tracking-wider text-teal-700">Thông tin thanh toán</h3>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-600 font-medium">Dịch vụ:</span>
+                  <span className="font-bold text-slate-800">{formData.service}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-600 font-medium">Lệ phí tạm tính:</span>
+                  <span className="font-extrabold text-orange-600">{selectedServicePrice.toLocaleString('vi-VN')}đ</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-sm font-bold text-slate-700 mb-2">
+                  💳 Chọn phương thức thanh toán
+                </label>
+                
+                {/* DIRECT Payment Option Card */}
+                <div
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'DIRECT' })}
+                  className={`flex items-start space-x-4 p-4 border rounded-2xl cursor-pointer transition duration-200 ${
+                    formData.paymentMethod === 'DIRECT'
+                      ? 'border-teal-500 bg-teal-50/30 ring-2 ring-teal-500/10'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+                >
+                  <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-lg">
+                    💵
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-slate-800 text-sm">Thanh toán trực tiếp tại quầy</h4>
+                    <p className="text-slate-500 text-xs mt-0.5">Thanh toán bằng tiền mặt/quẹt thẻ khi đến phòng khám.</p>
+                  </div>
+                  {formData.paymentMethod === 'DIRECT' && (
+                    <div className="h-5 w-5 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs">
+                      ✓
+                    </div>
+                  )}
+                </div>
+
+                {/* VNPAY Payment Option Card */}
+                <div
+                  onClick={() => setFormData({ ...formData, paymentMethod: 'VNPAY' })}
+                  className={`flex items-start space-x-4 p-4 border rounded-2xl cursor-pointer transition duration-200 ${
+                    formData.paymentMethod === 'VNPAY'
+                      ? 'border-teal-500 bg-teal-50/30 ring-2 ring-teal-500/10'
+                      : 'border-slate-200 bg-white hover:border-slate-300'
+                  }`}
+                >
+                  <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 text-lg">
+                    💳
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-bold text-slate-800 text-sm flex items-center gap-2">
+                      Thanh toán online qua VNPay
+                      <span className="text-[10px] font-bold bg-orange-100 text-orange-600 py-0.5 px-1.5 rounded-full">Sandbox</span>
+                    </h4>
+                    <p className="text-slate-500 text-xs mt-0.5">Thanh toán an toàn qua cổng VNPay (hỗ trợ ATM, Thẻ quốc tế, QR).</p>
+                  </div>
+                  {formData.paymentMethod === 'VNPAY' && (
+                    <div className="h-5 w-5 rounded-full bg-teal-600 flex items-center justify-center text-white text-xs">
+                      ✓
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex justify-between pt-4 border-t border-slate-100">

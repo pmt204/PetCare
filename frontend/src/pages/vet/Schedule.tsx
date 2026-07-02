@@ -54,12 +54,14 @@ export const Schedule: React.FC = () => {
         const appointmentTimeLocal = app.appointmentTime 
           ? new Date(app.appointmentTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) 
           : 'Chưa đặt';
+        const petInfo = app.pet || {};
+        const ownerInfo = app.owner || {};
         return {
           id: app.id,
-          patientName: app.ownerName || 'Khách hàng',
-          petName: app.petName || 'Thú cưng',
-          petSpecies: app.species || 'Chó/Mèo',
-          petId: app.petId || 0,
+          patientName: ownerInfo.fullName || app.patientName || 'Khách hàng',
+          petName: petInfo.name || app.patientName || 'Thú cưng',
+          petSpecies: petInfo.species === 'CAT' ? 'Mèo' : petInfo.species === 'DOG' ? 'Chó' : (petInfo.species || 'Chó/Mèo'),
+          petId: petInfo.id || 0,
           time: appointmentTimeLocal,
           reason: app.reason || 'Khám tổng quát',
           status: app.status || 'CONFIRMED'
@@ -150,9 +152,9 @@ export const Schedule: React.FC = () => {
                         <Clock className="h-4 w-4 text-slate-400" /> {app.time}
                       </span>
                       <span className={`text-xs font-bold uppercase tracking-wider py-0.5 px-2.5 rounded-full ${
-                        app.status === 'COMPLETED' || app.status === 'Completed' 
+                        app.status?.toUpperCase() === 'COMPLETED'
                           ? 'bg-green-50 text-green-700' 
-                          : app.status === 'REQUESTED' 
+                          : app.status?.toUpperCase() === 'REQUESTED' 
                           ? 'bg-blue-50 text-blue-700' 
                           : 'bg-amber-50 text-amber-700'
                       }`}>
@@ -168,11 +170,11 @@ export const Schedule: React.FC = () => {
                     </div>
                   </div>
 
-                  {app.status !== 'COMPLETED' && app.status !== 'Completed' && (
+                  {app.status?.toUpperCase() !== 'COMPLETED' && (
                     <div>
                       <button 
                         onClick={() => handleDiagnose(app)}
-                        className="flex items-center space-x-2 bg-indigo-650 hover:bg-indigo-750 text-white font-bold py-2 px-4 rounded-xl text-sm shadow-xs transition"
+                        className="flex items-center space-x-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl text-sm shadow-xs transition"
                       >
                         <CheckCircle className="h-4 w-4" />
                         <span>Khám bệnh & Kê đơn</span>

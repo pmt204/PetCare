@@ -11,7 +11,7 @@ interface LocalInvoice {
   petName: string;
   ownerName: string;
   totalAmount: number;
-  paymentStatus: 'PAID' | 'PENDING';
+  paymentStatus: 'PAID' | 'UNPAID';
   createdAt: string;
   services: InvoiceServiceItem[];
   medications: InvoicePrescriptionItem[];
@@ -44,7 +44,7 @@ export const Invoices: React.FC = () => {
           petName: pet.name || appointment.patientName || 'Thú cưng',
           ownerName: owner.fullName || appointment.patientName || 'Khách hàng',
           totalAmount: inv.totalAmount || 0,
-          paymentStatus: inv.paymentStatus || 'PENDING',
+          paymentStatus: inv.paymentStatus || 'UNPAID',
           createdAt: formattedDate,
           services: (inv.services || []).map((s: any) => ({
             name: s.name,
@@ -92,7 +92,7 @@ export const Invoices: React.FC = () => {
     .reduce((sum, inv) => sum + inv.totalAmount, 0);
 
   const pendingSales = invoices
-    .filter(inv => inv.paymentStatus === 'PENDING')
+    .filter(inv => inv.paymentStatus === 'UNPAID')
     .reduce((sum, inv) => sum + inv.totalAmount, 0);
 
   return (
@@ -172,7 +172,7 @@ export const Invoices: React.FC = () => {
                         <div className="text-right space-y-1.5">
                           <span className="text-base font-extrabold text-slate-900">{inv.totalAmount.toLocaleString('vi-VN')} ₫</span>
                           <div onClick={(e) => e.stopPropagation()} className="block">
-                            {inv.paymentStatus === 'PENDING' && (
+                            {inv.paymentStatus === 'UNPAID' && (
                               <button
                                 onClick={() => handleMarkAsPaid(inv.id)}
                                 className="text-[11px] font-bold text-indigo-650 bg-indigo-50 border border-indigo-150 hover:bg-indigo-100 rounded-lg px-2.5 py-1 transition"
@@ -198,7 +198,7 @@ export const Invoices: React.FC = () => {
                       medications={selectedInvoice.medications}
                       paymentStatus={selectedInvoice.paymentStatus}
                     />
-                    {selectedInvoice.paymentStatus === 'PENDING' && (
+                    {selectedInvoice.paymentStatus === 'UNPAID' && (
                       <button
                         onClick={() => handleMarkAsPaid(selectedInvoice.id)}
                         className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow transition"

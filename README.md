@@ -117,30 +117,3 @@ cd backend
 # Run all tests
 ./mvnw test
 ```
-
----
-
-## 📁 Repository Structure
-```
-PetCare/
-├── backend/
-│   ├── src/main/java/yoot/nhom11/petcare/
-│   │   ├── config/          # Configurations & Database Seeding
-│   │   ├── controller/      # REST API Controllers (RBAC mapped)
-│   │   ├── dto/             # Request & Response DTOs
-│   │   ├── entity/          # JPA Entity models
-│   │   ├── exception/       # Global @RestControllerAdvice handler
-│   │   ├── repository/      # Spring Data JPA Repositories
-│   │   └── security/        # JWT implementation, filters, and UserDetails
-│   └── src/test/java/       # Maven test suite
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Reusable UI components (PetCard, InvoiceSummary, etc.)
-│   │   ├── context/         # React Auth Context (saving session tokens)
-│   │   ├── layouts/         # Dashboard Layout
-│   │   ├── pages/           # Pages divided by Roles (Owner / Vet / Admin)
-│   │   └── services/        # Axios API configurations
-│   └── package.json
-├── DATABASE_ERD.md          # Database ERD visual documentation
-└── README.md                # Full Installation & Setup guide
-```

@@ -9,6 +9,7 @@ import { DoctorDetails } from './pages/DoctorDetails';
 import { Services } from './pages/Services';
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
+import { PaymentCallback } from './pages/owner/PaymentCallback';
 
 import { Pets } from './pages/owner/Pets';
 import { BookAppointment } from './pages/owner/BookAppointment';
@@ -42,6 +43,7 @@ function AppRoutes() {
       <Route path="/about" element={<About />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/payment-callback" element={<PaymentCallback />} />
 
 
       <Route element={<ProtectedRoute />}>

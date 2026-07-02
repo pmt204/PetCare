@@ -77,6 +77,12 @@ public class InvoiceServiceImpl implements InvoiceService {
         Invoice invoice = invoiceRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Invoice not found: " + id));
         invoice.setPaymentStatus(request.getPaymentStatus());
+        
+        if (invoice.getAppointment() != null && request.getPaymentStatus() != null) {
+            invoice.getAppointment().setPaymentStatus(request.getPaymentStatus().name());
+            appointmentRepository.save(invoice.getAppointment());
+        }
+
         Invoice updated = invoiceRepository.save(invoice);
         return InvoiceMapper.toResponse(updated);
     }

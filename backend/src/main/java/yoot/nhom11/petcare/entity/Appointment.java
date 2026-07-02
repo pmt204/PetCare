@@ -47,6 +47,12 @@ public class Appointment extends BaseEntity {
 	@Column(name = "status", length = 20)
 	private AppointmentStatus status;
 
+	@Column(name = "payment_method", length = 50)
+	private String paymentMethod;
+
+	@Column(name = "payment_status", length = 50)
+	private String paymentStatus;
+
 	// Fields for tai/admin:
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "doctor_id")

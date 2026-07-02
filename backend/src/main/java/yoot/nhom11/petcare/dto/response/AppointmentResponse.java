@@ -22,6 +22,9 @@ public class AppointmentResponse {
     private LocalDateTime appointmentTime;
     private String reason;
     private String status;
+    private String paymentMethod;
+    private String paymentStatus;
+    private String paymentUrl;
 
     public record OwnerSummary(Long id, String fullName, String email) {}
     public record PetSummary(Long id, String name, PetSpecies species, String breed) {}
@@ -104,4 +107,13 @@ public class AppointmentResponse {
         return appointmentStatus != null ? appointmentStatus.name() : null;
     }
     public void setStatus(String status) { this.status = status; }
+
+    public String getPaymentMethod() { return paymentMethod; }
+    public void setPaymentMethod(String paymentMethod) { this.paymentMethod = paymentMethod; }
+
+    public String getPaymentStatus() { return paymentStatus; }
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
+    public String getPaymentUrl() { return paymentUrl; }
+    public void setPaymentUrl(String paymentUrl) { this.paymentUrl = paymentUrl; }
 }

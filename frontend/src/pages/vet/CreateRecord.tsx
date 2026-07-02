@@ -97,6 +97,7 @@ export const CreateRecord: React.FC = () => {
       return;
     }
 
+    const queryAppointmentId = searchParams.get('appointmentId');
     setLoading(true);
     try {
       const selectedPet = pets.find(p => p.id.toString() === formData.petId);
@@ -107,6 +108,7 @@ export const CreateRecord: React.FC = () => {
         doctorId: user?.id,
         veterinarianId: user?.id,
         petId: Number(formData.petId),
+        appointmentId: queryAppointmentId ? Number(queryAppointmentId) : null,
         patientName: patientName,
         diagnosis: formData.diagnosis.trim(),
         symptoms: formData.symptoms.trim(),
@@ -164,8 +166,8 @@ export const CreateRecord: React.FC = () => {
     <VetLayout>
       <div className="max-w-4xl mx-auto space-y-8 animate-fade-in font-sans">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Create Medical Record</h1>
-          <p className="text-slate-500 text-sm mt-1">Register diagnosis, treatment instructions, and prescriptions for the visit</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Tạo Hồ Sơ Bệnh Án</h1>
+          <p className="text-slate-500 text-sm mt-1">Đăng ký thông tin chẩn đoán lâm sàng, hướng dẫn điều trị và kê đơn thuốc cho thú cưng</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -175,62 +177,62 @@ export const CreateRecord: React.FC = () => {
             <div className="md:col-span-2 space-y-6">
               <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
                 <h3 className="font-bold text-slate-800 text-base border-b border-slate-100 pb-3 flex items-center gap-1.5">
-                  <Activity className="h-4.5 w-4.5 text-indigo-650" /> Clinical Assessment
+                  <Activity className="h-4.5 w-4.5 text-indigo-650" /> Đánh giá Lâm sàng
                 </h3>
                 
                 <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Select Patient Pet *</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Chọn Thú cưng *</label>
                     <select
                       value={formData.petId}
                       onChange={(e) => setFormData({ ...formData, petId: e.target.value })}
                       className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition cursor-pointer bg-white"
                       required
                     >
-                      <option value="">Select pet</option>
+                      <option value="">-- Chọn thú cưng khám --</option>
                       {pets.map(p => (
-                        <option key={p.id} value={p.id}>{p.name} ({p.species} - {p.breed})</option>
+                        <option key={p.id} value={p.id}>{p.name} ({p.species === 'CAT' ? 'Mèo' : p.species === 'DOG' ? 'Chó' : p.species} - {p.breed})</option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Diagnosis *</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Chẩn đoán bệnh *</label>
                     <textarea
                       value={formData.diagnosis}
                       onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
                       rows={3}
                       className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition"
-                      placeholder="Enter symptoms, physical findings and final diagnosis..."
+                      placeholder="Nhập triệu chứng, kết quả khám lâm sàng và chẩn đoán cuối cùng..."
                       required
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Treatment / Instructions</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Phương pháp điều trị / Dặn dò</label>
                       <textarea
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         rows={3}
                         className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition"
-                        placeholder="Directions for home care or clinic administration..."
+                        placeholder="Hướng dẫn chăm sóc tại nhà hoặc điều trị tại chỗ..."
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-slate-700 mb-2">Follow-up Instructions</label>
+                      <label className="block text-sm font-semibold text-slate-700 mb-2">Hướng dẫn tái khám (nếu có)</label>
                       <textarea
                         value={formData.followUpInstruction}
                         onChange={(e) => setFormData({ ...formData, followUpInstruction: e.target.value })}
                         rows={3}
                         className="w-full px-3 py-2.5 border border-slate-355 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 outline-none transition"
-                        placeholder="Conditions to return, subsequent care instructions..."
+                        placeholder="Các điều kiện cần lưu ý để tái khám hoặc chăm sóc sau khám..."
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">Next Visit Appointment Date</label>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Ngày hẹn tái khám (không bắt buộc)</label>
                     <input
                       type="date"
                       value={formData.nextVisitDate}
@@ -245,43 +247,43 @@ export const CreateRecord: React.FC = () => {
               {/* Prescription Builder */}
               <div className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
                 <h3 className="font-bold text-slate-800 text-base border-b border-slate-100 pb-3 flex items-center gap-1.5">
-                  💊 Prescribe Medication
+                  💊 Kê đơn thuốc thú y
                 </h3>
 
                 {/* Medication Inputs */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-150">
                   <div className="col-span-2 sm:col-span-1">
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Medication Name</label>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Tên thuốc</label>
                     <input
                       type="text"
                       value={newMed.medicationName}
                       onChange={(e) => setNewMed({ ...newMed, medicationName: e.target.value })}
                       className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
-                      placeholder="e.g. Amoxicillin"
+                      placeholder="VD: Amoxicillin"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Dosage</label>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Liều lượng</label>
                     <input
                       type="text"
                       value={newMed.dosage}
                       onChange={(e) => setNewMed({ ...newMed, dosage: e.target.value })}
                       className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
-                      placeholder="e.g. 250mg or 5ml"
+                      placeholder="VD: 250mg hoặc 5ml"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Frequency</label>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Tần suất</label>
                     <input
                       type="text"
                       value={newMed.frequency}
                       onChange={(e) => setNewMed({ ...newMed, frequency: e.target.value })}
                       className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
-                      placeholder="e.g. Twice daily"
+                      placeholder="VD: Ngày 2 lần"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Duration (Days)</label>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Số ngày uống</label>
                     <input
                       type="number"
                       value={newMed.durationDays}
@@ -291,13 +293,13 @@ export const CreateRecord: React.FC = () => {
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs font-semibold text-slate-500 mb-1">Special Instructions</label>
+                    <label className="block text-xs font-semibold text-slate-500 mb-1">Hướng dẫn sử dụng đặc biệt</label>
                     <input
                       type="text"
                       value={newMed.instructions}
                       onChange={(e) => setNewMed({ ...newMed, instructions: e.target.value })}
                       className="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs outline-none bg-white"
-                      placeholder="e.g. After meals"
+                      placeholder="VD: Uống sau khi ăn"
                     />
                   </div>
                   <div className="col-span-2 sm:col-span-3 flex justify-end pt-2">
@@ -307,7 +309,7 @@ export const CreateRecord: React.FC = () => {
                       className="flex items-center space-x-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-1.5 px-4 rounded-lg text-xs transition border border-indigo-150"
                     >
                       <Plus className="h-3.5 w-3.5" />
-                      <span>Add to List</span>
+                      <span>Thêm vào đơn</span>
                     </button>
                   </div>
                 </div>
@@ -318,11 +320,11 @@ export const CreateRecord: React.FC = () => {
                     <table className="min-w-full divide-y divide-slate-200 text-left text-slate-700">
                       <thead className="bg-slate-50 text-slate-505 uppercase text-xs font-bold">
                         <tr>
-                          <th className="px-4 py-2">Drug Name</th>
-                          <th className="px-4 py-2">Dosage</th>
-                          <th className="px-4 py-2">Frequency</th>
-                          <th className="px-4 py-2">Duration</th>
-                          <th className="px-4 py-2 text-right">Action</th>
+                          <th className="px-4 py-2">Tên thuốc</th>
+                          <th className="px-4 py-2">Liều lượng</th>
+                          <th className="px-4 py-2">Tần suất</th>
+                          <th className="px-4 py-2">Số ngày</th>
+                          <th className="px-4 py-2 text-right">Thao tác</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-150 bg-white">
@@ -331,7 +333,7 @@ export const CreateRecord: React.FC = () => {
                             <td className="px-4 py-3 font-semibold text-slate-800">{med.medicationName}</td>
                             <td className="px-4 py-3">{med.dosage}</td>
                             <td className="px-4 py-3">{med.frequency}</td>
-                            <td className="px-4 py-3">{med.durationDays} days</td>
+                            <td className="px-4 py-3">{med.durationDays} ngày</td>
                             <td className="px-4 py-3 text-right">
                               <button
                                 type="button"
@@ -347,7 +349,7 @@ export const CreateRecord: React.FC = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-slate-400 text-xs italic">No drugs added yet. Use the fields above to prescribe meds.</p>
+                  <p className="text-slate-400 text-xs italic">Chưa có thuốc nào được kê. Sử dụng các ô nhập bên trên để thêm thuốc vào đơn.</p>
                 )}
               </div>
             </div>
@@ -356,7 +358,7 @@ export const CreateRecord: React.FC = () => {
             <div className="space-y-6">
               <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
                 <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2 flex items-center gap-1.5">
-                  <FileText className="h-4 w-4 text-slate-450" /> Laboratory Reports
+                  <FileText className="h-4 w-4 text-slate-450" /> Báo cáo Xét nghiệm
                 </h3>
                 <LabResultUploader onFileChange={setSelectedFile} selectedFile={selectedFile} />
               </div>
@@ -369,14 +371,14 @@ export const CreateRecord: React.FC = () => {
                   className="w-full flex items-center justify-center space-x-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2.5 px-4 rounded-xl shadow transition disabled:opacity-75"
                 >
                   <Save className="h-4.5 w-4.5" />
-                  <span>{loading ? 'Saving Record...' : 'Save Medical Record'}</span>
+                  <span>{loading ? 'Đang lưu bệnh án...' : 'Lưu hồ sơ bệnh án'}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => navigate(-1)}
                   className="w-full text-center border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold py-2.5 px-4 rounded-xl text-sm transition"
                 >
-                  Cancel
+                  Hủy bỏ
                 </button>
               </div>
             </div>

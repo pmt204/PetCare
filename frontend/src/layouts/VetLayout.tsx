@@ -21,7 +21,7 @@ const VetLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const sidebarLinkClass = (path: string) => {
     return `flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
       isActive(path)
-        ? 'bg-teal-650 text-white shadow-md shadow-teal-900/20'
+        ? 'bg-teal-600 text-white shadow-md shadow-teal-900/20'
         : 'text-slate-400 hover:bg-slate-800 hover:text-white'
     }`;
   };

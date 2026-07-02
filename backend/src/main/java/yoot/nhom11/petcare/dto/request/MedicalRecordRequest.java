@@ -6,6 +6,7 @@ public class MedicalRecordRequest {
     private Long doctorId;
     private Long petId;
     private Long veterinarianId;
+    private Long appointmentId;
     private String patientName;
     private String diagnosis;
     private String symptoms;
@@ -14,6 +15,9 @@ public class MedicalRecordRequest {
     private String followUpInstruction;
     private LocalDate nextVisitDate;
     private String reasonForVisit;
+
+    public Long getAppointmentId() { return appointmentId; }
+    public void setAppointmentId(Long appointmentId) { this.appointmentId = appointmentId; }
 
     public Long getDoctorId() { return doctorId; }
     public void setDoctorId(Long doctorId) { this.doctorId = doctorId; }

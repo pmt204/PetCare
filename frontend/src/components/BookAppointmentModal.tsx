@@ -21,7 +21,7 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
   const { user } = useAuth();
   const [pets, setPets] = useState<Pet[]>([]);
   const [vets, setVets] = useState<Vet[]>([]);
-  const [services, setServices] = useState<string[]>([]);
+  const [services, setServices] = useState<{ name: string; price: number }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -38,19 +38,22 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
           console.warn('Error fetching doctor profiles:', docErr);
         }
 
-        let serviceList: string[] = [];
+        let serviceList: { name: string; price: number }[] = [];
         try {
           const serviceRes = await api.get('/services');
-          serviceList = serviceRes.data.map((s: any) => s.name);
+          serviceList = serviceRes.data.map((s: any) => ({
+            name: s.name,
+            price: s.price
+          }));
         } catch (servErr) {
           console.warn('Error fetching services:', servErr);
           serviceList = [
-            'Khám bệnh tổng quát',
-            'Tiêm phòng vaccine',
-            'Phẫu thuật ngoại khoa',
-            'Xét nghiệm & Siêu âm',
-            'Nha khoa thú y',
-            'Điều trị nội trú theo dõi'
+            { name: 'Khám bệnh tổng quát', price: 100000 },
+            { name: 'Tiêm phòng vaccine', price: 150000 },
+            { name: 'Phẫu thuật ngoại khoa', price: 1000000 },
+            { name: 'Xét nghiệm & Siêu âm', price: 300000 },
+            { name: 'Nha khoa thú y', price: 250000 },
+            { name: 'Điều trị nội trú theo dõi', price: 500000 }
           ];
         }
 
@@ -95,19 +98,33 @@ export const BookAppointmentModal: React.FC<BookAppointmentModalProps> = ({
     date: string;
     time: string;
     reason: string;
+    paymentMethod: string;
   }) => {
     setIsLoading(true);
     try {
       const appointmentDateTime = `${data.date}T${data.time}:00`;
-      await api.post('/appointments', {
+      const vetId = data.vetId && data.vetId.trim() !== '' ? parseInt(data.vetId) : null;
+      const response = await api.post('/appointments', {
         ownerId: user?.id,
         petId: parseInt(data.petId),
-        veterinarianId: parseInt(data.vetId),
+        veterinarianId: vetId,
         appointmentAt: appointmentDateTime,
-        reasonForVisit: data.reason || data.service
+        reasonForVisit: data.reason || data.service,
+        serviceName: data.service,
+        paymentMethod: data.paymentMethod
       });
 
       setIsLoading(false);
+
+      if (response.data.paymentUrl) {
+        showToast('Đang chuyển hướng đến cổng thanh toán VNPay...', 'success');
+        // Small delay to let user see toast
+        setTimeout(() => {
+          window.location.href = response.data.paymentUrl;
+        }, 1000);
+        return;
+      }
+
       showToast(
         `Đặt lịch khám thành công tại PetCare!\n` +
         `• Thú cưng: ${pets.find(p => p.id.toString() === data.petId)?.name || 'Mới đăng ký'}\n` +

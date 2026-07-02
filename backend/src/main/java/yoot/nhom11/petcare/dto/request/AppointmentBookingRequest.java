@@ -11,8 +11,10 @@ import jakarta.validation.constraints.Size;
 public record AppointmentBookingRequest(
 		@NotNull @Min(1) Long ownerId,
 		@NotNull @Min(1) Long petId,
-		@NotNull @Min(1) Long veterinarianId,
+		Long veterinarianId,
 		@NotNull @Future LocalDateTime appointmentAt,
-		@Size(max = 1000) String reasonForVisit
+		@Size(max = 1000) String reasonForVisit,
+		String serviceName,
+		String paymentMethod
 ) {
 }

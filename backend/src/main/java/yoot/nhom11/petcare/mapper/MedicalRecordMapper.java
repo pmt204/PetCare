@@ -15,15 +15,21 @@ import java.util.stream.Collectors;
 public class MedicalRecordMapper {
 
 	public static MedicalRecordTimelineItemResponse toTimelineItem(MedicalRecord record) {
+		String vetName = "Bác sĩ PetCare";
+		if (record.getVeterinarian() != null) {
+			vetName = record.getVeterinarian().getFullName();
+		} else if (record.getDoctor() != null) {
+			vetName = record.getDoctor().getName();
+		}
 		return new MedicalRecordTimelineItemResponse(
 				record.getId(),
 				record.getVisitAt(),
 				record.getStatus(),
 				record.getDiagnosis(),
 				record.getReasonForVisit(),
-				record.getVeterinarian().getFullName(),
-				record.getPrescriptions().size(),
-				record.getTestResults().size()
+				vetName,
+				record.getPrescriptions() != null ? record.getPrescriptions().size() : 0,
+				record.getTestResults() != null ? record.getTestResults().size() : 0
 		);
 	}
 

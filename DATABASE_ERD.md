@@ -88,6 +88,7 @@ erDiagram
     invoices {
         bigint id PK
         bigint appointment_id FK
+        bigint medical_record_id FK
         double_precision total_amount
         varchar payment_status
         timestamp created_at
@@ -122,6 +123,7 @@ erDiagram
     pets ||--o{ appointments : "scheduled_for"
     medical_records ||--o{ prescriptions : "prescribes"
     medical_records ||--o{ lab_results : "contains"
+    medical_records ||--o| invoices : "links_to"
     appointments ||--o| invoices : "billed_by"
     invoices ||--o{ invoice_services : "includes"
     pet_services ||--o{ invoice_services : "contains"

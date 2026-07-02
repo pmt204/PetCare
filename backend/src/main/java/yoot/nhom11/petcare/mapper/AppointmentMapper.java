@@ -39,7 +39,7 @@ public final class AppointmentMapper {
 	}
 
 	public static AppointmentResponse toAppointmentResponse(Appointment appointment) {
-		return new AppointmentResponse(
+		AppointmentResponse response = new AppointmentResponse(
 				appointment.getId(),
 				new AppointmentResponse.OwnerSummary(
 						appointment.getOwner().getId(),
@@ -61,6 +61,9 @@ public final class AppointmentMapper {
 				appointment.getReasonForVisit(),
 				appointment.getStatus()
 		);
+		response.setPaymentMethod(appointment.getPaymentMethod());
+		response.setPaymentStatus(appointment.getPaymentStatus());
+		return response;
 	}
 
     // Methods for tai/admin's branch compatibility:
@@ -70,6 +73,7 @@ public final class AppointmentMapper {
         a.setPatientName(r.getPatientName());
         a.setPatientPhone(r.getPatientPhone());
         a.setAppointmentTime(r.getAppointmentTime());
+        a.setAppointmentAt(r.getAppointmentTime()); // Sync both fields
         a.setReason(r.getReason());
         return a;
     }
@@ -84,13 +88,41 @@ public final class AppointmentMapper {
         r.setAppointmentTime(a.getAppointmentTime());
         r.setReason(a.getReason());
         r.setStatus(a.getStatusStr());
+        r.setPaymentMethod(a.getPaymentMethod());
+        r.setPaymentStatus(a.getPaymentStatus());
+        
+        if (a.getOwner() != null) {
+            r.setOwner(new AppointmentResponse.OwnerSummary(
+                a.getOwner().getId(),
+                a.getOwner().getFullName(),
+                a.getOwner().getEmail()
+            ));
+        }
+        if (a.getPet() != null) {
+            r.setPet(new AppointmentResponse.PetSummary(
+                a.getPet().getId(),
+                a.getPet().getName(),
+                a.getPet().getSpecies(),
+                a.getPet().getBreed()
+            ));
+        }
+        if (a.getVeterinarian() != null) {
+            r.setVeterinarian(new AppointmentResponse.VeterinarianSummary(
+                a.getVeterinarian().getId(),
+                a.getVeterinarian().getFullName(),
+                a.getVeterinarian().getEmail()
+            ));
+        }
         return r;
     }
 
     public static void updateEntityFromRequest(AppointmentRequest req, Appointment a) {
         if (req.getPatientName() != null) a.setPatientName(req.getPatientName());
         if (req.getPatientPhone() != null) a.setPatientPhone(req.getPatientPhone());
-        if (req.getAppointmentTime() != null) a.setAppointmentTime(req.getAppointmentTime());
+        if (req.getAppointmentTime() != null) {
+            a.setAppointmentTime(req.getAppointmentTime());
+            a.setAppointmentAt(req.getAppointmentTime()); // Sync both fields
+        }
         if (req.getReason() != null) a.setReason(req.getReason());
     }
 }

@@ -34,6 +34,7 @@ import yoot.nhom11.petcare.mapper.MedicalRecordMapper;
 import yoot.nhom11.petcare.repository.DoctorRepository;
 import yoot.nhom11.petcare.repository.MedicalRecordRepository;
 import yoot.nhom11.petcare.repository.PetRepository;
+import yoot.nhom11.petcare.repository.AppointmentRepository;
 import yoot.nhom11.petcare.service.MedicalRecordService;
 
 @Service
@@ -46,6 +47,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
 	private final DoctorRepository doctorRepository;
 	private final MedicalRecordMapper medicalRecordMapper;
 	private final yoot.nhom11.petcare.repository.AppUserRepository appUserRepository;
+	private final AppointmentRepository appointmentRepository;
+	private final yoot.nhom11.petcare.repository.InvoiceRepository invoiceRepository;
+	private final yoot.nhom11.petcare.repository.PetServiceRepository petServiceRepository;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -105,15 +109,77 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         }
 
         // Fallbacks for tests where databases are empty or mock fields are not set
-        if (pet == null && petRepository != null) {
-            pet = petRepository.findAll().stream().findFirst().orElse(null);
-        }
         if (veterinarian == null && appUserRepository != null) {
             veterinarian = appUserRepository.findAll().stream().findFirst().orElse(null);
         }
+        
+        // If doctor was not found by ID (e.g. because frontend passed User ID instead of Doctor ID)
+        if (doctor == null && veterinarian != null && doctorRepository != null) {
+            final String vetFullName = veterinarian.getFullName();
+            doctor = doctorRepository.findAll().stream()
+                    .filter(d -> d.getName() != null && d.getName().equalsIgnoreCase(vetFullName))
+                    .findFirst()
+                    .orElse(null);
+        }
+        
+        if (doctor == null && doctorRepository != null) {
+            doctor = doctorRepository.findAll().stream().findFirst().orElse(null);
+        }
+
+        if (pet == null && petRepository != null) {
+            pet = petRepository.findAll().stream().findFirst().orElse(null);
+        }
 
         MedicalRecord medicalRecord = MedicalRecordMapper.toEntity(request, doctor, pet, veterinarian);
-        MedicalRecord saved = medicalRecordRepository.save(medicalRecord);
+        final MedicalRecord saved = medicalRecordRepository.save(medicalRecord);
+
+        // If appointmentId is provided, mark the appointment as COMPLETED and generate/update the Invoice
+        if (request.getAppointmentId() != null) {
+            appointmentRepository.findById(request.getAppointmentId()).ifPresent(app -> {
+                app.setStatus(yoot.nhom11.petcare.entity.AppointmentStatus.COMPLETED);
+                appointmentRepository.save(app);
+
+                // Check if an Invoice already exists for this appointment
+                yoot.nhom11.petcare.entity.Invoice invoice = invoiceRepository.findByAppointmentId(app.getId()).orElse(null);
+                if (invoice == null) {
+                    invoice = new yoot.nhom11.petcare.entity.Invoice();
+                    invoice.setAppointment(app);
+                    invoice.setCreatedAt(LocalDateTime.now());
+                }
+                invoice.setMedicalRecord(saved);
+
+                // Determine invoice payment status from appointment payment status
+                if ("PAID".equalsIgnoreCase(app.getPaymentStatus())) {
+                    invoice.setPaymentStatus(yoot.nhom11.petcare.entity.PaymentStatus.PAID);
+                } else {
+                    invoice.setPaymentStatus(yoot.nhom11.petcare.entity.PaymentStatus.UNPAID);
+                }
+
+                // Associate default General Checkup service if available to set invoice amount
+                double checkupPrice = 150000.0;
+                List<yoot.nhom11.petcare.entity.PetService> services = new java.util.ArrayList<>();
+                if (petServiceRepository != null) {
+                    petServiceRepository.findAll().stream()
+                        .filter(s -> s.getName().toLowerCase().contains("checkup") || s.getName().toLowerCase().contains("khám"))
+                        .findFirst()
+                        .ifPresent(services::add);
+                }
+                if (services.isEmpty() && petServiceRepository != null) {
+                    // Fallback to any service
+                    petServiceRepository.findAll().stream().findFirst().ifPresent(services::add);
+                }
+
+                if (!services.isEmpty()) {
+                    invoice.setServices(services);
+                    invoice.setTotalAmount(services.stream().mapToDouble(yoot.nhom11.petcare.entity.PetService::getPrice).sum());
+                } else {
+                    invoice.setTotalAmount(checkupPrice);
+                }
+
+                invoiceRepository.save(invoice);
+            });
+        }
+
         return MedicalRecordMapper.toResponse(saved);
     }
 

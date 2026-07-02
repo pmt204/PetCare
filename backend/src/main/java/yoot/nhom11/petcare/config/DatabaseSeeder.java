@@ -675,6 +675,61 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			System.out.println("Appointments, Invoices, Records and Prescriptions seeded/updated successfully!");
+
+			// Programmatic migration: Auto-generate invoices for any old completed appointments missing invoices
+			try {
+				List<Appointment> completedApps = appointmentRepository.findAll().stream()
+						.filter(a -> a.getStatus() == AppointmentStatus.COMPLETED)
+						.toList();
+				int migratedInvoices = 0;
+				for (Appointment app : completedApps) {
+					boolean hasInvoice = invoiceRepository.findByAppointmentId(app.getId()).isPresent();
+					if (!hasInvoice) {
+						// Create a retrospective invoice
+						Invoice migratedInvoice = new Invoice();
+						migratedInvoice.setAppointment(app);
+						migratedInvoice.setCreatedAt(app.getAppointmentTime() != null ? app.getAppointmentTime() : LocalDateTime.now());
+						
+						// Try to locate a matching medical record for this pet around the same day
+						MedicalRecord matchingRecord = medicalRecordRepository.findAll().stream()
+								.filter(mr -> mr.getPet() != null && app.getPet() != null && mr.getPet().getId().equals(app.getPet().getId()))
+								.findFirst()
+								.orElse(null);
+						
+						migratedInvoice.setMedicalRecord(matchingRecord);
+
+						if ("PAID".equalsIgnoreCase(app.getPaymentStatus())) {
+							migratedInvoice.setPaymentStatus(PaymentStatus.PAID);
+						} else {
+							migratedInvoice.setPaymentStatus(PaymentStatus.UNPAID);
+						}
+
+						// Calculate total amount based on associated pet services or default price
+						double total = 150000.0;
+						List<PetService> migratedServices = new ArrayList<>();
+						petServiceRepository.findAll().stream()
+								.filter(s -> s.getName().toLowerCase().contains("checkup") || s.getName().toLowerCase().contains("khám"))
+								.findFirst()
+								.ifPresent(migratedServices::add);
+						if (migratedServices.isEmpty()) {
+							petServiceRepository.findAll().stream().findFirst().ifPresent(migratedServices::add);
+						}
+						if (!migratedServices.isEmpty()) {
+							migratedInvoice.setServices(migratedServices);
+							total = migratedServices.stream().mapToDouble(PetService::getPrice).sum();
+						}
+						migratedInvoice.setTotalAmount(total);
+
+						invoiceRepository.save(migratedInvoice);
+						migratedInvoices++;
+					}
+				}
+				if (migratedInvoices > 0) {
+					System.out.println("Migrated " + migratedInvoices + " missing invoices for old completed appointments successfully!");
+				}
+			} catch (Exception e) {
+				System.err.println("Error running retrospective invoice migration: " + e.getMessage());
+			}
 		}
 	}
 }

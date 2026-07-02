@@ -1,0 +1,3 @@
+ALTER TABLE appointments 
+ADD COLUMN payment_method VARCHAR(50) DEFAULT 'DIRECT',
+ADD COLUMN payment_status VARCHAR(50) DEFAULT 'UNPAID';
