@@ -1,3 +1,0 @@
-# Ignore agent rules and github workflows locally
-.agents/
-.github/
