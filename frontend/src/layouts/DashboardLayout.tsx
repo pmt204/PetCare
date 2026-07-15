@@ -80,14 +80,6 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
               <Link to="/services" className={navLinkClass('/services')}>Dịch vụ</Link>
               <Link to="/vets" className={navLinkClass('/vets')}>Bác sĩ</Link>
               
-              {/* Contextual links based on login state and role */}
-              {user?.role === 'VET' && (
-                <>
-                  <Link to="/vet/schedule" className={navLinkClass('/vet/schedule')}>Lịch hẹn bác sĩ</Link>
-                  <Link to="/vet/records/create" className={navLinkClass('/vet/records/create')}>Tạo bệnh án</Link>
-
-                </>
-              )}
             </nav>
 
             {/* Desktop Right Panel (User / Login) */}
@@ -206,13 +198,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <Link to="/services" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/services')}>Dịch vụ</Link>
             <Link to="/vets" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vets')}>Bác sĩ</Link>
 
-            {user?.role === 'VET' && (
-              <>
-                <Link to="/vet/schedule" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/schedule')}>Lịch làm việc</Link>
-                <Link to="/vet/records/create" onClick={() => setMobileMenuOpen(false)} className={mobileNavLinkClass('/vet/records/create')}>Tạo bệnh án</Link>
 
-              </>
-            )}
 
             <div className="pt-4 border-t border-slate-100 mt-4">
               {user ? (
@@ -335,10 +321,10 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
             <div>
               <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-4">Liên Hệ Y Tế</h3>
               <ul className="space-y-2 text-sm">
-                <li>📍 Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</li>
+                <li>📍 Số 123 Lý Thường Kiệt, Quận 10, TP. Hồ Chí Minh</li>
                 <li>📞 Hotline khám: 1900 8888</li>
                 <li>✉️ Email: support@petcare.vn</li>
-                <li>🕒 Giờ làm việc: 8:00 - 20:00 (Cả T7 & CN)</li>
+                <li>🕒 Giờ làm việc: 8:00 - 18:00 (Cả T7 & CN)</li>
               </ul>
             </div>
           </div>

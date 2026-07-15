@@ -338,12 +338,12 @@ public class DatabaseSeeder implements CommandLineRunner {
 			Medicine earClean = medicines.stream().filter(m -> m.getMedicineName().equals("Ear Clean Pro")).findFirst().orElse(null);
 			Medicine dewormer = medicines.stream().filter(m -> m.getMedicineName().equals("Dewormer Max")).findFirst().orElse(null);
 
-			Doctor doc1 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. John Doe")).findFirst().orElse(null);
-			Doctor doc2 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. Sarah Conner")).findFirst().orElse(null);
-			Doctor doc3 = doctorRepository.findAll().stream().filter(d -> d.getName().equals("Dr. Helen Carter")).findFirst().orElse(null);
+			Doctor doc1 = doctorRepository.findAll().stream().filter(d -> "Dr. John Doe".equals(d.getName())).findFirst().orElse(null);
+			Doctor doc2 = doctorRepository.findAll().stream().filter(d -> "Dr. Sarah Conner".equals(d.getName())).findFirst().orElse(null);
+			Doctor doc3 = doctorRepository.findAll().stream().filter(d -> "Dr. Helen Carter".equals(d.getName())).findFirst().orElse(null);
 
 			// --- Lịch hẹn 1 (Đã hoàn thành, 5 ngày trước) ---
-			Appointment app1 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("LuLu") && a.getReason().equals("Routine Checkup & Vaccination")).findFirst().orElse(null);
+			Appointment app1 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("LuLu") && "Routine Checkup & Vaccination".equals(a.getReason())).findFirst().orElse(null);
 			if (app1 == null && lulu != null) {
 				app1 = new Appointment();
 				app1.setOwner(owner);
@@ -416,7 +416,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			// --- Lịch hẹn 2 (Đang chờ khám, 2 ngày tới) ---
-			Appointment app2 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("MiMi") && a.getReason().equals("Surgical consultation (Spaying)")).findFirst().orElse(null);
+			Appointment app2 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("MiMi") && "Surgical consultation (Spaying)".equals(a.getReason())).findFirst().orElse(null);
 			if (app2 == null && mimi != null) {
 				app2 = new Appointment();
 				app2.setOwner(owner);
@@ -445,7 +445,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			// --- Lịch hẹn 3 (Chưa duyệt, 1 ngày tới) ---
-			Appointment app3 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Rocky") && a.getReason().equals("General Checkup - Coughing")).findFirst().orElse(null);
+			Appointment app3 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Rocky") && "General Checkup - Coughing".equals(a.getReason())).findFirst().orElse(null);
 			if (app3 == null && rocky != null) {
 				app3 = new Appointment();
 				app3.setOwner(owner2);
@@ -465,7 +465,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			// --- Lịch hẹn 4 (Hôm qua, đã khám, đã thanh toán) ---
-			Appointment app4 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Simba") && a.getReason().equals("Tai bị ngứa đỏ")).findFirst().orElse(null);
+			Appointment app4 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Simba") && "Tai bị ngứa đỏ".equals(a.getReason())).findFirst().orElse(null);
 			if (app4 == null && simba != null) {
 				app4 = new Appointment();
 				app4.setOwner(owner);
@@ -542,7 +542,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			// --- Lịch hẹn 5 (3 ngày trước, đã khám, đã thanh toán) ---
-			Appointment app5 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Bông") && a.getReason().equals("Kiểm tra sức khỏe định kỳ & tẩy giun")).findFirst().orElse(null);
+			Appointment app5 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("Bông") && "Kiểm tra sức khỏe định kỳ & tẩy giun".equals(a.getReason())).findFirst().orElse(null);
 			if (app5 == null && bong != null) {
 				app5 = new Appointment();
 				app5.setOwner(owner2);
@@ -617,7 +617,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			// --- Lịch hẹn 6 (Hôm nay, đang chờ khám của Dr. Sarah Conner) ---
-			Appointment app6 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("LuLu") && a.getReason().equals("Kiểm tra hậu phẫu triệt sản")).findFirst().orElse(null);
+			Appointment app6 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("LuLu") && "Kiểm tra hậu phẫu triệt sản".equals(a.getReason())).findFirst().orElse(null);
 			if (app6 == null && lulu != null) {
 				app6 = new Appointment();
 				app6.setOwner(owner);
@@ -646,7 +646,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 			}
 
 			// --- Lịch hẹn 7 (Hôm nay, đang chờ khám của Dr. John Doe) ---
-			Appointment app7 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("MiMi") && a.getReason().equals("Tiêm vaccine nhắc lại 4 bệnh")).findFirst().orElse(null);
+			Appointment app7 = existingApps.stream().filter(a -> a.getPet() != null && a.getPet().getName().equals("MiMi") && "Tiêm vaccine nhắc lại 4 bệnh".equals(a.getReason())).findFirst().orElse(null);
 			if (app7 == null && mimi != null) {
 				app7 = new Appointment();
 				app7.setOwner(owner);

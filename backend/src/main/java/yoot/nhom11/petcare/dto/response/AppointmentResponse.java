@@ -26,7 +26,7 @@ public class AppointmentResponse {
     private String paymentStatus;
     private String paymentUrl;
 
-    public record OwnerSummary(Long id, String fullName, String email) {}
+    public record OwnerSummary(Long id, String fullName, String email, String phone) {}
     public record PetSummary(Long id, String name, PetSpecies species, String breed) {}
     public record VeterinarianSummary(Long id, String fullName, String email) {}
 

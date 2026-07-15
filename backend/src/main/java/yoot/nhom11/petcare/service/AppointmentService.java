@@ -11,11 +11,12 @@ import yoot.nhom11.petcare.dto.response.AppointmentResponse;
 
 public interface AppointmentService {
     List<AppointmentResponse> findAppointmentsByDoctorAndDate(Long doctorId, LocalDate date);
-    AppointmentResponse create(AppointmentRequest request);
+    AppointmentResponse create(yoot.nhom11.petcare.dto.request.AppointmentRequest request);
     AppointmentResponse getById(Long id);
     List<AppointmentResponse> listAll();
-    AppointmentResponse update(Long id, AppointmentRequest request);
+    AppointmentResponse update(Long id, yoot.nhom11.petcare.dto.request.AppointmentRequest request);
     void delete(Long id);
+    AppointmentResponse cancel(Long id);
 
     AppointmentOptionResponse getBookingOptions(Long ownerId);
     AppointmentResponse createAppointment(AppointmentBookingRequest request, jakarta.servlet.http.HttpServletRequest httpServletRequest);

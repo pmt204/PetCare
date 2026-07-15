@@ -1,26 +1,13 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import { Stethoscope, Activity, Syringe, Check } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user } = useAuth();
 
   const handleCtaClick = () => {
-    if (user) {
-      if (user.role === 'OWNER') {
-        navigate('/owner/book', { state: { from: location.pathname } });
-      } else if (user.role === 'VET') {
-        navigate('/vet/schedule');
-      } else {
-        navigate('/admin/dashboard');
-      }
-    } else {
-      navigate('/login');
-    }
+    navigate('/services');
   };
 
   return (

@@ -25,6 +25,7 @@ import { Invoices } from './pages/admin/Invoices';
 import { Reports } from './pages/admin/Reports';
 import { Services as AdminServices } from './pages/admin/Services';
 import { Dashboard as AdminDashboard } from './pages/admin/Dashboard';
+import { Appointments as AdminAppointments } from './pages/admin/Appointments';
 
 
 
@@ -76,6 +77,7 @@ function AppRoutes() {
         <Route path="/admin/invoices" element={<Invoices />} />
         <Route path="/admin/reports" element={<Reports />} />
         <Route path="/admin/services" element={<AdminServices />} />
+        <Route path="/admin/appointments" element={<AdminAppointments />} />
 
 
 

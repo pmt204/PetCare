@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Menu, X, Shield, Users, FileText, BarChart2, ArrowLeft, Activity, LayoutDashboard } from 'lucide-react';
+import { LogOut, Menu, X, Shield, Users, FileText, BarChart2, ArrowLeft, Activity, LayoutDashboard, Calendar } from 'lucide-react';
 
 
 
@@ -65,6 +65,11 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           <Link to="/admin/services" className={sidebarLinkClass('/admin/services')}>
             <Activity className="h-4.5 w-4.5" />
             <span>Quản lý Dịch vụ</span>
+          </Link>
+
+          <Link to="/admin/appointments" className={sidebarLinkClass('/admin/appointments')}>
+            <Calendar className="h-4.5 w-4.5" />
+            <span>Quản lý Lịch hẹn</span>
           </Link>
 
 
@@ -198,6 +203,15 @@ const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               >
                 <Activity className="h-4.5 w-4.5" />
                 <span>Quản lý Dịch vụ</span>
+              </Link>
+
+              <Link 
+                to="/admin/appointments" 
+                onClick={() => setMobileSidebarOpen(false)} 
+                className={sidebarLinkClass('/admin/appointments')}
+              >
+                <Calendar className="h-4.5 w-4.5" />
+                <span>Quản lý Lịch hẹn</span>
               </Link>
 
 

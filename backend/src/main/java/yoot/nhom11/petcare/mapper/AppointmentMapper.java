@@ -44,7 +44,8 @@ public final class AppointmentMapper {
 				new AppointmentResponse.OwnerSummary(
 						appointment.getOwner().getId(),
 						appointment.getOwner().getFullName(),
-						appointment.getOwner().getEmail()
+						appointment.getOwner().getEmail(),
+						appointment.getOwner().getPhone()
 				),
 				new AppointmentResponse.PetSummary(
 						appointment.getPet().getId(),
@@ -95,7 +96,8 @@ public final class AppointmentMapper {
             r.setOwner(new AppointmentResponse.OwnerSummary(
                 a.getOwner().getId(),
                 a.getOwner().getFullName(),
-                a.getOwner().getEmail()
+                a.getOwner().getEmail(),
+                a.getOwner().getPhone()
             ));
         }
         if (a.getPet() != null) {

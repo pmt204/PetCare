@@ -101,7 +101,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 		}
 
 		Doctor doctor = doctorRepository.findAll().stream()
-				.filter(d -> d.getName().equalsIgnoreCase(veterinarian.getFullName()))
+				.filter(d -> d.getName() != null && d.getName().equalsIgnoreCase(veterinarian.getFullName()))
 				.findFirst()
 				.orElse(null);
 
@@ -306,7 +306,7 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     @Transactional
-    public AppointmentResponse create(AppointmentRequest request) {
+    public AppointmentResponse create(yoot.nhom11.petcare.dto.request.AppointmentRequest request) {
         Doctor doctor = doctorRepository.findById(request.getDoctorId())
                 .orElseThrow(() -> new NoSuchElementException("Doctor not found: " + request.getDoctorId()));
         Appointment appointment = AppointmentMapper.toEntity(request, doctor);
@@ -323,14 +323,14 @@ public class AppointmentServiceImpl implements AppointmentService {
 
     @Override
     public List<AppointmentResponse> listAll() {
-        return appointmentRepository.findAll().stream()
+        return appointmentRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id")).stream()
                 .map(AppointmentMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public AppointmentResponse update(Long id, AppointmentRequest request) {
+    public AppointmentResponse update(Long id, yoot.nhom11.petcare.dto.request.AppointmentRequest request) {
         Appointment existing = appointmentRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Appointment not found: " + id));
         AppointmentMapper.updateEntityFromRequest(request, existing);
@@ -343,6 +343,16 @@ public class AppointmentServiceImpl implements AppointmentService {
     public void delete(Long id) {
         if (!appointmentRepository.existsById(id)) throw new NoSuchElementException("Appointment not found: " + id);
         appointmentRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public AppointmentResponse cancel(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Appointment not found: " + id));
+        appointment.setStatus(yoot.nhom11.petcare.entity.AppointmentStatus.CANCELLED);
+        Appointment saved = appointmentRepository.save(appointment);
+        return AppointmentMapper.toResponse(saved);
     }
 
 	private String resolveSortProperty(String sortBy) {
