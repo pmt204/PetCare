@@ -102,3 +102,43 @@
 | User Experience            | Loading states, clear error messages, client-side validation.[cite: 1]                                           | 10%[cite: 1] |
 | Testing and Documentation  | API tests, Swagger/Postman, complete README with instructions to run both sections.[cite: 1]                     | 10%[cite: 1] |
 | Technical Completion       | Logging, transactions, migrations, stable deployment of both backend and frontend.[cite: 1]                      | 10%[cite: 1] |
+
+---
+
+## 🔄 SYNCHRONIZED E2E CLINIC WORKFLOW
+
+The clinic management system coordinates actions across Pet Owners, Veterinarians, and Administrators in a synchronized, state-machine-driven lifecycle:
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Owner
+    actor Vet
+    actor Admin
+    
+    Owner->>Backend: 1. Book Appointment (Date, Time, Doctor, Service)
+    Note over Owner,Backend: Selects service fee and time slot (validates & blocks past/booked slots)
+    
+    alt PaymentMethod == VNPAY (Prepaid)
+        Owner->>VNPay: 2. Redirect to VNPay & pay
+        VNPay-->>Backend: 3. Verify signature & mark paymentStatus = PAID, status = CONFIRMED
+    else PaymentMethod == DIRECT (Postpaid)
+        Owner-->>Backend: 2. Save appointment (paymentStatus = UNPAID, status = REQUESTED)
+    end
+    
+    Vet->>Backend: 4. Diagnose Pet & Save Medical Record (+ Prescriptions, Lab PDFs)
+    Backend->>Backend: 5. Transition Appointment status to COMPLETED
+    Backend->>Backend: 6. Auto-generate Invoice (Total = service + consult; status matches prepay)
+    
+    Admin->>Backend: 7. View Invoices & Collect Cash (for UNPAID direct billing)
+    Admin->>Backend: 8. Mark Invoice as PAID
+    Backend->>Backend: 9. Propagate payment status to linked Appointment (paymentStatus = PAID)
+    
+    Owner->>Backend: 10. View Timeline History (completed visits, prescriptions, paid bills)
+```
+
+### Key Workflow Capabilities:
+1. **Dynamic Time-Slot Allocator**: Prevent double-booking. When a slot is booked, it is instantly blocked on the booking form. When "Random Doctor" is selected, the slot is blocked only when *all* active doctors are busy.
+2. **Clinical-Billing Pipeline**: The saving of a medical record by a Vet automatically marks the appointment as `COMPLETED` and creates a corresponding `Invoice` in the system, preventing data gaps.
+3. **Payment Synchronization**: Admin confirming payment for an unpaid invoice immediately synchronizes the payment status back to the owner's appointment records.
+4. **Data Restoration**: Programmatic DB migrations auto-recover and generate invoices retrospectively for any past completed appointments.
